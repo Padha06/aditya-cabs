@@ -1439,3 +1439,60 @@ function initMobileTickers() {
   });
 }
 window.addEventListener('load', initMobileTickers);
+
+/* ---------- MOBILE AUTO-TICKER (Bento & Reviews) ---------- */
+function initMobileTickers() {
+  const isMobile = window.matchMedia('(max-width: 860px)').matches;
+  if (!isMobile) return;
+
+  const grids = [document.querySelector('.bento'), document.querySelector('.reviews__grid')];
+  grids.forEach(grid => {
+    if (!grid) return;
+    
+    // Duplicate children to allow infinite scroll feel
+    const children = Array.from(grid.children);
+    children.forEach(c => {
+      c.style.flex = '0 0 280px';
+      const clone = c.cloneNode(true);
+      clone.classList.add('is-clone');
+      grid.appendChild(clone);
+    });
+    
+    let offset = 0;
+    let playing = true;
+    let isScrolling = false;
+    let scrollTimeout;
+    let last = performance.now();
+    
+    const tick = (t) => {
+      if (playing && !isScrolling) {
+        const dt = Math.min(0.05, (t - last) / 1000);
+        offset += 40 * dt; 
+        
+        if (offset >= grid.scrollWidth / 2) {
+            offset -= grid.scrollWidth / 2;
+        }
+        grid.scrollLeft = offset;
+      }
+      last = t;
+      requestAnimationFrame(tick);
+    };
+    
+    grid.addEventListener('pointerenter', () => playing = false);
+    grid.addEventListener('pointerleave', () => playing = true);
+    grid.addEventListener('touchstart', () => playing = false, {passive:true});
+    grid.addEventListener('touchend', () => playing = true);
+    
+    grid.addEventListener('scroll', () => {
+        isScrolling = true;
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            isScrolling = false;
+            offset = grid.scrollLeft;
+        }, 150);
+    }, {passive:true});
+    
+    requestAnimationFrame(tick);
+  });
+}
+window.addEventListener('load', initMobileTickers);
