@@ -1,0 +1,1 @@
+const fs = require('fs'); ['index.html', 'app.js', 'styles.css'].forEach(f => { let text = fs.readFileSync(f, 'utf8'); text = text.replace(/Sahyadri/g, 'Aditya').replace(/SAHYADRI/g, 'ADITYA').replace(/sahyadri/g, 'aditya'); fs.writeFileSync(f, text); });
