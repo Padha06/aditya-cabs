@@ -23,7 +23,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Mukta:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2307080B'/%3E%3Cpath d='M8 22c4-1 5-6 8-6s4 5 8 6' stroke='%23F5A524' stroke-width='2.6' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='9' r='2' fill='%23F5A524'/%3E%3Ccircle cx='22' cy='9' r='2' fill='%23F5A524'/%3E%3C/svg%3E" />
+<link rel="icon" href="taxi.svg" type="image/svg+xml" />
+<link rel="icon" href="favicon.png" sizes="64x64" type="image/png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
 
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "ItemList", "name": "Shivrudra Taxi one-way cab routes", "numberOfItems": 36, "itemListElement": [
       {"@type": "ListItem", "position": 1, "name": "Pune to Mumbai cab", "url": "https://adityacabs.in/pune-to-mumbai-cab"},
@@ -93,15 +95,14 @@
 <!-- ============ LOADER ============ -->
 <div class="loader" id="loader" role="status" aria-label="Loading Shivrudra Taxi">
   <div class="loader__inner">
-    <div class="loader__mark">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 22c4-1 5-6 8-6s4 5 8 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="10" cy="9" r="2" fill="currentColor"/><circle cx="22" cy="9" r="2" fill="currentColor"/></svg>
+    <div class="loader__road" aria-hidden="true">
+      <img class="loader__taxi" src="taxi.svg" alt="" width="440" height="330" decoding="async" />
     </div>
     <div class="loader__word">Shivrudra Taxi</div>
-    <div class="loader__bar"><span></span></div>
   </div>
 </div>
 
-<div class="grain" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
 
 <a class="skip" href="#booking">Skip to booking</a>
 
@@ -109,7 +110,7 @@
 <header class="nav" id="nav">
   <div class="wrap nav__row">
     <a class="brand" href="#home" aria-label="Shivrudra Taxi home">
-      <img class="brand__logo" src="logo.jpg" alt="Shivrudra Taxi" width="1212" height="427" fetchpriority="high" decoding="async" />
+      <img class="brand__logo" src="logo.png" alt="Shivrudra Taxi" width="610" height="409" fetchpriority="high" decoding="async" />
     </a>
 
     <nav class="nav__links" aria-label="Primary">
@@ -382,7 +383,7 @@
   <div class="wrap footer__grid">
     <div class="footer__brand">
       <a class="brand" href="#home" aria-label="Shivrudra Taxi home">
-        <img class="brand__logo" src="logo.jpg" alt="Shivrudra Taxi" width="1212" height="427" fetchpriority="high" decoding="async" />
+        <img class="brand__logo" src="logo.png" alt="Shivrudra Taxi" width="610" height="409" fetchpriority="high" decoding="async" />
       </a>
       <p class="footer__blurb">Fixed-fare one-way cabs across Maharashtra, running 24x7 from Pune, Mumbai, Nashik, Chhatrapati Sambhajinagar and Ahilyanagar.</p>
       <div class="footer__contact">
