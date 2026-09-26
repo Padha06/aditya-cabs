@@ -310,8 +310,36 @@ function initRouteLinks() {
 function translateFooterLinks() {
   $$("[data-route-link]").forEach(a => {
     const [x, y] = a.dataset.routeLink.split("|");
+    a.textContent = `${i18nCity(x)} ${i18nT("to")} ${i18nCity(y)} ${i18nT("cab")}`;
+  });
+  $$("[data-i18n-route]").forEach(a => {
+    const [x, y] = a.dataset.i18nRoute.split("|");
     a.textContent = `${i18nCity(x)} ${i18nT("to")} ${i18nCity(y)} ${i18nT("cab")}`;
   });
+}
+
+// Route pages have a generated H1 like "Cab from Pune to Nashik".
+// Translate it by matching city display names back to IDs.
+function translateRouteH1() {
+  const h1 = document.querySelector("h1.hero__h1");
+  if (!h1) return;
+  if (!h1.dataset.orig) h1.dataset.orig = h1.textContent;
+  const m = h1.dataset.orig.trim().match(/^Cab from (.+) to (.+)$/);
+  if (!m) return;
+  const findId = name => {
+    const key = name.toLowerCase().trim();
+    return Object.keys(CITIES).find(id =>
+      CITIES[id].name.toLowerCase() === key ||
+      CITIES[id].short.toLowerCase() === key
+    );
+  };
+  const a = findId(m[1]), b = findId(m[2]);
+  if (!a || !b) return;
+  if (typeof currentLang !== "undefined" && currentLang === "mr") {
+    h1.textContent = `${i18nCity(a)} ${i18nT("to")} ${i18nCity(b)} ${i18nT("cab")}`;
+  } else {
+    h1.textContent = h1.dataset.orig;
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -1512,6 +1540,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initReveals();
   initCounters();
   translateFooterLinks();
+  translateRouteH1();
   applyI18n(document.body);
 
   // everything that renders strings repaints itself when the language changes
@@ -1520,6 +1549,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCards();
     renderPoolBoard();
     translateFooterLinks();
+    translateRouteH1();
     if (railRebuild) railRebuild();
     if (reviewsRepaint) reviewsRepaint();
     if (poolStripRefresh) poolStripRefresh();

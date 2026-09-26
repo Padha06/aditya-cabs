@@ -33,24 +33,25 @@ const baseUrl = 'https://adityacabs.in';
 
 sitemapUrls.push(`${baseUrl}/`);
 
-// Internal linking list
-let internalLinksHtml = `<div class="footer-routes" style="padding: 2rem 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 2rem;">
-  <h3 style="margin-bottom: 1rem; font-size: 1.2rem; color: #fff;">Popular One-Way Cab Routes</h3>
-  <div style="display: flex; flex-wrap: wrap; gap: 1rem;">`;
+// NOTE (audit 2026-09-26): the footer (nav shortlists + full SEO link block)
+// lives in index.html and is shared by every generated page. Do NOT inject
+// link blocks here and do NOT write back to index.html - re-running this
+// script must only regenerate the route pages, sitemap.xml and robots.txt.
+const templateWithFooter = htmlTemplate;
 
-routes.forEach(route => {
-  const slug = `${route.from.toLowerCase().replace(/ /g, '-')}-to-${route.to.toLowerCase().replace(/ /g, '-')}-cab`;
-  internalLinksHtml += `<a href="/${slug}" style="color: #F5A524; text-decoration: none; font-size: 0.9rem;">${route.from} to ${route.to} Cab</a>`;
-});
-
-internalLinksHtml += `</div></div>`;
-
-// Ensure we don't duplicate the internal links footer if run multiple times
-let templateWithFooter = htmlTemplate;
-if (!templateWithFooter.includes('footer-routes')) {
-    templateWithFooter = templateWithFooter.replace(/<div class="footer__brand">/, `${internalLinksHtml}\n    <div class="footer__brand">`);
-    fs.writeFileSync('index.html', templateWithFooter);
-}
+// Booking-form <select> option values are city ids (pune, sambhajinagar, ...),
+// so map the display names used in slugs back to ids for the fare prefill.
+const NAME_TO_ID = {
+  'pune': 'pune',
+  'mumbai': 'mumbai',
+  'chhatrapati sambhajinagar': 'sambhajinagar',
+  'nashik': 'nashik',
+  'ahilyanagar': 'ahilyanagar',
+  'shirdi': 'shirdi',
+  'lonavala': 'lonavala',
+  'mahabaleshwar': 'mahabaleshwar',
+  'kolhapur': 'kolhapur'
+};
 
 if (!fs.existsSync('routes')) {
     fs.mkdirSync('routes');
@@ -105,12 +106,13 @@ routes.forEach(route => {
         const fromSelect = document.getElementById('from');
         const toSelect = document.getElementById('to');
         if(fromSelect && toSelect) {
-           const fromOpt = Array.from(fromSelect.options).find(o => o.value.toLowerCase() === '${route.from.toLowerCase()}');
-           const toOpt = Array.from(toSelect.options).find(o => o.value.toLowerCase() === '${route.to.toLowerCase()}');
+           const fromOpt = Array.from(fromSelect.options).find(o => o.value.toLowerCase() === '${NAME_TO_ID[route.from.toLowerCase()]}');
+           const toOpt = Array.from(toSelect.options).find(o => o.value.toLowerCase() === '${NAME_TO_ID[route.to.toLowerCase()]}');
            if(fromOpt) fromSelect.value = fromOpt.value;
            if(toOpt) toSelect.value = toOpt.value;
-           // Trigger change event to update fares if the form listens to it
+           // Trigger change on BOTH selects so bookState updates fully before fare renders
            fromSelect.dispatchEvent(new Event('change'));
+           toSelect.dispatchEvent(new Event('change'));
         }
       }, 500);
     });
