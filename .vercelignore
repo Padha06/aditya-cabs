@@ -1,0 +1,7 @@
+# dev-only files, not part of the published site
+server.js
+reviews.json
+replace.js
+README.txt
+.gitignore
+.vercel

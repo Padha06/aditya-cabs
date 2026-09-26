@@ -1,4 +1,4 @@
-/* ============================================================================
+﻿/* ============================================================================
    ADITYA CABS - app.js
    ---------------------------------------------------------------------------
    ONE PLACE TO CHANGE THE CLIENT'S DETAILS: the CONFIG block below.
@@ -137,16 +137,16 @@ function renderFare(flash) {
   badge.textContent = CAR_CLASSES[bookState.cls].label;
 
   if (bookState.from === bookState.to) {
-    num.textContent = "Quote";
-    meta.textContent = "Pick two different cities";
+    num.textContent = i18nT("Quote");
+    meta.textContent = i18nT("Pick two different cities");
     if (err) { err.hidden = false; err.textContent = "Pickup and drop are the same city. Choose two different cities."; }
   } else if (!r) {
-    num.textContent = "Quote";
-    meta.textContent = `${CITIES[bookState.from].short} to ${CITIES[bookState.to].short} · fare on request`;
+    num.textContent = i18nT("Quote");
+    meta.textContent = `${i18nCity(bookState.from)} ${i18nT("to")} ${i18nCity(bookState.to)} · ${i18nT("on request")}`;
     if (err) { err.hidden = false; err.textContent = "This pair is not a fixed-fare route yet. Send it on WhatsApp and we will quote you within minutes."; }
   } else {
     num.textContent = Number(currentFare()).toLocaleString("en-IN");
-    meta.textContent = `${CITIES[r.a].short} to ${CITIES[r.b].short} · ${r.km} km · ${r.time}`;
+    meta.textContent = `${i18nCity(r.a)} ${i18nT("to")} ${i18nCity(r.b)} · ${r.km} ${i18nT("km")} · ${r.time}`;
     if (err) { err.hidden = true; err.textContent = ""; }
   }
 
@@ -183,13 +183,13 @@ function bookingMessage() {
   const dateEl = $("#date");
   let dateTxt = "To be confirmed";
   if (dateEl && dateEl.value) {
-    dateTxt = new Date(dateEl.value + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+    dateTxt = new Date(dateEl.value + "T00:00:00").toLocaleDateString(i18nLocale(), { day: "numeric", month: "short", year: "numeric" });
   }
   const fareLine = r ? `${inr(currentFare())} (fixed, starting)` : "Please quote";
   return [
     `Hi ${CONFIG.brand}, I would like to book a one-way cab.`,
     ``,
-    `Route: ${CITIES[bookState.from].name} to ${CITIES[bookState.to].name}`,
+    `Route: ${i18nCity(bookState.from)} ${i18nT("to")} ${i18nCity(bookState.to)}`,
     `Date: ${dateTxt}`,
     `Car: ${cls.label} (${cls.models})`,
     `Fare shown: ${fareLine}`,
@@ -248,11 +248,11 @@ function renderCards() {
     return `
       <article class="rcard" data-route="${key}">
         <div class="rcard__dir">
-          <span>${CITIES[d.from].short}</span>
+          <span>${i18nCity(d.from)}</span>
           <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg>
-          <span>${CITIES[d.to].short}</span>
+          <span>${i18nCity(d.to)}</span>
         </div>
-        <div class="rcard__meta">${r.km} km &middot; ${r.time} &middot; both directions</div>
+        <div class="rcard__meta">${r.km} ${i18nT("km")} &middot; ${r.time} &middot; ${i18nT("both directions")}</div>
         <div class="rcard__prices">
           <div class="rp"><b>${inr(r.sedan)}</b><span>Sedan</span></div>
           <div class="rp"><b>${inr(r.suv)}</b><span>SUV</span></div>
@@ -302,6 +302,13 @@ function initRouteLinks() {
       e.preventDefault();
       setRoute(a1, b1, bookState.cls, { scroll: true });
     });
+  });
+}
+
+function translateFooterLinks() {
+  $$("[data-route-link]").forEach(a => {
+    const [x, y] = a.dataset.routeLink.split("|");
+    a.textContent = `${i18nCity(x)} ${i18nT("to")} ${i18nCity(y)} ${i18nT("cab")}`;
   });
 }
 
@@ -740,7 +747,7 @@ function fmtTime(t) {
   return `${hh}:${String(m).padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
 }
 function fmtDate(iso) {
-  return new Date(iso + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(iso + "T00:00:00").toLocaleDateString(i18nLocale(), { day: "numeric", month: "short", year: "numeric" });
 }
 function initials(name) {
   const p = String(name).trim().split(/\s+/);
@@ -764,7 +771,7 @@ function poolMessage(p) {
   return [
     `Hi ${CONFIG.brand}, I would like to post a shared cab trip.`,
     ``,
-    `Route: ${CITIES[p.from].name} to ${CITIES[p.to].name}`,
+    `Route: ${i18nCity(p.from)} ${i18nT("to")} ${i18nCity(p.to)}`,
     `Date: ${fmtDate(p.date)}`,
     `Pickup time: ${fmtTime(p.time)}`,
     `Car: ${CAR_CLASSES[p.cls].label}`,
@@ -780,7 +787,7 @@ function joinMessage(p) {
   return [
     `Hi ${CONFIG.brand}, I would like to join a shared cab.`,
     ``,
-    `Route: ${CITIES[p.from].name} to ${CITIES[p.to].name}`,
+    `Route: ${i18nCity(p.from)} ${i18nT("to")} ${i18nCity(p.to)}`,
     `Date: ${fmtDate(p.date)}`,
     `Pickup time: ${fmtTime(p.time)}`,
     `Car: ${CAR_CLASSES[p.cls].label}`,
@@ -803,10 +810,10 @@ function renderPoolBoard() {
   const matched = new Set(Object.keys(tally).filter(k => tally[k] >= 2));
 
   const countEl = $("#poolCount");
-  if (countEl) countEl.textContent = poolPosts.length + " trips posted";
+  if (countEl) countEl.textContent = poolPosts.length + " " + i18nT("trips posted");
 
   if (!poolPosts.length) {
-    host.innerHTML = '<p class="prowlist__empty">No trips posted yet. Be the first on this route.</p>';
+    host.innerHTML = '<p class="prowlist__empty">' + i18nT("No trips posted yet. Be the first on this route.") + '</p>';
     return;
   }
 
@@ -819,21 +826,21 @@ function renderPoolBoard() {
         <span class="prow__id">
           <b>${esc(p.name)}</b>
           <span class="prow__tags">
-            ${p.mine ? '<span class="ptag ptag--you">You</span>' : ""}
-            ${p.verified ? '<span class="ptag"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>Verified</span>' : ""}
-            ${isMatch ? '<span class="ptag ptag--match"><svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>Match</span>' : ""}
+            ${p.mine ? '<span class="ptag ptag--you">' + i18nT("You") + "</span>" : ""}
+            ${p.verified ? '<span class="ptag"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>' + i18nT("Verified") + "</span>" : ""}
+            ${isMatch ? '<span class="ptag ptag--match"><svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>' + i18nT("Match") + "</span>" : ""}
           </span>
         </span>
       </div>
       <div class="prow__route">
-        <b>${CITIES[p.from].short} to ${CITIES[p.to].short}</b>
-        <span>${CAR_CLASSES[p.cls].label} &middot; ${p.seats} seat${p.seats > 1 ? "s" : ""} needed</span>
+        <b>${i18nCity(p.from)} ${i18nT("to")} ${i18nCity(p.to)}</b>
+        <span>${i18nT(CAR_CLASSES[p.cls].label)} &middot; ${p.seats} ${i18nT(p.seats > 1 ? "seats needed" : "seat needed")}</span>
       </div>
       <div class="prow__when"><b>${fmtDate(p.date).replace(/ \d{4}$/, "")}</b><span>${fmtTime(p.time)} pickup</span></div>
-      <div class="prow__price"><b>${per != null ? inr(per) : "Quote"}</b><span>${full != null ? "full " + inr(full) : "on request"}</span></div>
+      <div class="prow__price"><b>${per != null ? inr(per) : "Quote"}</b><span>${full != null ? i18nT("full") + " " + inr(full) : i18nT("on request")}</span></div>
       ${p.mine
-        ? `<button class="prow__cta" type="button" data-remove="${p.id}">Remove post</button>`
-        : `<button class="prow__cta" type="button" data-join="${p.id}"><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>Request</button>`}
+        ? `<button class="prow__cta" type="button" data-remove="${p.id}">${i18nT("Remove post")}</button>`
+        : `<button class="prow__cta" type="button" data-join="${p.id}"><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>${i18nT("Request")}</button>`}
     </article>`;
   }).join("");
 }
@@ -878,18 +885,19 @@ function initPool() {
     const full = poolFullFare(p), per = poolPerPerson(p);
     const f = $("#poolFull"), s = $("#poolShare"), sv = $("#poolSave"), h = $("#poolFullHint");
     if (full == null) {
-      f.textContent = "Quote"; s.textContent = "Quote"; sv.textContent = "On request";
-      h.textContent = `${CITIES[from.value].short} to ${CITIES[to.value].short}`;
+      f.textContent = i18nT("Quote"); s.textContent = i18nT("Quote"); sv.textContent = i18nT("on request");
+      h.textContent = `${i18nCity(from.value)} ${i18nT("to")} ${i18nCity(to.value)}`;
     } else {
       f.textContent = inr(full);
       s.textContent = inr(per);
       sv.textContent = inr(full - per);
-      h.textContent = `${CITIES[from.value].short} to ${CITIES[to.value].short}, ${CAR_CLASSES[p.cls].label}`;
+      h.textContent = `${i18nCity(from.value)} ${i18nT("to")} ${i18nCity(to.value)}, ${i18nT(CAR_CLASSES[p.cls].label)}`;
     }
   };
   from.addEventListener("change", updateStrip);
   to.addEventListener("change", updateStrip);
   $$('input[name="pcls"]').forEach(r => r.addEventListener("change", updateStrip));
+  poolStripRefresh = updateStrip;
 
   $("#poolList").addEventListener("click", e => {
     const btn = e.target.closest("[data-join],[data-remove]");
@@ -946,6 +954,9 @@ function initPool() {
    paused so the rail is still fully browsable by drag and slider.
 --------------------------------------------------------------------------- */
 let openRouteModal = () => {};
+let railRebuild = null;
+let reviewsRepaint = null;
+let poolStripRefresh = null;
 
 function initRail() {
   const viewport = $("#railViewport"), track = $("#railTrack");
@@ -963,11 +974,11 @@ function initRail() {
           <span class="rcard2__dur">${r.time}</span>
         </div>
         <div class="rcard2__dir">
-          <span>${CITIES[r.a].short}</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg><span>${CITIES[r.b].short}</span>
+          <span>${i18nCity(r.a)}</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg><span>${i18nCity(r.b)}</span>
         </div>
       </div>
       <div class="rcard2__body">
-        <p class="rcard2__meta">${r.km} km one way &middot; both directions</p>
+        <p class="rcard2__meta">${r.km} ${i18nT("km")} ${i18nT("one way")} &middot; ${i18nT("both directions")}</p>
         <div class="rcard2__prices">
           <div class="rcard2__p"><span>Sedan</span><b>${inr(r.sedan)}</b></div>
           <div class="rcard2__p"><span>SUV</span><b>${inr(r.suv)}</b></div>
@@ -976,14 +987,17 @@ function initRail() {
       </div>
     </article>`;
 
-  const setHTML = ROUTES.map(cardHTML).join("");
-  track.innerHTML = `<div class="rail__set">${setHTML}</div><div class="rail__set" aria-hidden="true">${setHTML}</div>`;
+  const buildSets = () => {
+    const html = ROUTES.map(cardHTML).join("");
+    track.innerHTML = `<div class="rail__set">${html}</div><div class="rail__set" aria-hidden="true">${html}</div>`;
+  };
+  buildSets();
 
-  const sets = $$(".rail__set", track);
+  let sets = $$(".rail__set", track);
   const scrub = $("#railScrub");
   const playBtn = $("#railPlay");
   const stateEl = $("#railState");
-  const SPEED = 38;                       // px per second
+  const SPEED = 18;                       // px per second
 
   let setW = 0, step = 0, cardW = 0, offset = 0;
   let playing = !reduce, dragging = false, hovered = false, scrubActive = false;
@@ -1148,6 +1162,9 @@ function initRail() {
   measure();
   syncPlay();
   ensure();
+
+  // lets the language switch repaint the cards without re-binding listeners
+  railRebuild = () => { buildSets(); sets = $$(".rail__set", track); measure(); };
 }
 
 /* ---------------------------------------------------------------------------
@@ -1198,13 +1215,13 @@ function initRouteModal() {
 
     img.src = cityPhoto(b, 1400);
     img.alt = `${CITIES[b].name}, served by one-way taxi from ${CITIES[a].name}`;
-    title.textContent = `${CITIES[a].short} to ${CITIES[b].short}`;
-    sub.textContent = `${r.km} km one way · ${r.time} · fixed fare, same price both directions`;
+    title.textContent = `${i18nCity(a)} ${i18nT("to")} ${i18nCity(b)}`;
+    sub.textContent = `${r.km} ${i18nT("km")} ${i18nT("one way")} · ${r.time} · ${i18nT("both directions")}`;
 
     renderPrices(r, bookState.cls);
     wa.href = waUrl(routeMessage(a, b, bookState.cls));
     call.href = "tel:" + CONFIG.phoneTel;
-    shareTxt.innerHTML = `Or split it: <b>${inr(Math.round(r.sedan / 2 / 10) * 10)} each</b> when two travellers share this route`;
+    shareTxt.innerHTML = i18nT("Or split it:") + ` <b>${inr(Math.round(r.sedan / 2 / 10) * 10)}</b> ` + i18nT("each when two travellers share this route");
 
     modal.hidden = false;
     document.body.classList.add("rmodal-open");
@@ -1250,9 +1267,22 @@ function initRouteModal() {
 }
 
 /* ---------------------------------------------------------------------------
-   11. REVIEWS  (visitor-submitted, kept in localStorage for the demo)
+   11. REVIEWS
+   ---------------------------------------------------------------------------
+   Reviews are shared through the small API in server.js so every visitor sees
+   the same list. When the API is not reachable (opening the file directly, or
+   hosting the folder as static-only) it degrades to localStorage and says so
+   on screen, so the demo never looks broken.
 --------------------------------------------------------------------------- */
-const REVIEW_KEY = "aditya.reviews.v1";
+const REVIEW_API = "/api/reviews";
+const REVIEW_KEY = "aditya.reviews.v1";        // reviews posted from this browser, offline mode
+const REVIEW_MINE = "aditya.myreviews.v1";     // ids this browser created, for the You badge
+
+const readJSON = (k, fallback) => {
+  try { const raw = localStorage.getItem(k); const v = raw ? JSON.parse(raw) : null; return v == null ? fallback : v; }
+  catch (e) { return fallback; }
+};
+const writeJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode */ } };
 
 function initReviews() {
   const grid = $("#revGrid"), form = $("#revForm");
@@ -1260,52 +1290,104 @@ function initReviews() {
 
   const nameEl = $("#revName"), routeEl = $("#revRoute"), textEl = $("#revText");
   const countEl = $("#revTextCount"), errEl = $("#revErr"), thanks = $("#revThanks");
+  const noteEl = $("#revNote");
   const seedCount = $$(".review", grid).length;
 
-  routeEl.innerHTML = ROUTES
-    .map(r => { const l = `${CITIES[r.a].short} to ${CITIES[r.b].short}`; return `<option value="${l}">${l}</option>`; })
-    .join("");
+  const buildRouteOptions = () => {
+    routeEl.innerHTML = ROUTES
+      .map(r => { const l = `${i18nCity(r.a)} ${i18nT("to")} ${i18nCity(r.b)}`; return `<option value="${l}">${l}</option>`; })
+      .join("");
+  };
+  buildRouteOptions();
 
   const starRow = n => Array.from({ length: 5 }, (_, i) =>
     `<svg class="ic${i < n ? "" : " is-off"}" aria-hidden="true"><use href="#i-star"/></svg>`).join("");
 
-  const cardHTML = r => `<figure class="review review--mine" data-rev="${r.id}">
+  const cardHTML = (r, mine) => `<figure class="review review--dyn${mine ? " review--mine" : ""}" data-rev="${esc(r.id)}">
       <div class="review__stars" aria-label="${r.rating} out of 5">${starRow(r.rating)}</div>
       <blockquote>${esc(r.text)}</blockquote>
-      <figcaption><b>${esc(r.name)}<span class="revyou">You</span></b><span>${esc(r.route)}</span></figcaption>
-      <button class="review__x" type="button" data-revremove="${r.id}">Remove my review</button>
+      <figcaption><b>${esc(r.name)}${mine ? '<span class="revyou">' + i18nT("You") + "</span>" : ""}</b><span>${esc(r.route)}</span></figcaption>
+      ${mine ? `<button class="review__x" type="button" data-revremove="${esc(r.id)}">${i18nT("Remove my review")}</button>` : ""}
     </figure>`;
 
-  let mine = [];
-  try { const raw = localStorage.getItem(REVIEW_KEY); const a = raw ? JSON.parse(raw) : []; mine = Array.isArray(a) ? a : []; }
-  catch (e) { mine = []; }
-  const save = () => { try { localStorage.setItem(REVIEW_KEY, JSON.stringify(mine)); } catch (e) { /* private mode */ } };
+  let shared = false;
+  let list = [];
+  let myIds = readJSON(REVIEW_MINE, []);
+  if (!Array.isArray(myIds)) myIds = [];
+
+  // cards inside a horizontal rail sit outside the viewport, so the usual
+  // scroll reveal never fires for them and they stay invisible
+  const revealAll = () => $$(".review", grid).forEach(el => el.classList.add("is-in"));
 
   const paint = () => {
-    $$(".review--mine", grid).forEach(el => el.remove());
-    mine.slice().reverse().forEach(r => grid.insertAdjacentHTML("afterbegin", cardHTML(r)));
+    $$(".review--dyn", grid).forEach(el => el.remove());
+    list.slice().reverse().forEach(r => grid.insertAdjacentHTML("afterbegin", cardHTML(r, myIds.includes(r.id))));
     const el = $("#revCount");
-    if (el) el.textContent = `${seedCount + mine.length} reviews from travellers across Maharashtra.`;
+    if (el) el.textContent = `${seedCount + list.length} ` + i18nT("reviews from travellers across Maharashtra.");
+    revealAll();
+  };
+
+  const setMode = () => {
+    if (noteEl) {
+      noteEl.textContent = shared
+        ? "Your review is published for everyone visiting the site."
+        : "Saved on this device. Connect the review service to publish it for everyone.";
+    }
+  };
+
+  const load = async () => {
+    try {
+      const res = await fetch(REVIEW_API, { headers: { Accept: "application/json" }, cache: "no-store" });
+      if (!res.ok) throw new Error(res.status);
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("shape");
+      shared = true; list = data;
+    } catch (e) {
+      shared = false; list = readJSON(REVIEW_KEY, []);
+      if (!Array.isArray(list)) list = [];
+    }
+    setMode();
+    paint();
   };
 
   textEl.addEventListener("input", () => { countEl.textContent = `${textEl.value.length} / 220`; });
 
-  form.addEventListener("submit", e => {
+  form.addEventListener("submit", async e => {
     e.preventDefault();
     const name = nameEl.value.trim(), text = textEl.value.trim();
     const rating = Number(($('input[name="revRating"]:checked') || {}).value || 5);
+    const payload = { name, route: routeEl.value, rating, text };
     const fail = m => { errEl.hidden = false; errEl.textContent = m; };
 
     if (!name) { fail("Add your name so the review reads as a real trip."); nameEl.focus(); return; }
     if (text.length < 12) { fail("Write at least a short sentence about your trip."); textEl.focus(); return; }
 
     errEl.hidden = true;
-    mine.unshift({ id: "r" + Date.now(), name, route: routeEl.value, rating, text });
-    save();
-    paint();
+
+    if (shared) {
+      try {
+        const res = await fetch(REVIEW_API, {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(res.status);
+        const item = await res.json();
+        myIds.push(item.id); writeJSON(REVIEW_MINE, myIds);
+        await load();
+      } catch (err) {
+        fail("Could not publish right now. Please try again in a moment.");
+        return;
+      }
+    } else {
+      const item = { ...payload, id: "r" + Date.now().toString(36) };
+      list.unshift(item);
+      myIds.push(item.id); writeJSON(REVIEW_MINE, myIds);
+      writeJSON(REVIEW_KEY, list);
+      paint();
+    }
 
     form.hidden = true;
     thanks.hidden = false;
+    grid.scrollTo({ left: 0, behavior: "smooth" });
     grid.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   });
 
@@ -1319,15 +1401,59 @@ function initReviews() {
     nameEl.focus();
   });
 
-  grid.addEventListener("click", e => {
+  grid.addEventListener("click", async e => {
     const btn = e.target.closest("[data-revremove]");
     if (!btn) return;
-    mine = mine.filter(r => r.id !== btn.dataset.revremove);
-    save();
-    paint();
+    const id = btn.dataset.revremove;
+    if (shared) {
+      try { await fetch(`${REVIEW_API}?id=${encodeURIComponent(id)}`, { method: "DELETE" }); } catch (err) { /* ignore */ }
+      myIds = myIds.filter(x => x !== id); writeJSON(REVIEW_MINE, myIds);
+      await load();
+    } else {
+      list = list.filter(r => r.id !== id);
+      myIds = myIds.filter(x => x !== id);
+      writeJSON(REVIEW_KEY, list); writeJSON(REVIEW_MINE, myIds);
+      paint();
+    }
   });
 
-  paint();
+  revealAll();
+  load();
+
+  reviewsRepaint = () => { buildRouteOptions(); setMode(); paint(); };
+}
+
+/* Auto-advance the reviews rail on mobile, mirroring the routes rail. */
+function initReviewCarousel() {
+  const grid = $("#revGrid");
+  if (!grid) return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  let timer = 0, visible = false, lastTouch = 0;
+  const isRail = () => getComputedStyle(grid).display === "flex";
+
+  const advance = () => {
+    if (!isRail() || Date.now() - lastTouch < 7000) return;
+    const first = grid.querySelector(".review");
+    if (!first) return;
+    const stride = first.getBoundingClientRect().width + (parseFloat(getComputedStyle(grid).gap) || 14);
+    const max = grid.scrollWidth - grid.clientWidth;
+    if (max <= 6 || !stride) return;
+    const next = grid.scrollLeft + stride;
+    if (next > max + 8) { grid.scrollTo({ left: 0, behavior: "auto" }); return; }
+    grid.scrollTo({ left: Math.min(next, max), behavior: "smooth" });
+  };
+
+  const start = () => { if (!timer && visible) timer = setInterval(advance, 4200); };
+  const stop = () => { if (timer) { clearInterval(timer); timer = 0; } };
+  const touched = () => { lastTouch = Date.now(); };
+
+  grid.addEventListener("pointerdown", touched, { passive: true });
+  grid.addEventListener("touchstart", touched, { passive: true });
+  grid.addEventListener("focusin", touched);
+  grid.addEventListener("wheel", touched, { passive: true });
+
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; visible ? start() : stop(); }, { threshold: 0.25 }).observe(grid);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1369,6 +1495,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (year) year.textContent = new Date().getFullYear();
 
   wireContactLinks();
+  initLang();
   initBooking();
   buildMap();
   initFilters();
@@ -1378,11 +1505,24 @@ document.addEventListener("DOMContentLoaded", () => {
   initRouteModal();
   initRail();
   initReviews();
+  initReviewCarousel();
   initNav();
   initReveals();
   initCounters();
-  initHero();
-  initScrollMotion();
+  translateFooterLinks();
+  applyI18n(document.body);
+
+  // everything that renders strings repaints itself when the language changes
+  document.addEventListener("langchange", () => {
+    renderFare(false);
+    renderCards();
+    renderPoolBoard();
+    translateFooterLinks();
+    if (railRebuild) railRebuild();
+    if (reviewsRepaint) reviewsRepaint();
+    if (poolStripRefresh) poolStripRefresh();
+    applyI18n(document.body);
+  });
 
   const onLoad = () => setTimeout(hideLoader, 450);
   if (document.readyState === "complete") onLoad();
@@ -1496,3 +1636,4 @@ function initMobileTickers() {
   });
 }
 window.addEventListener('load', initMobileTickers);
+
