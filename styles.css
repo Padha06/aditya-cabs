@@ -942,6 +942,14 @@ body.rmodal-open{overflow:hidden}
   font-size:.78rem;color:var(--text-3);
 }
 .footer__meta{color:var(--text-3)}
+.footer__seo{border-top:1px solid var(--line);margin-top:clamp(26px,4vw,44px);padding-top:clamp(20px,3vw,30px)}
+.footer__seo-title{font-family:var(--font-b);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);font-weight:700;margin:0 0 14px}
+.footer__seo-list{columns:2;column-gap:2rem;margin:0;padding:0;list-style:none}
+.footer__seo-list li{break-inside:avoid}
+.footer__seo-list a{display:inline-block;padding:.28rem 0;font-size:.84rem;color:var(--text-2);transition:color .2s}
+.footer__seo-list a:hover{color:var(--accent-text)}
+@media (min-width:701px){.footer__seo-list{columns:3}}
+@media (min-width:1024px){.footer__seo-list{columns:4}}
 
 /* ---------- FLOATING CTAs ---------- */
 .floaters{position:fixed;right:22px;bottom:24px;z-index:var(--z-float);display:grid;gap:12px;

@@ -257,6 +257,7 @@ const MR = {
   "No return fare, because the trip is one way": "प्रवास वन-वे असल्याने परतीचे भाडे नाही",
   "Close route details": "मार्ग तपशील बंद करा",
   "cab": "कॅब",
+  "One-way cab routes across Maharashtra": "महाराष्ट्रभर वन-वे कॅब मार्ग",
   "Or split it:": "किंवा शेअर करा:",
   "each when two travellers share this route": "दोघांनी हा मार्ग शेअर केल्यास प्रत्येकी",
 

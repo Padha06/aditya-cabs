@@ -46,9 +46,11 @@ const ROUTES = [
   { a: "mumbai",        b: "shirdi",        sedan: 3999, suv: 4799, km: 240, time: "5h" },
   { a: "mumbai",        b: "ahilyanagar",   sedan: 3999, suv: 4799, km: 255, time: "5h 30m" },
   { a: "mumbai",        b: "lonavala",      sedan: 1799, suv: 2299, km: 85,  time: "2h" },
+  { a: "mumbai", b: "mahabaleshwar", sedan: 3999, suv: 4799, km: 230, time: "4h 45m" }, // !! ESTIMATE - ask client to confirm
   { a: "sambhajinagar", b: "nashik",        sedan: 2999, suv: 3699, km: 180, time: "4h" },
   { a: "sambhajinagar", b: "shirdi",        sedan: 2199, suv: 2799, km: 110, time: "2h 30m" },
-  { a: "nashik",        b: "shirdi",        sedan: 1999, suv: 2499, km: 90,  time: "2h" }
+  { a: "nashik",        b: "shirdi",        sedan: 1999, suv: 2499, km: 90,  time: "2h" },
+  { a: "ahilyanagar", b: "shirdi", sedan: 1999, suv: 2599, km: 85, time: "1h 50m" },   // !! ESTIMATE - ask client to confirm
 ];
 
 const CAR_CLASSES = {
@@ -308,7 +310,7 @@ function initRouteLinks() {
 function translateFooterLinks() {
   $$("[data-route-link]").forEach(a => {
     const [x, y] = a.dataset.routeLink.split("|");
-    a.textContent = `${i18nCity(x)} ${i18nT("to")} ${i18nCity(y)} ${i18nT("cab")}`;
+    a.textContent = `${i18nCity(x)} ${i18nT("to")} ${i18nCity(y)} ${i18nT("cab")}`;
   });
 }
 
