@@ -1,5 +1,5 @@
 ﻿/* ============================================================================
-   ADITYA CABS - i18n.js
+   SHIVRUDRA CABS - i18n.js
    ---------------------------------------------------------------------------
    English / Marathi. No framework: the engine walks text nodes and remembers
    the original string the first time it sees one, so switching back and forth
@@ -12,7 +12,7 @@
    NOTE: this file contains Devanagari. Edit it with a UTF-8 aware editor.
    ========================================================================= */
 
-const I18N_LANG_KEY = "aditya.lang";
+const I18N_LANG_KEY = "shivrudra.lang";
 let currentLang = "en";
 
 const MR = {
@@ -273,7 +273,7 @@ const MR = {
   "Lonavala": "लोणावळा",
   "Chhatrapati Sambhajinagar": "छत्रपती संभाजीनगर",
   "Ahilyanagar (Ahmednagar)": "अहिल्यानगर (अहमदनगर)",
-  "Aditya network": "आदित्य नेटवर्क",
+  "Shivrudra network": "शिवरुद्र नेटवर्क",
   "Popular routes": "लोकप्रिय मार्ग",
   "Browse the routes": "मार्ग पाहा",
   "Pickup time": "पिकअप वेळ",
@@ -283,7 +283,7 @@ const MR = {
   "2 stars": "२ स्टार",
   "1 star": "१ स्टार",
   "Skip to booking": "बुकिंगवर जा",
-  "Aditya Cabs. One-way taxi service, Maharashtra.": "Aditya Cabs. वन-वे टॅक्सी सेवा, महाराष्ट्र.",
+  "Shivrudra Taxi. One-way taxi service, Maharashtra.": "Shivrudra Taxi. वन-वे टॅक्सी सेवा, महाराष्ट्र.",
 
   /* ---------- placeholders ---------- */
   "First and last name": "नाव व आडनाव",

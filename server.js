@@ -1,5 +1,5 @@
 /* ============================================================================
-   ADITYA CABS - static host + shared reviews API
+   SHIVRUDRA CABS - static host + shared reviews API
    ---------------------------------------------------------------------------
    Zero dependencies. Run with:   node server.js
    Then open:                     http://localhost:5500/
@@ -169,6 +169,6 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Aditya Cabs running on http://localhost:${PORT}/`);
+  console.log(`Shivrudra Taxi running on http://localhost:${PORT}/`);
   console.log(`Shared reviews API on http://localhost:${PORT}/api/reviews`);
 });

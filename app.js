@@ -1,16 +1,16 @@
 ﻿/* ============================================================================
-   ADITYA CABS - app.js
+   SHIVRUDRA CABS - app.js
    ---------------------------------------------------------------------------
    ONE PLACE TO CHANGE THE CLIENT'S DETAILS: the CONFIG block below.
    Everything else (links, prefilled WhatsApp messages, footer) reads from it.
    ========================================================================= */
 
 const CONFIG = {
-  brand: "Aditya Cabs",
-  phoneDisplay: "+91 98765 43210",
-  phoneTel: "+919876543210",
-  whatsapp: "919876543210",          // country code + number, digits only
-  defaultMessage: "Hi Aditya Cabs, I would like to book a one-way cab. Please share availability and the fixed fare."
+  brand: "Shivrudra Taxi",
+  phoneDisplay: "+91 86059 53737",
+  phoneTel: "+918605953737",
+  whatsapp: "918605953737",          // country code + number, digits only
+  defaultMessage: "Hi Shivrudra Taxi, I would like to book a one-way cab. Please share availability and the fixed fare."
 };
 
 /* ---------------------------------------------------------------------------

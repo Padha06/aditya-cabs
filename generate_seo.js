@@ -65,8 +65,8 @@ routes.forEach(route => {
   const url = `${baseUrl}/${slug}`;
   sitemapUrls.push(url);
 
-  const title = `One-Way Cab ${route.from} to ${route.to} | Aditya Cabs`;
-  const description = `Book a one-way cab from ${route.from} to ${route.to} with Aditya Cabs. Fixed fares, 24x7 service, sedan and SUV options. Door-to-door taxi pickup.`;
+  const title = `One-Way Cab ${route.from} to ${route.to} | Shivrudra Taxi`;
+  const description = `Book a one-way cab from ${route.from} to ${route.to} with Shivrudra Taxi. Fixed fares, 24x7 service, sedan and SUV options. Door-to-door taxi pickup.`;
   const h1 = `Cab from ${route.from} to ${route.to}`;
 
   let pageHtml = templateWithFooter;
@@ -225,7 +225,7 @@ ${hubGroups}
       </div>
     </section>
 `;
-const hubTitle = 'All One-Way Cab Routes in Maharashtra | Aditya Cabs';
+const hubTitle = 'All One-Way Cab Routes in Maharashtra | Shivrudra Taxi';
 const hubDesc = 'Browse every fixed-fare one-way cab route across Maharashtra, grouped by starting city, with distances, durations and instant booking.';
 let hubPage = templateWithFooter;
 {
@@ -250,7 +250,7 @@ const hubItems = routes.map((r, i) => {
   return `      {"@type": "ListItem", "position": ${i + 1}, "name": "${r.from} to ${r.to} cab", "url": "${u}"}`;
 }).join(",\n");
 hubPage = hubPage.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,
-  `<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ItemList", "name": "Aditya Cabs one-way cab routes", "numberOfItems": ${routes.length}, "itemListElement": [\n${hubItems}\n    ]}</script>`);
+  `<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ItemList", "name": "Shivrudra Taxi one-way cab routes", "numberOfItems": ${routes.length}, "itemListElement": [\n${hubItems}\n    ]}</script>`);
 fs.writeFileSync('routes.html', hubPage);
 
 // Generate Sitemap
