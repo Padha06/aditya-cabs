@@ -132,6 +132,7 @@ function currentFare() {
 }
 
 function renderFare(flash) {
+  if (!$("#fareNum") || !$("#fareMeta")) return;
   const r = findRoute(bookState.from, bookState.to);
   const num = $("#fareNum"), meta = $("#fareMeta"), badge = $("#fareBadge"), fare = $("#fare");
   const err = $("#bookErr");
@@ -201,6 +202,7 @@ function bookingMessage() {
 }
 
 function initBooking() {
+  if (!$("#bookform")) return;
   buildSelects();
   renderFare(false);
 
@@ -242,6 +244,7 @@ function cardDirection(r) {
 
 function renderCards() {
   const host = $("#routeCards");
+  if (!host) return;
   const list = ROUTES.filter(r => activeFilter === "all" || r.a === activeFilter || r.b === activeFilter);
 
   host.innerHTML = list.map(r => {
@@ -310,11 +313,15 @@ function initRouteLinks() {
 function translateFooterLinks() {
   $$("[data-route-link]").forEach(a => {
     const [x, y] = a.dataset.routeLink.split("|");
-    a.textContent = `${i18nCity(x)} ${i18nT("to")} ${i18nCity(y)} ${i18nT("cab")}`;
+    const nbsp = String.fromCharCode(160);
+    a.textContent = `${i18nCity(x)} ${i18nT("to")} ${i18nCity(y)}${nbsp}${i18nT("cab")}`;
   });
   $$("[data-i18n-route]").forEach(a => {
     const [x, y] = a.dataset.i18nRoute.split("|");
     a.textContent = `${i18nCity(x)} ${i18nT("to")} ${i18nCity(y)} ${i18nT("cab")}`;
+  });
+  $$("[data-i18n-city]").forEach(el => {
+    el.textContent = i18nCity(el.dataset.i18nCity);
   });
 }
 

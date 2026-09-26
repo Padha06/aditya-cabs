@@ -287,7 +287,24 @@ const MR = {
 
   /* ---------- placeholders ---------- */
   "First and last name": "नाव व आडनाव",
-  "How was the car, the driver and the fare?": "गाडी, ड्रायव्हर आणि भाडे कसे होते?"
+  "How was the car, the driver and the fare?": "गाडी, ड्रायव्हर आणि भाडे कसे होते?",
+
+  /* ---------- routes hub ---------- */
+  "All one-way cab routes across Maharashtra": "महाराष्ट्रभरातील सर्व वन-वे कॅब मार्ग",
+  "Every fixed-fare route we run, grouped by starting city. Choose a direction to see live fares and book in one tap.": "आम्ही चालवत असलेला प्रत्येक ठरलेल्या भाड्याचा मार्ग, सुरुवातीच्या शहरानुसार गटबद्ध. दिशा निवडा, थेट भाडे पाहा आणि एका टॅपमध्ये बुक करा.",
+  "Home": "मुख्यपृष्ठ",
+  "Cabs from Pune": "पुण्याहून कॅब",
+  "Cabs from Mumbai": "मुंबईहून कॅब",
+  "Cabs from Chhatrapati Sambhajinagar": "छत्रपती संभाजीनगरहून कॅब",
+  "Cabs from Nashik": "नाशिकहून कॅब",
+  "Cabs from Ahilyanagar": "अहिल्यानगरहून कॅब",
+  "Related routes": "संबंधित मार्ग",
+  "Related one-way cab routes": "संबंधित वन-वे कॅब मार्ग",
+  "Maharashtra's busiest one-way corridor, airport drops, IT travel and weekend getaways.": "महाराष्ट्राचा सर्वात व्यस्त वन-वे कॉरिडॉर, विमानतळ ड्रॉप, आयटी प्रवास आणि विकेंड गेटवे.",
+  "Maximum city non-stop demand, airport runs, business trips and coastal escapes, day and night.": "मॅक्सिमम सिटी अविरत मागणी, विमानतळ फेऱ्या, व्यावसायिक प्रवास आणि किनारपट्टीवरील सहली, दिवस-रात्र.",
+  "Marathwada's gateway, heritage caves, temple towns and business travel across the region.": "मराठवाड्याचे प्रवेशद्वार, वारसा लेणी, तीर्थक्षेत्रे आणि परिसरातील व्यावसायिक प्रवास.",
+  "Wine country and pilgrim trails, Trimbakeshwar, Shirdi and Mumbai connections around the clock.": "वाइन प्रदेश आणि यात्रामार्ग, त्र्यंबकेश्वर, शिर्डी आणि मुंबई जोडण्या चोवीस तास.",
+  "Central Maharashtra's crossroads, Shirdi pilgrims and Pune commuters pass through daily.": "मध्य महाराष्ट्राचा चौक, शिर्डीचे यात्रेकरू आणि पुण्याचे प्रवासी रोज इथून जातात."
 };
 
 /* Marathi place names, looked up by city id for generated content */
