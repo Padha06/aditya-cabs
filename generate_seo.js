@@ -442,6 +442,39 @@ routes.forEach(route => {
     '  </div>\n\n';
   pageHtml = pageHtml.replace('  <div class="wrap footer__base">', relBlock + '  <div class="wrap footer__base">');
 
+  // Slim route landing pages: keep header, hero (prefilled booking), the
+  // detail module, related links, CTA band and footer. Drop the homepage
+  // browsing sections and the route modal (only rail cards open it) so each
+  // route page reads as its own landing page, not a copy of home.
+  const stripById = (html, id) => {
+    const idIdx = html.indexOf('id="' + id + '"');
+    if (idIdx === -1) return html;
+    const openIdx = html.lastIndexOf('<section', idIdx);
+    if (openIdx === -1) throw new Error('section open missing for ' + id + ' on ' + slug);
+    const closeIdx = html.indexOf('</section>', idIdx);
+    if (closeIdx === -1) throw new Error('section close missing for ' + id + ' on ' + slug);
+    return html.slice(0, openIdx) + html.slice(closeIdx + '</section>'.length);
+  };
+  ['live', 'routes', 'pool', 'fleet', 'why', 'how', 'reviews'].forEach(id => { pageHtml = stripById(pageHtml, id); });
+  const RMODAL_OPEN = '<!-- ============ ROUTE DETAIL MODAL ============ -->';
+  const FLOATERS_OPEN = '<!-- ============ FLOATING CTAs ============ -->';
+  {
+    const a = pageHtml.indexOf(RMODAL_OPEN), b = pageHtml.indexOf(FLOATERS_OPEN);
+    if (a === -1 || b === -1 || a > b) throw new Error('modal anchors unsafe on ' + slug);
+    pageHtml = pageHtml.slice(0, a) + pageHtml.slice(b);
+  }
+  if (!pageHtml.includes('hero__scroll" href="#routes"')) throw new Error('hero scroll link missing on ' + slug);
+  pageHtml = pageHtml.replace('hero__scroll" href="#routes" aria-label="Scroll to routes"', 'hero__scroll" href="/routes" aria-label="Browse all routes"');
+  {
+    const opens = (pageHtml.match(/<section/g) || []).length;
+    const closes = (pageHtml.match(/<\/section>/g) || []).length;
+    if (opens !== closes || opens !== 3) throw new Error('route slim count wrong on ' + slug + ': ' + opens);
+    ['id="railTrack"', 'id="rmodal"', 'id="poolform"', 'id="revForm"', 'section rdetail', 'class="ctaband"'].forEach(s => {
+      const want = s === 'section rdetail' || s === 'class="ctaband"';
+      if (pageHtml.includes(s) !== want) throw new Error('route slim content wrong on ' + slug + ': ' + s);
+    });
+  }
+
   fs.writeFileSync(`${slug}.html`, pageHtml);
 });
 
@@ -458,6 +491,7 @@ const ORIGIN_INTROS = {
 const hubUrl = `${baseUrl}/routes`;
 sitemapUrls.push(hubUrl);
 sitemapUrls.push(`${baseUrl}/profile`);
+sitemapUrls.push(`${baseUrl}/share`);
 
 const origins = [];
 pairs.forEach(([f]) => { if (!origins.includes(f)) origins.push(f); });
@@ -509,6 +543,15 @@ let hubPage = templateWithFooter;
   const closes = (dropped.match(/<\/section>/g) || []).length;
   if (heroIdx === -1 || faqIdx === -1 || heroIdx > faqIdx || opens !== closes || opens < 7) throw new Error('hub slice anchors unsafe');
   hubPage = hubPage.slice(0, heroIdx) + hubHero + hubDir + hubPage.slice(faqIdx);
+}
+// The hub has no booking widget, so footer route links go straight to the
+// dedicated route pages instead of the JS prefill links used on home.
+{
+  const SLUG = { pune: "pune", mumbai: "mumbai", sambhajinagar: "chhatrapati-sambhajinagar", nashik: "nashik", ahilyanagar: "ahilyanagar", shirdi: "shirdi", mahabaleshwar: "mahabaleshwar", kolhapur: "kolhapur", lonavala: "lonavala" };
+  hubPage = hubPage.replace(/href="#routes" data-route-link="([a-z]+)\|([a-z]+)"/g, (m, x, y) => {
+    if (!SLUG[x] || !SLUG[y]) throw new Error("bad hub route link " + m);
+    return 'href="/' + SLUG[x] + "-to-" + SLUG[y] + '-cab"';
+  });
 }
 hubPage = hubPage.replace(/<title>.*?<\/title>/, `<title>${hubTitle}</title>`);
 hubPage = hubPage.replace(/<meta name="description" content=".*?" \/>/, `<meta name="description" content="${hubDesc}" />`);

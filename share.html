@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Your Profile | Shivrudra Taxi</title>
-<meta name="description" content="Save your rider profile once. Shivrudra Taxi pre-fills your name on bookings and trip posts across Maharashtra." />
+<title>Share a Cab, Split the Fare | Shivrudra Taxi</title>
+<meta name="description" content="Share your one-way cab across Maharashtra and halve the fare. Post your trip, get matched, and pay half." />
 <meta name="theme-color" content="#07080B" />
-<link rel="canonical" href="https://adityacabs.in/profile" />
+<link rel="canonical" href="https://adityacabs.in/share" />
 <meta name="robots" content="index, follow, max-image-preview:large" />
 
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Your Profile | Shivrudra Taxi" />
-<meta property="og:description" content="Save your rider profile for faster one-way cab bookings across Maharashtra." />
-<meta property="og:url" content="https://adityacabs.in/profile" />
+<meta property="og:title" content="Share a Cab, Split the Fare | Shivrudra Taxi" />
+<meta property="og:description" content="Post your trip and split the cab fare across Maharashtra." />
+<meta property="og:url" content="https://adityacabs.in/share" />
 <meta property="og:image" content="https://commons.wikimedia.org/wiki/Special:FilePath/Mumbai%20Pune%20Expressway%20overview.jpg?width=1200" />
 <meta property="og:locale" content="en_IN" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Your Profile | Shivrudra Taxi" />
-<meta name="twitter:description" content="Save your rider profile for faster one-way cab bookings." />
+<meta name="twitter:title" content="Share a Cab, Split the Fare | Shivrudra Taxi" />
+<meta name="twitter:description" content="Post your trip and split the cab fare." />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -34,7 +34,7 @@
   "name": "Shivrudra Taxi",
   "alternateName": "Shivrudra One-Way Taxi",
   "description": "24x7 one-way intercity taxi service across Maharashtra covering Pune, Mumbai, Nashik, Chhatrapati Sambhajinagar, Ahilyanagar, Shirdi, Mahabaleshwar, Kolhapur and Lonavala.",
-  "url": "https://adityacabs.in/profile",
+  "url": "https://adityacabs.in/share",
   "telephone": "+91-86059-53737",
   "priceRange": "₹₹",
   "currenciesAccepted": "INR",
@@ -90,7 +90,17 @@
 <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19.2c.6-3.1 2.8-4.7 5.5-4.7s4.9 1.6 5.5 4.7"/><circle cx="16.6" cy="9" r="2.4"/><path d="M16.2 14.7c2.2.2 3.7 1.6 4.2 4.1"/></symbol>
 <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5.4 20c.8-3.6 3.4-5.4 6.6-5.4s5.8 1.8 6.6 5.4"/></symbol>
 </svg>
-<a class="skip" href="#profileMain">Skip to profile</a>
+<!-- ============ LOADER ============ -->
+<div class="loader" id="loader" role="status" aria-label="Loading Shivrudra Taxi">
+  <div class="loader__inner">
+    <div class="loader__road" aria-hidden="true">
+      <img class="loader__taxi" src="taxi.svg" alt="" width="440" height="330" decoding="async" />
+    </div>
+    <div class="loader__word">Shivrudra Taxi</div>
+  </div>
+</div>
+
+<a class="skip" href="#pool">Skip to sharing</a>
 
 <div class="grain" aria-hidden="true"></div>
 
@@ -135,7 +145,7 @@
     <a href="/">Home</a>
     <a href="/routes">All routes</a>
     <a href="/share">Share a Cab</a>
-    <a href="/profile" aria-current="page" class="is-on">Profile</a>
+    <a href="/profile">Profile</a>
     <div class="mobilemenu__cta">
       <a class="btn btn--wa" href="https://wa.me/918605953737?text=Hi%20Shivrudra%20Taxi%2C%20I%20have%20a%20question%20about%20my%20booking." data-wa-link><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg><span>Book on WhatsApp</span></a>
       <a class="btn btn--ghost" href="tel:+918605953737" data-phone-link><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span>Call 24x7</span></a>
@@ -143,38 +153,168 @@
   </div>
 </header>
 
-<main id="profileMain">
-  <!-- ============ PROFILE ============ -->
-  <section class="profile">
+<main>
+<!-- ============ POOL AND SAVE ============ -->
+  <section class="section pool" id="pool">
     <div class="wrap">
-      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span aria-current="page">Profile</span></nav>
-      <h1>Your profile</h1>
-      <p class="profile__sub">Save your details once. We use them to pre-fill bookings and trip posts, so you never type your name twice.</p>
-      <div class="profile__card">
-        <form id="profileForm" novalidate>
-          <div class="field">
-            <label for="pfName">Full name</label>
-            <div class="select">
-              <svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>
-              <input id="pfName" type="text" placeholder="First and last name" autocomplete="name" />
-            </div>
-          </div>
-          <div class="field">
-            <label for="pfPhone">Mobile number</label>
-            <div class="select">
-              <svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>
-              <input id="pfPhone" type="tel" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel" />
-            </div>
-          </div>
-          <p class="poolform__err" id="pfErr" hidden role="alert"></p>
-          <button class="btn btn--accent btn--block" type="submit">
-            <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
-            <span>Save profile</span>
-          </button>
-          <p class="profile__saved" id="pfSaved" hidden><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Saved on this device.</span></p>
-        </form>
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span aria-current="page">Share a Cab</span></nav>
+      <header class="shead">
+        <p class="shead__eyebrow">Pool and save</p>
+        <h1 class="shead__h2">Same route, same day? Split the cab and halve the fare.</h1>
+        <p class="shead__sub">Post your trip. If another traveller is going the same way on the same date, we pair you in one car and you each pay half. The office connects you both, so no phone number is shared until both sides agree.</p>
+      </header>
+
+      <div class="pstrip" data-reveal>
+        <div class="pstrip__cell">
+          <span class="pstrip__label">Full one-way fare</span>
+          <span class="pstrip__val pstrip__val--muted" id="poolFull">&#8377;3,199</span>
+          <span class="pstrip__hint" id="poolFullHint">Pune to Mumbai, SUV</span>
+        </div>
+        <div class="pstrip__arrow" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></div>
+        <div class="pstrip__cell pstrip__cell--hi">
+          <span class="pstrip__label">Each, when two share</span>
+          <span class="pstrip__val" id="poolShare">&#8377;1,600</span>
+          <span class="pstrip__hint">Same car, same driver, same comfort</span>
+        </div>
+        <div class="pstrip__cell">
+          <span class="pstrip__label">You save</span>
+          <span class="pstrip__val pstrip__val--accent" id="poolSave">&#8377;1,600</span>
+          <span class="pstrip__hint">Booked and confirmed by our office</span>
+        </div>
       </div>
-      <p class="profile__note">Rider accounts with login and ₹500 advance payment are coming soon. For now your details stay in this browser only.</p>
+
+      <div class="pool__grid">
+        <!-- POST FORM -->
+        <div class="poolcard" data-reveal>
+          <div class="poolcard__head">
+            <h3>Post your trip</h3>
+            <p>Free to post. No payment until we confirm a match.</p>
+          </div>
+
+          <form class="poolform" id="poolform" novalidate>
+            <div class="poolform__row">
+              <div class="field">
+                <label for="pfrom">From</label>
+                <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
+                  <select id="pfrom" required></select>
+                  <svg class="ic ic--chev" aria-hidden="true"><use href="#i-chev"/></svg>
+                </div>
+              </div>
+              <div class="field">
+                <label for="pto">To</label>
+                <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
+                  <select id="pto" required></select>
+                  <svg class="ic ic--chev" aria-hidden="true"><use href="#i-chev"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="poolform__row">
+              <div class="field">
+                <label for="pdate">Travel date</label>
+                <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>
+                  <input id="pdate" type="date" required />
+                </div>
+              </div>
+              <div class="field">
+                <label for="ptime">Pickup time</label>
+                <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>
+                  <input id="ptime" type="time" value="07:00" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="poolform__row">
+              <div class="field">
+                <label for="pseats">Seats you need</label>
+                <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-car"/></svg>
+                  <select id="pseats">
+                    <option value="1" selected>1 seat</option>
+                    <option value="2">2 seats</option>
+                    <option value="3">3 seats</option>
+                  </select>
+                  <svg class="ic ic--chev" aria-hidden="true"><use href="#i-chev"/></svg>
+                </div>
+              </div>
+              <div class="field">
+                <label for="pname">Your name</label>
+                <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>
+                  <input id="pname" type="text" placeholder="First and last name" autocomplete="name" required />
+                </div>
+              </div>
+            </div>
+
+            <fieldset class="field field--class">
+              <legend>Preferred car</legend>
+              <div class="seg" role="radiogroup" aria-label="Preferred car class">
+                <label class="seg__opt">
+                  <input type="radio" name="pcls" value="sedan" checked />
+                  <span><b>Sedan</b><i>Cheapest split</i></span>
+                </label>
+                <label class="seg__opt">
+                  <input type="radio" name="pcls" value="suv" />
+                  <span><b>SUV</b><i>More room</i></span>
+                </label>
+              </div>
+            </fieldset>
+
+            <p class="poolform__err" id="poolErr" hidden role="alert"></p>
+
+            <button class="btn btn--accent btn--block" type="submit">
+              <svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>
+              <span>Post my trip</span>
+            </button>
+            <p class="poolform__fine">Your number stays with our office. We only share it once both travellers confirm the seat.</p>
+          </form>
+
+          <div class="poolresult" id="poolResult" hidden aria-live="polite">
+            <p class="poolresult__title" id="poolResultTitle"></p>
+            <p class="poolresult__body" id="poolResultBody"></p>
+            <a class="btn btn--wa btn--block" href="#" id="poolResultCta">
+              <svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>
+              <span>Confirm on WhatsApp</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- LIVE BOARD -->
+        <div class="poolboard" data-reveal>
+          <div class="poolboard__head">
+            <h3>Open seats on the board</h3>
+            <span class="poolboard__count" id="poolCount"></span>
+          </div>
+          <div class="prow prow--head" aria-hidden="true">
+            <span>Traveller</span>
+            <span>Route</span>
+            <span>Date and time</span>
+            <span>Fare each</span>
+            <span></span>
+          </div>
+          <div class="prowlist" id="poolList"></div>
+          <p class="poolboard__foot">Posters are name and ID verified before a seat goes live. The office makes the introduction, then both travellers confirm.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- ============ CTA BAND ============ -->
+  <section class="ctaband">
+    <div class="ctaband__bg" aria-hidden="true">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Mumbai%20Pune%20Expressway%20overview.jpg?width=1800" alt="" loading="lazy" decoding="async" />
+    </div>
+    <div class="wrap ctaband__inner" data-reveal>
+      <h2>Your cab is one message away.</h2>
+      <p>Tell us the route and the date. We will send the fare and the driver's details right back.</p>
+      <div class="ctaband__cta">
+        <a class="btn btn--wa" href="#" data-wa-link><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg><span>Book on WhatsApp</span></a>
+        <a class="btn btn--ghost btn--onimg" href="tel:+918605953737" data-phone-link><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span>Call 24x7</span></a>
+      </div>
     </div>
   </section>
 </main>
@@ -261,52 +401,15 @@
   <a class="mobilebar__btn" href="/routes" data-mb="routes">
     <svg class="ic" aria-hidden="true"><use href="#i-route"/></svg><span>All routes</span>
   </a>
-  <a class="mobilebar__btn" href="/share" data-mb="share">
+  <a class="mobilebar__btn is-on" href="/share" data-mb="share" aria-current="page">
     <svg class="ic" aria-hidden="true"><use href="#i-users"/></svg><span>Share</span>
   </a>
-  <a class="mobilebar__btn is-on" href="/profile" data-mb="profile" aria-current="page">
+  <a class="mobilebar__btn" href="/profile" data-mb="profile">
     <svg class="ic" aria-hidden="true"><use href="#i-user"/></svg><span>Profile</span>
   </a>
 </nav>
 
 <script src="i18n.js"></script>
-<script>
-(function () {
-  initLang();
-  applyI18n(document.body);
-  var y = document.getElementById("year");
-  if (y) y.textContent = new Date().getFullYear();
-  var burger = document.getElementById("burger"), menu = document.getElementById("mobilemenu");
-  if (burger && menu) {
-    var close = function () { menu.hidden = true; burger.setAttribute("aria-expanded", "false"); burger.setAttribute("aria-label", "Open menu"); };
-    burger.addEventListener("click", function () {
-      if (burger.getAttribute("aria-expanded") === "true") { close(); }
-      else { menu.hidden = false; burger.setAttribute("aria-expanded", "true"); burger.setAttribute("aria-label", "Close menu"); }
-    });
-    Array.prototype.forEach.call(menu.querySelectorAll("a"), function (x) { x.addEventListener("click", close); });
-    document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
-  }
-  var KEY = "st_profile";
-  var nameEl = document.getElementById("pfName"), phoneEl = document.getElementById("pfPhone");
-  var err = document.getElementById("pfErr"), savedLine = document.getElementById("pfSaved");
-  function read() { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } }
-  var cur = read();
-  if (cur) {
-    if (cur.name) nameEl.value = cur.name;
-    if (cur.phone) phoneEl.value = cur.phone;
-    if (cur.name || cur.phone) savedLine.hidden = false;
-  }
-  document.getElementById("profileForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var name = nameEl.value.trim();
-    var phone = phoneEl.value.replace(/\D/g, "").replace(/^91(?=\d{10}$)/, "");
-    err.hidden = true;
-    if (!name) { err.hidden = false; err.textContent = i18nT("Add your name so bookings can use it."); nameEl.focus(); return; }
-    if (!/^[6-9]\d{9}$/.test(phone)) { err.hidden = false; err.textContent = i18nT("Enter a valid 10-digit mobile number."); phoneEl.focus(); return; }
-    try { localStorage.setItem(KEY, JSON.stringify({ name: name, phone: phone })); } catch (e) { /* private mode */ }
-    savedLine.hidden = false;
-  });
-})();
-</script>
+<script src="app.js"></script>
 </body>
 </html>

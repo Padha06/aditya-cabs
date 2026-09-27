@@ -301,6 +301,7 @@ function initFilters() {
 // Footer route links (the standalone SEO landing pages in production) load the
 // matching direction straight into the booking widget.
 function initRouteLinks() {
+  if (!$("#bookform")) return;
   $$("[data-route-link]").forEach(a => {
     a.addEventListener("click", e => {
       const [a1, b1] = a.dataset.routeLink.split("|");
@@ -1533,13 +1534,17 @@ function hideLoader() {
 --------------------------------------------------------------------------- */
 function initMobilebar() {
   const path = location.pathname.replace(/\/+$/, "") || "/";
-  $$(".mobilebar__btn[data-mb]").forEach(b => {
-    const k = b.getAttribute("data-mb");
-    const on = (k === "home" && (path === "/" || /index\.html$/.test(path))) ||
-      (k === "routes" && path === "/routes") ||
-      (k === "profile" && path === "/profile");
-    if (on) { b.classList.add("is-on"); b.setAttribute("aria-current", "page"); }
+  const isHome = path === "/" || /index\.html$/.test(path);
+  const mark = (sel, test) => $$(sel).forEach(x => {
+    if (test(x)) { x.classList.add("is-on"); x.setAttribute("aria-current", "page"); }
   });
+  mark(".mobilebar__btn[data-mb]", x => {
+    const k = x.getAttribute("data-mb");
+    return (k === "home" && isHome) || (k === "routes" && path === "/routes") || (k === "profile" && path === "/profile") || (k === "share" && path === "/share");
+  });
+  const byHref = x => x.getAttribute("href");
+  mark(".nav__links a", x => (path === "/routes" && byHref(x) === "/routes") || (path === "/share" && byHref(x) === "/share"));
+  mark(".mobilemenu a", x => (isHome && byHref(x) === "/") || (path === "/routes" && byHref(x) === "/routes") || (path === "/share" && byHref(x) === "/share"));
 }
 
 function prefillProfile() {

@@ -116,7 +116,7 @@
 
     <nav class="nav__links" aria-label="Primary">
     <a href="/routes">All routes</a>
-    <a href="#pool">Share a Cab</a>
+    <a href="/share">Share a Cab</a>
     </nav>
 
     <div class="nav__cta">
@@ -147,7 +147,7 @@
     </div>
     <a href="/">Home</a>
     <a href="/routes">All routes</a>
-    <a href="#pool">Share a Cab</a>
+    <a href="/share">Share a Cab</a>
     <a href="/profile">Profile</a>
     <div class="mobilemenu__cta">
       <a class="btn btn--wa" href="#" data-wa-link><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg><span>Book on WhatsApp</span></a>
@@ -343,153 +343,7 @@
     </div>
   </section>
 
-  <!-- ============ POOL AND SAVE ============ -->
-  <section class="section pool" id="pool">
-    <div class="wrap">
-      <header class="shead">
-        <p class="shead__eyebrow">Pool and save</p>
-        <h2 class="shead__h2">Same route, same day? Split the cab and halve the fare.</h2>
-        <p class="shead__sub">Post your trip. If another traveller is going the same way on the same date, we pair you in one car and you each pay half. The office connects you both, so no phone number is shared until both sides agree.</p>
-      </header>
 
-      <div class="pstrip" data-reveal>
-        <div class="pstrip__cell">
-          <span class="pstrip__label">Full one-way fare</span>
-          <span class="pstrip__val pstrip__val--muted" id="poolFull">&#8377;3,199</span>
-          <span class="pstrip__hint" id="poolFullHint">Pune to Mumbai, SUV</span>
-        </div>
-        <div class="pstrip__arrow" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></div>
-        <div class="pstrip__cell pstrip__cell--hi">
-          <span class="pstrip__label">Each, when two share</span>
-          <span class="pstrip__val" id="poolShare">&#8377;1,600</span>
-          <span class="pstrip__hint">Same car, same driver, same comfort</span>
-        </div>
-        <div class="pstrip__cell">
-          <span class="pstrip__label">You save</span>
-          <span class="pstrip__val pstrip__val--accent" id="poolSave">&#8377;1,600</span>
-          <span class="pstrip__hint">Booked and confirmed by our office</span>
-        </div>
-      </div>
-
-      <div class="pool__grid">
-        <!-- POST FORM -->
-        <div class="poolcard" data-reveal>
-          <div class="poolcard__head">
-            <h3>Post your trip</h3>
-            <p>Free to post. No payment until we confirm a match.</p>
-          </div>
-
-          <form class="poolform" id="poolform" novalidate>
-            <div class="poolform__row">
-              <div class="field">
-                <label for="pfrom">From</label>
-                <div class="select">
-                  <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
-                  <select id="pfrom" required></select>
-                  <svg class="ic ic--chev" aria-hidden="true"><use href="#i-chev"/></svg>
-                </div>
-              </div>
-              <div class="field">
-                <label for="pto">To</label>
-                <div class="select">
-                  <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
-                  <select id="pto" required></select>
-                  <svg class="ic ic--chev" aria-hidden="true"><use href="#i-chev"/></svg>
-                </div>
-              </div>
-            </div>
-
-            <div class="poolform__row">
-              <div class="field">
-                <label for="pdate">Travel date</label>
-                <div class="select">
-                  <svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>
-                  <input id="pdate" type="date" required />
-                </div>
-              </div>
-              <div class="field">
-                <label for="ptime">Pickup time</label>
-                <div class="select">
-                  <svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>
-                  <input id="ptime" type="time" value="07:00" required />
-                </div>
-              </div>
-            </div>
-
-            <div class="poolform__row">
-              <div class="field">
-                <label for="pseats">Seats you need</label>
-                <div class="select">
-                  <svg class="ic" aria-hidden="true"><use href="#i-car"/></svg>
-                  <select id="pseats">
-                    <option value="1" selected>1 seat</option>
-                    <option value="2">2 seats</option>
-                    <option value="3">3 seats</option>
-                  </select>
-                  <svg class="ic ic--chev" aria-hidden="true"><use href="#i-chev"/></svg>
-                </div>
-              </div>
-              <div class="field">
-                <label for="pname">Your name</label>
-                <div class="select">
-                  <svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>
-                  <input id="pname" type="text" placeholder="First and last name" autocomplete="name" required />
-                </div>
-              </div>
-            </div>
-
-            <fieldset class="field field--class">
-              <legend>Preferred car</legend>
-              <div class="seg" role="radiogroup" aria-label="Preferred car class">
-                <label class="seg__opt">
-                  <input type="radio" name="pcls" value="sedan" checked />
-                  <span><b>Sedan</b><i>Cheapest split</i></span>
-                </label>
-                <label class="seg__opt">
-                  <input type="radio" name="pcls" value="suv" />
-                  <span><b>SUV</b><i>More room</i></span>
-                </label>
-              </div>
-            </fieldset>
-
-            <p class="poolform__err" id="poolErr" hidden role="alert"></p>
-
-            <button class="btn btn--accent btn--block" type="submit">
-              <svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>
-              <span>Post my trip</span>
-            </button>
-            <p class="poolform__fine">Your number stays with our office. We only share it once both travellers confirm the seat.</p>
-          </form>
-
-          <div class="poolresult" id="poolResult" hidden aria-live="polite">
-            <p class="poolresult__title" id="poolResultTitle"></p>
-            <p class="poolresult__body" id="poolResultBody"></p>
-            <a class="btn btn--wa btn--block" href="#" id="poolResultCta">
-              <svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>
-              <span>Confirm on WhatsApp</span>
-            </a>
-          </div>
-        </div>
-
-        <!-- LIVE BOARD -->
-        <div class="poolboard" data-reveal>
-          <div class="poolboard__head">
-            <h3>Open seats on the board</h3>
-            <span class="poolboard__count" id="poolCount"></span>
-          </div>
-          <div class="prow prow--head" aria-hidden="true">
-            <span>Traveller</span>
-            <span>Route</span>
-            <span>Date and time</span>
-            <span>Fare each</span>
-            <span></span>
-          </div>
-          <div class="prowlist" id="poolList"></div>
-          <p class="poolboard__foot">Posters are name and ID verified before a seat goes live. The office makes the introduction, then both travellers confirm.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- ============ FLEET ============ -->
   <section class="section fleet" id="fleet">
@@ -835,7 +689,7 @@
         </a>
       </div>
 
-      <a class="rmodal__share" id="rmShare" href="#pool">
+      <a class="rmodal__share" id="rmShare" href="/share">
         <svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>
         <span id="rmShareTxt"></span>
       </a>
@@ -862,7 +716,7 @@
   <a class="mobilebar__btn" href="/routes" data-mb="routes">
     <svg class="ic" aria-hidden="true"><use href="#i-route"/></svg><span>All routes</span>
   </a>
-  <a class="mobilebar__btn" href="#pool" data-mb="share">
+  <a class="mobilebar__btn" href="/share" data-mb="share">
     <svg class="ic" aria-hidden="true"><use href="#i-users"/></svg><span>Share</span>
   </a>
   <a class="mobilebar__btn" href="/profile" data-mb="profile">
