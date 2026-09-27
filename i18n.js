@@ -105,6 +105,17 @@ const MR = {
   "Driver and car details sent before pickup": "पिकअपपूर्वी ड्रायव्हर व गाडीची माहिती पाठवली जाते",
   "Cash or UPI payment after the trip": "प्रवासनंतर रोख किंवा UPI पेमेंट",
 
+  /* ---------- detail photo alts ---------- */
+  "Shaniwar Wada in Pune": "पुण्यातील शनिवार वाडा",
+  "Marine Drive skyline at night in Mumbai": "मुंबईतील रात्रीचे मरीन ड्राईव्ह स्कायलाईन",
+  "Godavari river at Nashik": "नाशिकतील गोदावरी नदी",
+  "Kailasanatha temple at Ellora Caves": "एळोरा लेण्यांतील कैलासनाथ मंदिर",
+  "Main gate of Ahmednagar Fort": "अहमदनगर किल्ल्याचे मुख्य दार",
+  "Samadhi Mandir of Shirdi Sai Baba": "शिर्डी साईबाबाचे समाधी मंदिर",
+  "Panchgani valley near Mahabaleshwar": "महाबळेश्वरजवळची पंचगनी दरी",
+  "Mahalaxmi temple in Kolhapur": "कोल्हापूरातील महालक्ष्मी मंदिर",
+  "Karla caves near Lonavala": "लोणावळ्याजवळची कर्ला लेणी",
+
   /* ---------- pool ---------- */
   "Pool and save": "शेअर करा आणि वाचवा",
   "Same route, same day? Split the cab and halve the fare.": "त्याच मार्गावर, त्याच दिवशी? कॅब शेअर करा आणि भाडे अर्धे करा.",

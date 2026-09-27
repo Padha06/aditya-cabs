@@ -1184,18 +1184,21 @@ body.rmodal-open{overflow:hidden}
 .hubdir__links a:hover{border-color:var(--accent-text);background:rgba(245,165,36,.08)}
 @media (max-width:640px){.hubdir__row{flex-direction:column;align-items:flex-start}.hubdir__links{width:100%}.hubdir__links a{flex:1;text-align:center;padding:9px 10px;border:1px solid var(--line);border-radius:10px}}
 
-/* ---------- ROUTE DETAIL (generated per route) ---------- */
+/* ---------- ROUTE DETAIL (generated per route) ----------
+   Radius system: --r-card 20px (cards/steps), --r-ctl 12px (tiles/images), 999px (pills) */
 .rdetail{background:var(--bg);border-top:1px solid var(--line)}
 .rdetail__head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px 32px;margin-bottom:clamp(22px,3vw,34px)}
 .rdetail__h2{margin:0;font-family:var(--font-d);font-weight:800;font-size:clamp(1.5rem,3vw,2.1rem);line-height:1.15;letter-spacing:-.02em}
 .rdetail__facts{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0;padding:0}
-.rdetail__facts li{background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;padding:11px 14px;min-width:108px}
-.rdetail__facts b{display:block;font-family:var(--font-d);font-size:1.12rem;font-weight:800;color:var(--text);letter-spacing:-.01em}
+.rdetail__facts li{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--r-ctl);padding:11px 14px;min-width:108px}
+.rdetail__facts b{display:block;font-family:var(--font-d);font-size:1.28rem;font-weight:800;color:var(--text);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
 .rdetail__facts span{display:block;margin-top:2px;font-size:.78rem;color:var(--text-3)}
 .rdetail__grid{display:grid;grid-template-columns:1.6fr 1fr;gap:clamp(20px,3vw,44px);align-items:start}
-.rdetail__body p{margin:0 0 14px;color:var(--text-2);font-size:1rem;line-height:1.7}
+.rdetail__body p{margin:0 0 14px;color:var(--text-2);font-size:1rem;line-height:1.7;max-width:65ch}
 .rdetail__body .rdetail__lead{font-size:1.07rem;color:var(--text);line-height:1.75}
 .rdetail__side{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--r-card);padding:clamp(18px,2.4vw,26px)}
+.rdetail__pic{margin:0 0 18px}
+.rdetail__pic img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:var(--r-ctl)}
 .rdetail__side h3{margin:0 0 14px;font-family:var(--font-d);font-size:1.05rem;font-weight:800}
 .rdetail__incl{list-style:none;margin:0;padding:0;display:grid;gap:10px}
 .rdetail__incl li{position:relative;padding-left:26px;color:var(--text-2);font-size:.94rem;line-height:1.5}
@@ -1203,7 +1206,7 @@ body.rmodal-open{overflow:hidden}
 .rdetail__book{margin-top:clamp(22px,3vw,36px);border-top:1px solid var(--line);padding-top:clamp(20px,2.6vw,30px)}
 .rdetail__book h3{margin:0 0 16px;font-family:var(--font-d);font-size:1.15rem;font-weight:800}
 .rdetail__steps{list-style:none;counter-reset:rd;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 20px;padding:0}
-.rdetail__steps li{counter-increment:rd;position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 16px 16px 46px}
+.rdetail__steps li{counter-increment:rd;position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:16px 16px 16px 46px}
 .rdetail__steps li::before{content:counter(rd,decimal-leading-zero);position:absolute;left:15px;top:17px;font-family:var(--font-d);font-size:.8rem;font-weight:800;color:var(--accent-text)}
 .rdetail__steps b{display:block;margin-bottom:6px;font-family:var(--font-d);font-size:.98rem}
 .rdetail__steps span{color:var(--text-2);font-size:.9rem;line-height:1.55}

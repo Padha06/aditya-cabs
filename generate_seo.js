@@ -208,6 +208,32 @@ const MR_NAME = {
 };
 const inr = n => '₹' + n.toLocaleString('en-IN');
 
+// Origin-city photo for the detail aside (destination already appears in the
+// fare widget and route modal). Filenames mirror app.js CITY_PHOTO; alts are
+// descriptive and ship to i18n.js MR for translation.
+const RD_PHOTO = {
+  pune: 'Shaniwar%20wada%20%28pune%29.jpg',
+  mumbai: 'Mumbai%20Skyline%20Marine%20Drive%20Night.jpg',
+  nashik: 'River%20Godavari%20Nashik%20-%20panoramio.jpg',
+  sambhajinagar: 'Ellora%20Caves%2C%20India%2C%20Kailasanatha%20Temple%202.jpg',
+  ahilyanagar: 'Ahmednagar%20Fort%20Main%20Gate.jpg',
+  shirdi: 'Samadhi%20Mandir%20of%20Shirdi%20Sai%20Baba.jpg',
+  mahabaleshwar: 'Picturesque%20-%20Mahabhaleshwar%20-%20Panchghani%20%285767643681%29.jpg',
+  kolhapur: 'Mahalaxmi%20Temple%2C%20Kolhapur%2C%20Maharashtra%2009.jpg',
+  lonavala: 'Karla%20caves%20Chaitya.jpg'
+};
+const RD_ALT = {
+  pune: 'Shaniwar Wada in Pune',
+  mumbai: 'Marine Drive skyline at night in Mumbai',
+  nashik: 'Godavari river at Nashik',
+  sambhajinagar: 'Kailasanatha temple at Ellora Caves',
+  ahilyanagar: 'Main gate of Ahmednagar Fort',
+  shirdi: 'Samadhi Mandir of Shirdi Sai Baba',
+  mahabaleshwar: 'Panchgani valley near Mahabaleshwar',
+  kolhapur: 'Mahalaxmi temple in Kolhapur',
+  lonavala: 'Karla caves near Lonavala'
+};
+
 // The generated detail section: breadcrumb, unique prose, facts, facilities,
 // booking steps and a BreadcrumbList JSON-LD. Both languages ship in the HTML
 // (data-en / data-mr); app.js translateRouteDetail() only swaps which is shown.
@@ -230,15 +256,15 @@ function routeDetailHtml(route) {
   const h2mr = `${an} ते ${bn} मार्गाबद्दल`;
 
   const en = [
-    `The ${A} to ${B} one-way cab covers about ${km} km ${via[0]} and usually takes ${time} door to door. The fare is fixed before you travel: Sedan ${inr(sed)} and SUV ${inr(suv)}, with toll, parking and driver allowance already inside the price. It is one way, so there is no return fare to pay.`,
+    `The ${A} to ${B} one-way cab covers about ${km} km ${via[0]} and usually takes ${time} door to door. The fare is fixed before you travel: Sedan ${inr(sed)}, SUV ${inr(suv)}, toll and parking included. It is one way, so there is no return fare to pay.`,
     `Doorstep pickup in ${A} covers ${a.pickup[0]}; in ${B} we drop you at ${b.pickup[0]}. One car does the whole trip, which makes it the practical option for station transfers, hotel check-ins, airport runs and family luggage.`,
-    `What you get in ${B}: ${b.about[0]}. Travellers book this cab for temple visits, hill weekends, business meetings and long-distance family travel without changing vehicles on the way.`,
+    `${b.about[0]}. Travellers book this cab for temple visits, hill weekends, business meetings and long-distance family travel without changing vehicles on the way.`,
     `When to travel: from ${A}, ${a.tip[0]} From ${B}, ${b.tip[0]}`
   ];
   const mr = [
-    `${an} ते ${bn} वन-वे कॅब सुमारे ${km} किमी ${via[1]} धावते आणि दरवाजापासून दरवाजापर्यंत साधारण ${time} वेळ घेते. भाडे प्रवासापूर्वीच ठरलेले असते: सेडान ${inr(sed)} आणि एसयूव्ही ${inr(suv)}, टोल, पार्किंग आणि ड्रायव्हर भत्ता यात आधीच समाविष्ट. हा वन-वे प्रवास आहे, त्यामुळे परतीचे भाडे द्यावे लागत नाही.`,
+    `${an} ते ${bn} वन-वे कॅब सुमारे ${km} किमी ${via[1]} धावते आणि दरवाजापासून दरवाजापर्यंत साधारण ${time} वेळ घेते. भाडे प्रवासापूर्वीच ठरलेले: सेडान ${inr(sed)}, एसयूव्ही ${inr(suv)}, टोल व पार्किंग समाविष्ट. हा वन-वे प्रवास आहे, त्यामुळे परतीचे भाडे द्यावे लागत नाही.`,
     `${an} मध्ये दरवाजापासून पिकअप: ${a.pickup[1]}; ${bn} मध्ये ड्रॉप: ${b.pickup[1]}. संपूर्ण प्रवासासाठी तीच गाडी चालते - स्थानिक बदली, हॉटेल चेक-इन, विमानतळ व कुटुंबासह प्रवासासाठी ही सोपी पर्याय.`,
-    `${bn} मध्ये काय मिळते: ${b.about[1]}. मंदिर दर्शन, डोंगरी सहली, व्यावसायिक बैठका आणि कुटुंबासह लांबचा प्रवास यासाठी ही कॅब बुक करतात - वाटेत वाहन बदलणे गरजेचे नाही.`,
+    `${b.about[1]}. मंदिर दर्शन, डोंगरी सहली, व्यावसायिक बैठका आणि कुटुंबासह लांबचा प्रवास यासाठी ही कॅब बुक करतात - वाटेत वाहन बदलणे गरजेचे नाही.`,
     `प्रवास कधी: ${an} मधून, ${a.tip[1]} ${bn} मधून, ${b.tip[1]}`
   ];
   const pHtml = en.map((t, i) =>
@@ -289,6 +315,9 @@ function routeDetailHtml(route) {
 ${pHtml}
         </div>
         <aside class="rdetail__side" data-reveal>
+          <figure class="rdetail__pic">
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/${RD_PHOTO[aId]}?width=720" alt="${RD_ALT[aId]}" width="720" height="450" loading="lazy" decoding="async" />
+          </figure>
           <h3>What's included</h3>
           <ul class="rdetail__incl">
 ${incl}
