@@ -159,12 +159,16 @@ const server = http.createServer(async (req, res) => {
   if (!target.startsWith(ROOT)) return send(res, 403, "Forbidden", "text/plain; charset=utf-8");
 
   fs.stat(target, (err, stat) => {
-    if (err || !stat.isFile()) {
-      return send(res, 404, "Not found", "text/plain; charset=utf-8");
+    let file = (!err && stat.isFile()) ? target : null;
+    // Vercel serves these URLs extensionless (cleanUrls); mirror that locally.
+    if (!file && !path.extname(target)) {
+      const htmlTry = target + ".html";
+      if (fs.existsSync(htmlTry) && fs.statSync(htmlTry).isFile()) file = htmlTry;
     }
-    const type = MIME[path.extname(target).toLowerCase()] || "application/octet-stream";
+    if (!file) return send(res, 404, "Not found", "text/plain; charset=utf-8");
+    const type = MIME[path.extname(file).toLowerCase()] || "application/octet-stream";
     res.writeHead(200, { "Content-Type": type, "Cache-Control": "no-cache" });
-    fs.createReadStream(target).pipe(res);
+    fs.createReadStream(file).pipe(res);
   });
 });
 

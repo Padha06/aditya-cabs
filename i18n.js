@@ -92,6 +92,19 @@ const MR = {
   "to": "ते",
   "km": "किमी",
 
+  /* ---------- route detail (generated per-route pages) ---------- */
+  "About this route": "या मार्गाबद्दल",
+  "Distance": "अंतर",
+  "Duration": "वेळ",
+  "Sedan from": "सेडान पासून",
+  "SUV from": "एसयूव्ही पासून",
+  "What's included": "काय काय समाविष्ट आहे",
+  "Fixed one-way fare, no return charges": "ठरलेले वन-वे भाडे, परतीचे भाडे नाही",
+  "Doorstep pickup and drop in both cities": "दोन्ही शहरांत दरवाजापासून पिकअप व ड्रॉप",
+  "Sedan for 4 passengers, SUV for 6-7 with luggage": "४ प्रवासांसाठी सेडान, ६-७ प्रवासी व सामानासह एसयूव्ही",
+  "Driver and car details sent before pickup": "पिकअपपूर्वी ड्रायव्हर व गाडीची माहिती पाठवली जाते",
+  "Cash or UPI payment after the trip": "प्रवासनंतर रोख किंवा UPI पेमेंट",
+
   /* ---------- pool ---------- */
   "Pool and save": "शेअर करा आणि वाचवा",
   "Same route, same day? Split the cab and halve the fare.": "त्याच मार्गावर, त्याच दिवशी? कॅब शेअर करा आणि भाडे अर्धे करा.",

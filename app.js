@@ -349,6 +349,18 @@ function translateRouteH1() {
   }
 }
 
+// Route detail copy ships in data-en / data-mr so both languages are static
+// in the generated HTML; this only swaps which one is on screen.
+function translateRouteDetail() {
+  const sec = document.querySelector(".rdetail");
+  if (!sec) return;
+  const lang = (typeof currentLang !== "undefined" && currentLang === "mr") ? "mr" : "en";
+  $$("[data-rd]", sec).forEach(el => {
+    const v = el.getAttribute("data-" + lang);
+    if (v != null) el.textContent = v;
+  });
+}
+
 /* ---------------------------------------------------------------------------
    5. ROUTE MAP
 --------------------------------------------------------------------------- */
@@ -1548,6 +1560,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initCounters();
   translateFooterLinks();
   translateRouteH1();
+  translateRouteDetail();
   applyI18n(document.body);
 
   // everything that renders strings repaints itself when the language changes
@@ -1557,6 +1570,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPoolBoard();
     translateFooterLinks();
     translateRouteH1();
+    translateRouteDetail();
     if (railRebuild) railRebuild();
     if (reviewsRepaint) reviewsRepaint();
     if (poolStripRefresh) poolStripRefresh();
