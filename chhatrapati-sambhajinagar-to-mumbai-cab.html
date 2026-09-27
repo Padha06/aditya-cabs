@@ -126,6 +126,9 @@
   <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9.5 5v14M14.5 5v14"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.2v13.6L19 12 8 5.2Z"/></symbol>
   <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11.2 12 4l8 7.2"/><path d="M6.2 9.8V20h11.6V9.8"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19.2c.6-3.1 2.8-4.7 5.5-4.7s4.9 1.6 5.5 4.7"/><circle cx="16.6" cy="9" r="2.4"/><path d="M16.2 14.7c2.2.2 3.7 1.6 4.2 4.1"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5.4 20c.8-3.6 3.4-5.4 6.6-5.4s5.8 1.8 6.6 5.4"/></symbol>
 </svg>
 
 <!-- ============ LOADER ============ -->
@@ -150,11 +153,8 @@
     </a>
 
     <nav class="nav__links" aria-label="Primary">
-      <a href="#routes">Routes</a>
-      <a href="#pool">Share a Cab</a>
-      <a href="#fleet">Fleet</a>
-      <a href="#why">Why Us</a>
-      <a href="#faq">FAQ</a>
+    <a href="/routes">All routes</a>
+    <a href="#pool">Share a Cab</a>
     </nav>
 
     <div class="nav__cta">
@@ -183,12 +183,10 @@
       <button type="button" class="lang__btn is-on" data-lang="en" aria-pressed="true">EN</button>
       <button type="button" class="lang__btn" data-lang="mr" aria-pressed="false">मराठी</button>
     </div>
-    <a href="#routes">Routes</a>
+    <a href="/">Home</a>
+    <a href="/routes">All routes</a>
     <a href="#pool">Share a Cab</a>
-    <a href="#fleet">Fleet</a>
-    <a href="#why">Why Us</a>
-    <a href="#how">How It Works</a>
-    <a href="#faq">FAQ</a>
+    <a href="/profile">Profile</a>
     <div class="mobilemenu__cta">
       <a class="btn btn--wa" href="#" data-wa-link><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg><span>Book on WhatsApp</span></a>
       <a class="btn btn--ghost" href="tel:+918605953737" data-phone-link><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span>Call 24x7</span></a>
@@ -371,21 +369,9 @@
 
     <div class="wrap">
       <div class="rrail">
-        <button class="rrail__play" id="railPlay" type="button" aria-label="Pause route motion">
-          <svg class="ic ic--pause" aria-hidden="true"><use href="#i-pause"/></svg>
-          <svg class="ic ic--play" aria-hidden="true"><use href="#i-play"/></svg>
-          <span class="rrail__state" id="railState">Pause</span>
-        </button>
-
         <label class="visually-hidden" for="railScrub">Browse the routes</label>
-        <input class="rrail__scrub" id="railScrub" type="range" min="0" max="1000" value="0" step="1" aria-describedby="rrailHint" />
-
-        <button class="rrail__shuffle" id="railShuffle" type="button">
-          <svg class="ic" aria-hidden="true"><use href="#i-shuffle"/></svg>
-          <span>Surprise me</span>
-        </button>
+        <input class="rrail__scrub" id="railScrub" type="range" min="0" max="1000" value="0" step="1" />
       </div>
-      <p class="rrail__hint" id="rrailHint">Drag the slider to stop and browse. Tap any card, or hit Surprise me, to open the route and book it.</p>
     </div>
   </section>
 
@@ -822,38 +808,6 @@
     </div>
   </section>
 
-  <!-- ============ FAQ ============ -->
-  <section class="section faq" id="faq">
-    <div class="wrap faq__wrap">
-      <header class="shead shead--left">
-        <h2 class="shead__h2">Questions we get before every trip.</h2>
-      </header>
-
-      <div class="faq__list">
-        <details class="qa" open>
-          <summary><span>Is the price fixed, or does it change with traffic?</span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
-          <div class="qa__body"><p>It is fixed. The number we quote for your route and car class is what you pay, regardless of traffic or how long the drive takes.</p></div>
-        </details>
-        <details class="qa">
-          <summary><span>What does the fare include?</span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
-          <div class="qa__body"><p>Toll, parking, fuel and driver allowance are included. There is no return fare because it is a one-way booking.</p></div>
-        </details>
-        <details class="qa">
-          <summary><span>Can I book for a late-night or early-morning pickup?</span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
-          <div class="qa__body"><p>Yes. We run 24x7. Tell us your pickup time on WhatsApp and we will confirm the car and driver before you sleep.</p></div>
-        </details>
-        <details class="qa">
-          <summary><span>Do you serve airport and railway station pickups?</span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
-          <div class="qa__body"><p>Yes. Pune and Mumbai airports, Dadar, Thane, Navi Mumbai and railway stations are all standard pickups and drops.</p></div>
-        </details>
-        <details class="qa">
-          <summary><span>How do I pay?</span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
-          <div class="qa__body"><p>Cash or UPI at the end of the trip. If you need a GST invoice for a company trip, ask us on WhatsApp and we will arrange it.</p></div>
-        </details>
-      </div>
-    </div>
-  </section>
-
   <!-- ============ CTA BAND ============ -->
   <section class="ctaband">
     <div class="ctaband__bg" aria-hidden="true">
@@ -919,9 +873,9 @@
         <li><a href="#fleet">Our fleet</a></li>
         <li><a href="#why">Why choose us</a></li>
         <li><a href="#how">How it works</a></li>
-        <li><a href="#faq">FAQ</a></li>
         <li><a href="#booking">Get a fare</a></li>
         <li><a href="/routes">All routes</a></li>
+        <li><a href="/profile">Profile</a></li>
       </ul>
     </nav>
   </div>
@@ -1003,12 +957,18 @@
   </a>
 </div>
 
-<nav class="mobilebar" aria-label="Quick actions">
-  <a class="mobilebar__btn mobilebar__btn--call" href="tel:+918605953737" data-phone-link>
-    <svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span>Call 24x7</span>
+<nav class="mobilebar" aria-label="Quick navigation">
+  <a class="mobilebar__btn" href="/" data-mb="home">
+    <svg class="ic" aria-hidden="true"><use href="#i-home"/></svg><span>Home</span>
   </a>
-  <a class="mobilebar__btn mobilebar__btn--wa" href="#" data-wa-link>
-    <svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg><span>Book on WhatsApp</span>
+  <a class="mobilebar__btn" href="/routes" data-mb="routes">
+    <svg class="ic" aria-hidden="true"><use href="#i-route"/></svg><span>All routes</span>
+  </a>
+  <a class="mobilebar__btn" href="#pool" data-mb="share">
+    <svg class="ic" aria-hidden="true"><use href="#i-users"/></svg><span>Share</span>
+  </a>
+  <a class="mobilebar__btn" href="/profile" data-mb="profile">
+    <svg class="ic" aria-hidden="true"><use href="#i-user"/></svg><span>Profile</span>
   </a>
 </nav>
 

@@ -116,6 +116,20 @@ const MR = {
   "Mahalaxmi temple in Kolhapur": "कोल्हापूरातील महालक्ष्मी मंदिर",
   "Karla caves near Lonavala": "लोणावळ्याजवळची कर्ला लेणी",
 
+  /* ---------- nav + profile ---------- */
+  "Share": "शेअर",
+  "Profile": "प्रोफाइल",
+  "Your profile": "तुमची प्रोफाइल",
+  "Save your details once. We use them to pre-fill bookings and trip posts, so you never type your name twice.": "तुमची माहिती एकदा जतन करा. बुकिंग आणि प्रवास पोस्ट आधीच भरण्यासाठी आम्ही ती वापरतो, त्यामुळे तुमचे नाव दोनदा टाइप करावे लागत नाही.",
+  "Full name": "पूर्ण नाव",
+  "Mobile number": "मोबाईल नंबर",
+  "10-digit mobile number": "१० अंकी मोबाईल नंबर",
+  "Save profile": "प्रोफाइल जतन करा",
+  "Saved on this device.": "या डिव्हाइसवर जतन केले.",
+  "Rider accounts with login and ₹500 advance payment are coming soon. For now your details stay in this browser only.": "लॉगिन आणि ₹500 आगाऊ पेमेंटसह रायडर खाती लवकरच येत आहेत. सध्या तुमची माहिती फक्त याच ब्राउझरमध्ये राहते.",
+  "Add your name so bookings can use it.": "बुकिंगसाठी तुमचे नाव लिहा.",
+  "Enter a valid 10-digit mobile number.": "योग्य १० अंकी मोबाईल नंबर लिहा.",
+
   /* ---------- pool ---------- */
   "Pool and save": "शेअर करा आणि वाचवा",
   "Same route, same day? Split the cab and halve the fare.": "त्याच मार्गावर, त्याच दिवशी? कॅब शेअर करा आणि भाडे अर्धे करा.",

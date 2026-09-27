@@ -457,6 +457,7 @@ const ORIGIN_INTROS = {
 };
 const hubUrl = `${baseUrl}/routes`;
 sitemapUrls.push(hubUrl);
+sitemapUrls.push(`${baseUrl}/profile`);
 
 const origins = [];
 pairs.forEach(([f]) => { if (!origins.includes(f)) origins.push(f); });
@@ -502,7 +503,7 @@ const hubDesc = 'Browse every fixed-fare one-way cab route across Maharashtra, g
 let hubPage = templateWithFooter;
 {
   const heroIdx = hubPage.indexOf('<section class="hero">');
-  const faqIdx = hubPage.indexOf('<section class="section faq"');
+  const faqIdx = hubPage.indexOf('<section class="ctaband">');
   const dropped = hubPage.slice(heroIdx, faqIdx);
   const opens = (dropped.match(/<section/g) || []).length;
   const closes = (dropped.match(/<\/section>/g) || []).length;

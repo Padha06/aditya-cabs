@@ -1044,8 +1044,6 @@ function initRail() {
 
   let sets = $$(".rail__set", track);
   const scrub = $("#railScrub");
-  const playBtn = $("#railPlay");
-  const stateEl = $("#railState");
   const SPEED = 18;                       // px per second
 
   let setW = 0, step = 0, cardW = 0, offset = 0;
@@ -1100,12 +1098,6 @@ function initRail() {
     rafId = requestAnimationFrame(stepLoop);
   };
 
-  const syncPlay = () => {
-    playBtn.classList.toggle("is-paused", !playing);
-    playBtn.setAttribute("aria-label", playing ? "Pause route motion" : "Resume route motion");
-    if (stateEl) stateEl.textContent = playing ? "Pause" : "Play";
-  };
-
   const centerOn = i => {
     if (!step) return;
     const vw = viewport.getBoundingClientRect().width;
@@ -1125,7 +1117,6 @@ function initRail() {
   };
 
   /* --- controls --- */
-  playBtn.addEventListener("click", () => { playing = !playing; syncPlay(); ensure(); });
 
   scrub.addEventListener("pointerdown", () => { scrubActive = true; });
   scrub.addEventListener("input", () => {
@@ -1138,7 +1129,6 @@ function initRail() {
   scrub.addEventListener("change", () => { scrubActive = false; });
   scrub.addEventListener("blur", () => { scrubActive = false; });
 
-  $("#railShuffle").addEventListener("click", () => pick(Math.floor(Math.random() * ROUTES.length)));
 
   /* --- hover / focus suspend --- */
   viewport.addEventListener("pointerenter", () => { hovered = true; });
@@ -1209,7 +1199,6 @@ function initRail() {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
 
   measure();
-  syncPlay();
   ensure();
 
   // lets the language switch repaint the cards without re-binding listeners
@@ -1539,6 +1528,30 @@ function hideLoader() {
   setTimeout(() => { l.style.display = "none"; }, 700);
 }
 
+/* ---------------------------------------------------------------------------
+   Mobile bottom-bar active tab + saved-profile prefill.
+--------------------------------------------------------------------------- */
+function initMobilebar() {
+  const path = location.pathname.replace(/\/+$/, "") || "/";
+  $$(".mobilebar__btn[data-mb]").forEach(b => {
+    const k = b.getAttribute("data-mb");
+    const on = (k === "home" && (path === "/" || /index\.html$/.test(path))) ||
+      (k === "routes" && path === "/routes") ||
+      (k === "profile" && path === "/profile");
+    if (on) { b.classList.add("is-on"); b.setAttribute("aria-current", "page"); }
+  });
+}
+
+function prefillProfile() {
+  let prof = null;
+  try { prof = JSON.parse(localStorage.getItem("st_profile") || "null"); } catch (e) { /* private mode */ }
+  if (!prof || !prof.name) return;
+  const pn = $("#pname");
+  if (pn && !pn.value) pn.value = prof.name;
+  const rn = $("#revName");
+  if (rn && !rn.value) rn.value = prof.name;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const year = $("#year");
   if (year) year.textContent = new Date().getFullYear();
@@ -1558,6 +1571,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initNav();
   initReveals();
   initCounters();
+  initMobilebar();
+  prefillProfile();
   translateFooterLinks();
   translateRouteH1();
   translateRouteDetail();
