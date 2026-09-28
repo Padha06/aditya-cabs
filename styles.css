@@ -1105,14 +1105,14 @@ body.rmodal-open{overflow:hidden}
   .footer__contact a{font-size:.82rem}
   .footer__col h3{margin-bottom:9px;font-size:.64rem;letter-spacing:.1em}
   .footer__col ul{gap:6px}
-  .footer__col a{font-size:.79rem;line-height:1.3;display:inline-block}
+  .footer__col a{font-size:.79rem;line-height:1.3;display:inline-block;padding:7px 0}
   .footer__base{
     margin-top:20px;padding:13px 0 18px;gap:5px;
     flex-direction:column;align-items:flex-start;font-size:.71rem;line-height:1.45;
   }
   .floaters{display:none}
   .mobilebar{
-    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;
     position:fixed;left:0;right:0;bottom:0;z-index:var(--z-float);
     padding:8px 10px calc(8px + env(safe-area-inset-bottom));
     background:rgba(255,255,255,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
@@ -1210,6 +1210,7 @@ body.rmodal-open{overflow:hidden}
 .profile h1{margin:0;font-family:var(--font-d);font-weight:800;font-size:clamp(1.7rem,3.4vw,2.4rem);letter-spacing:-.02em}
 .profile__sub{margin:10px 0 0;color:var(--text-2);max-width:60ch;line-height:1.65}
 .profile__card{margin-top:clamp(20px,3vw,32px);max-width:560px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--r-card);padding:clamp(20px,3vw,30px)}
+.select.is-ok{border-color:rgba(11,128,69,.6)}
 .profile__card .field{margin-bottom:14px}
 .profile__saved{display:flex;align-items:center;gap:8px;margin:16px 0 0;font-size:.9rem;font-weight:600;color:var(--accent-text)}
 .profile__saved[hidden]{display:none}

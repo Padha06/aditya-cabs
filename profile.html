@@ -296,6 +296,24 @@
     if (cur.phone) phoneEl.value = cur.phone;
     if (cur.name || cur.phone) savedLine.hidden = false;
   }
+  phoneEl.addEventListener("input", function () {
+    var d = phoneEl.value.replace(/\D/g, "").slice(0, 10);
+    if (phoneEl.value !== d) phoneEl.value = d;
+    phoneEl.closest(".select").classList.remove("is-ok");
+  });
+  nameEl.addEventListener("input", function () {
+    nameEl.closest(".select").classList.remove("is-ok");
+  });
+  function blurCheck(el, valid) {
+    err.hidden = true;
+    el.closest(".select").classList.toggle("is-ok", !!valid);
+    if (!valid && el.value.trim() !== "") {
+      err.hidden = false;
+      err.textContent = i18nT(el === nameEl ? "Add your name so bookings can use it." : "Enter a valid 10-digit mobile number.");
+    }
+  }
+  nameEl.addEventListener("blur", function () { blurCheck(nameEl, nameEl.value.trim() !== ""); });
+  phoneEl.addEventListener("blur", function () { blurCheck(phoneEl, /^[6-9]\d{9}$/.test(phoneEl.value.replace(/\D/g, ""))); });
   document.getElementById("profileForm").addEventListener("submit", function (e) {
     e.preventDefault();
     var name = nameEl.value.trim();
@@ -304,6 +322,8 @@
     if (!name) { err.hidden = false; err.textContent = i18nT("Add your name so bookings can use it."); nameEl.focus(); return; }
     if (!/^[6-9]\d{9}$/.test(phone)) { err.hidden = false; err.textContent = i18nT("Enter a valid 10-digit mobile number."); phoneEl.focus(); return; }
     try { localStorage.setItem(KEY, JSON.stringify({ name: name, phone: phone })); } catch (e) { /* private mode */ }
+    nameEl.closest(".select").classList.add("is-ok");
+    phoneEl.closest(".select").classList.add("is-ok");
     savedLine.hidden = false;
   });
 })();

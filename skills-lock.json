@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "mobile-ux-design": {
+      "source": "phazurlabs/ux-ui-mastery",
+      "sourceType": "github",
+      "skillPath": "skills/mobile-ux-design/SKILL.md",
+      "computedHash": "675d9384a57549c948778f59bde6f4d0f0482c373f35a232e711f09d243df25f"
+    },
     "mobile-webapp-ux": {
       "source": "swyxio/skills",
       "sourceType": "github",
