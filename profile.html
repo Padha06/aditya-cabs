@@ -278,10 +278,10 @@
   if (y) y.textContent = new Date().getFullYear();
   var burger = document.getElementById("burger"), menu = document.getElementById("mobilemenu");
   if (burger && menu) {
-    var close = function () { menu.hidden = true; burger.setAttribute("aria-expanded", "false"); burger.setAttribute("aria-label", "Open menu"); };
+    var close = function () { menu.hidden = true; burger.setAttribute("aria-expanded", "false"); burger.setAttribute("aria-label", "Open menu"); document.body.style.overflow = ""; };
     burger.addEventListener("click", function () {
       if (burger.getAttribute("aria-expanded") === "true") { close(); }
-      else { menu.hidden = false; burger.setAttribute("aria-expanded", "true"); burger.setAttribute("aria-label", "Close menu"); }
+      else { menu.hidden = false; burger.setAttribute("aria-expanded", "true"); burger.setAttribute("aria-label", "Close menu"); document.body.style.overflow = "hidden"; }
     });
     Array.prototype.forEach.call(menu.querySelectorAll("a"), function (x) { x.addEventListener("click", close); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });

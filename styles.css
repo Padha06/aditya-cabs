@@ -151,6 +151,7 @@ h3{font-size:clamp(1.08rem,1.7vw,1.32rem);line-height:1.2}
 /* ---------- NAV ---------- */
 .nav{
   position:fixed;top:0;left:0;right:0;z-index:var(--z-nav);
+  padding-top:env(safe-area-inset-top,0px);
   transition:background .3s,backdrop-filter .3s,border-color .3s;
   border-bottom:1px solid transparent;
 }
@@ -215,6 +216,7 @@ html[lang="mr"] .footer__col h3{letter-spacing:.06em}
   border-top:1px solid var(--line);background:rgba(255,255,255,.98);
   backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
   padding:14px var(--gutter) 22px;display:grid;gap:2px;
+  max-height:calc(100dvh - 80px);overflow-y:auto;
 }
 .mobilemenu[hidden]{display:none}
 .mobilemenu a{padding:13px 4px;font-size:1rem;font-weight:600;color:var(--text-2);border-bottom:1px solid var(--line)}
@@ -1060,7 +1062,7 @@ body.rmodal-open{overflow:hidden}
   .prow__cta{grid-column:1 / -1;width:100%}
 }
 @media (max-width:640px){
-  html{scroll-padding-top:82px}
+  html{scroll-padding-top:calc(82px + env(safe-area-inset-top,0px))}
   body{padding-bottom:80px}
   .nav__row{height:64px;gap:12px}
   .nav__phone span{display:none}
@@ -1072,7 +1074,7 @@ body.rmodal-open{overflow:hidden}
   .brand__mark svg{width:21px;height:21px}
   .brand__logo{height:36px}
   .footer__brand .brand__logo{height:46px}
-  .hero{padding:82px 0 34px;min-height:auto}
+  .hero{padding:calc(82px + env(safe-area-inset-top,0px)) 0 34px;min-height:auto}
   .hero__eyebrow{margin-bottom:15px;font-size:.65rem;padding:6px 12px 6px 10px;letter-spacing:.14em}
   .hero__h1{font-size:clamp(1.95rem,8.6vw,2.45rem);margin-bottom:13px;text-shadow:0 2px 22px rgba(7,8,11,.6)}
   .hero__sub{margin-bottom:0;font-size:.94rem;max-width:40ch}
@@ -1145,7 +1147,7 @@ body.rmodal-open{overflow:hidden}
 }
 
 /* ---------- ROUTES HUB ---------- */
-.hubhero{padding:clamp(56px,7vw,96px) 0 clamp(28px,4vw,44px)}
+.hubhero{padding:calc(clamp(56px,7vw,96px) + env(safe-area-inset-top,0px)) 0 clamp(28px,4vw,44px)}
 .crumbs{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--text-3);margin-bottom:18px}
 .crumbs a{color:var(--text-3)}
 .crumbs a:hover{color:var(--accent-text)}
@@ -1206,7 +1208,7 @@ body.rmodal-open{overflow:hidden}
 }
 
 /* ---------- PROFILE ---------- */
-.profile{padding:clamp(104px,12vw,150px) 0 clamp(48px,6vw,84px)}
+.profile{padding:calc(clamp(104px,12vw,150px) + env(safe-area-inset-top,0px)) 0 clamp(48px,6vw,84px)}
 .profile h1{margin:0;font-family:var(--font-d);font-weight:800;font-size:clamp(1.7rem,3.4vw,2.4rem);letter-spacing:-.02em}
 .profile__sub{margin:10px 0 0;color:var(--text-2);max-width:60ch;line-height:1.65}
 .profile__card{margin-top:clamp(20px,3vw,32px);max-width:560px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--r-card);padding:clamp(20px,3vw,30px)}
@@ -1215,6 +1217,8 @@ body.rmodal-open{overflow:hidden}
 .profile__saved{display:flex;align-items:center;gap:8px;margin:16px 0 0;font-size:.9rem;font-weight:600;color:var(--accent-text)}
 .profile__saved[hidden]{display:none}
 .profile__note{margin:18px 0 0;max-width:560px;font-size:.86rem;color:var(--text-3);line-height:1.6}
+/* share page opens with the pool section: clear the fixed nav + notch */
+.pool{padding-top:calc(clamp(72px,9vw,128px) + env(safe-area-inset-top,0px))}
 
 /* ---------- REDUCED MOTION ---------- */
 @media (prefers-reduced-motion:reduce){

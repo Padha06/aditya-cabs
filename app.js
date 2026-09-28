@@ -464,10 +464,10 @@ function initNav() {
   }
 
   const burger = $("#burger"), menu = $("#mobilemenu");
-  const close = () => { menu.hidden = true; burger.setAttribute("aria-expanded", "false"); burger.setAttribute("aria-label", "Open menu"); };
+  const close = () => { menu.hidden = true; burger.setAttribute("aria-expanded", "false"); burger.setAttribute("aria-label", "Open menu"); document.body.style.overflow = ""; };
   burger.addEventListener("click", () => {
     const open = burger.getAttribute("aria-expanded") === "true";
-    if (open) { close(); } else { menu.hidden = false; burger.setAttribute("aria-expanded", "true"); burger.setAttribute("aria-label", "Close menu"); }
+    if (open) { close(); } else { menu.hidden = false; burger.setAttribute("aria-expanded", "true"); burger.setAttribute("aria-label", "Close menu"); document.body.style.overflow = "hidden"; }
   });
   $$("a", menu).forEach(a => a.addEventListener("click", close));
   document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
