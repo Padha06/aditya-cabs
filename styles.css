@@ -395,9 +395,10 @@ html[lang="mr"] .footer__col h3{letter-spacing:.06em}
   padding:0;background:rgba(253,252,250,.92);
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid var(--line);
-  transform:translateY(-100%);transition:transform .35s var(--ease);
+  transform:translateY(-100%);opacity:0;visibility:hidden;
+  transition:transform .35s var(--ease),opacity .2s var(--ease),visibility .35s;
 }
-.stickybar.is-show{transform:translateY(0)}
+.stickybar.is-show{transform:translateY(0);opacity:1;visibility:visible}
 .stickybar__inner{
   max-width:var(--maxw);margin:0 auto;padding:10px var(--gutter);
   display:flex;align-items:center;justify-content:space-between;gap:14px;
@@ -1084,7 +1085,14 @@ body.rmodal-open{overflow:hidden}
   .faq__wrap{grid-template-columns:1fr}
 }
 @media (max-width:860px){
-  .fleet__grid{grid-template-columns:1fr}
+  .fleet__grid{
+    display:flex;overflow-x:auto;gap:14px;
+    scroll-snap-type:x proximity;scroll-padding-inline:var(--gutter);scroll-behavior:smooth;
+    margin:0 calc(var(--gutter) * -1);padding-inline:var(--gutter);padding-bottom:14px;
+    scrollbar-width:none;overscroll-behavior-x:contain;
+  }
+  .fleet__grid::-webkit-scrollbar{display:none}
+  .fcard{flex:0 0 82%;scroll-snap-align:start}
   .rail__head{flex-direction:column;align-items:flex-start;gap:16px}
   .rcard2{width:300px}
   .rcard2__media{height:162px}
