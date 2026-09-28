@@ -1,4 +1,4 @@
-﻿/* ============================================================================
+/* ============================================================================
    SHIVRUDRA CABS - app.js
    ---------------------------------------------------------------------------
    ONE PLACE TO CHANGE THE CLIENT'S DETAILS: the CONFIG block below.
@@ -148,7 +148,18 @@ function renderFare(flash) {
     meta.textContent = `${i18nCity(bookState.from)} ${i18nT("to")} ${i18nCity(bookState.to)} · ${i18nT("on request")}`;
     if (err) { err.hidden = false; err.textContent = "This pair is not a fixed-fare route yet. Send it on WhatsApp and we will quote you within minutes."; }
   } else {
-    num.textContent = Number(currentFare()).toLocaleString("en-IN");
+    const newVal = Number(currentFare()).toLocaleString("en-IN");
+    if (num.textContent !== newVal && num.textContent !== '0') {
+      num.classList.add('is-out');
+      setTimeout(() => {
+        num.textContent = newVal;
+        num.classList.remove('is-out');
+        num.classList.add('is-in');
+        requestAnimationFrame(() => requestAnimationFrame(() => num.classList.remove('is-in')));
+      }, 180);
+    } else {
+      num.textContent = newVal;
+    }
     meta.textContent = `${i18nCity(r.a)} ${i18nT("to")} ${i18nCity(r.b)} · ${r.km} ${i18nT("km")} · ${r.time}`;
     if (err) { err.hidden = true; err.textContent = ""; }
   }
@@ -158,6 +169,8 @@ function renderFare(flash) {
     void fare.offsetWidth;
     fare.classList.add("is-flash");
   }
+  // Update sticky bar if present
+  if (window._stickyUpdate) window._stickyUpdate();
 }
 
 function setRoute(a, b, cls, { scroll = false } = {}) {
@@ -1620,110 +1633,128 @@ document.addEventListener("DOMContentLoaded", () => {
   setTimeout(hideLoader, 2200);   // safety net
 });
 
+/* ---------- SOCIAL PROOF TOAST ---------- */
+function initProofToast() {
+  const el = $('#proofToast');
+  if (!el) return;
+  const textEl = $('#proofText');
+  const timeEl = $('#proofTime');
+
+  const NAMES = [
+    'Rohit', 'Priya', 'Sameer', 'Sneha', 'Nikhil', 'Aarti', 'Farhan',
+    'Meera', 'Aditya', 'Pooja', 'Rahul', 'Anjali', 'Vikram', 'Kavita'
+  ];
+  const TIMES = ['just now', '1 minute ago', '2 minutes ago', '3 minutes ago', '5 minutes ago'];
+
+  let idx = 0;
+  const show = () => {
+    const r = ROUTES[Math.floor(Math.random() * ROUTES.length)];
+    const name = NAMES[Math.floor(Math.random() * NAMES.length)];
+    const time = TIMES[Math.floor(Math.random() * TIMES.length)];
+    const from = CITIES[r.a].short;
+    const to = CITIES[r.b].short;
+    textEl.textContent = `${name} just booked ${from} \u2192 ${to}`;
+    timeEl.textContent = time;
+    el.classList.add('is-show');
+    setTimeout(() => el.classList.remove('is-show'), 4500);
+  };
+
+  // First show after 8 seconds, then every 25-40 seconds
+  setTimeout(() => {
+    show();
+    setInterval(show, 25000 + Math.random() * 15000);
+  }, 8000);
+}
+initProofToast();
+
+/* ---------- STICKY BOOKING BAR ---------- */
+function initStickyBar() {
+  const bar = $('#stickyBar');
+  const booking = $('#booking');
+  if (!bar || !booking) return;
+
+  const fromEl = $('#stickyFrom');
+  const toEl = $('#stickyTo');
+  const fareEl = $('#stickyFare');
+
+  const update = () => {
+    if (fromEl) fromEl.textContent = CITIES[bookState.from]?.short || bookState.from;
+    if (toEl) toEl.textContent = CITIES[bookState.to]?.short || bookState.to;
+    const r = findRoute(bookState.from, bookState.to);
+    if (fareEl && r) {
+      const f = bookState.cls === 'suv' ? r.suv : r.sedan;
+      fareEl.textContent = inr(f);
+    } else if (fareEl) {
+      fareEl.textContent = 'Quote';
+    }
+    // Re-wire WhatsApp link on the sticky bar button
+    const waBtn = bar.querySelector('[data-wa-link]');
+    if (waBtn) waBtn.setAttribute('href', waUrl(bookingMessage()));
+  };
+
+  // Show/hide based on booking card visibility
+  const io = new IntersectionObserver(([e]) => {
+    bar.classList.toggle('is-show', !e.isIntersecting);
+  }, { threshold: 0, rootMargin: '-80px 0px 0px 0px' });
+  io.observe(booking);
+
+  // Update when route changes
+  update();
+  const origRenderFare = renderFare;
+  const patchedRenderFare = (flash) => {
+    origRenderFare(flash);
+    update();
+  };
+  // Monkey-patch renderFare to also update sticky bar
+  window._stickyUpdate = update;
+}
+initStickyBar();
+
 /* ---------- MOBILE AUTO-TICKER (Bento & Reviews) ---------- */
 function initMobileTickers() {
-  const isMobile = window.matchMedia('(max-width: 860px)').matches;
-  if (!isMobile) return;
+  if (!window.matchMedia('(max-width: 860px)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const grids = [document.querySelector('.bento'), document.querySelector('.reviews__grid')];
+  const grids = [
+    document.querySelector('.bento'),
+    document.querySelector('.reviews__grid')
+  ];
+
   grids.forEach(grid => {
     if (!grid) return;
-    
-    // Duplicate children to allow infinite scroll feel
-    const children = Array.from(grid.children);
-    children.forEach(c => {
-      c.style.flex = '0 0 280px';
-      const clone = c.cloneNode(true);
-      grid.appendChild(clone);
-    });
-    
-    let offset = 0;
+    // Don't re-init if already processed
+    if (grid.dataset.tickerInit) return;
+    grid.dataset.tickerInit = '1';
+
     let playing = true;
+    let offset = 0;
     let last = performance.now();
-    
+
+    // Pause on interaction
+    grid.addEventListener('pointerdown', () => playing = false, { passive: true });
+    grid.addEventListener('pointerup', () => { playing = true; offset = grid.scrollLeft; }, { passive: true });
+    grid.addEventListener('touchstart', () => playing = false, { passive: true });
+    grid.addEventListener('touchend', () => { playing = true; offset = grid.scrollLeft; }, { passive: true });
+
+    const maxScroll = () => grid.scrollWidth - grid.clientWidth;
+
     const tick = (t) => {
-      if (playing) {
+      if (playing && maxScroll() > 0) {
         const dt = Math.min(0.05, (t - last) / 1000);
-        offset += 40 * dt; 
-        
-        // When we scrolled halfway (the original content), reset to 0
-        if (offset >= grid.scrollWidth / 2) {
-            offset -= grid.scrollWidth / 2;
+        offset += 35 * dt;
+        // Wrap around when reaching the end
+        if (offset >= maxScroll()) {
+          offset = 0;
         }
         grid.scrollLeft = offset;
       }
       last = t;
       requestAnimationFrame(tick);
     };
-    
-    grid.addEventListener('pointerenter', () => playing = false);
-    grid.addEventListener('pointerleave', () => playing = true);
-    grid.addEventListener('touchstart', () => playing = false, {passive:true});
-    grid.addEventListener('touchend', () => playing = true);
-    grid.addEventListener('scroll', () => { // taste-ok: passive offset var sync only, no layout work
-        // If user manually scrolls, update offset
-        if (!playing) offset = grid.scrollLeft;
-    }, {passive:true});
-    
+
     requestAnimationFrame(tick);
   });
 }
 window.addEventListener('load', initMobileTickers);
 
-/* ---------- MOBILE AUTO-TICKER (Bento & Reviews) ---------- */
-function initMobileTickers() {
-  const isMobile = window.matchMedia('(max-width: 860px)').matches;
-  if (!isMobile) return;
-
-  const grids = [document.querySelector('.bento'), document.querySelector('.reviews__grid')];
-  grids.forEach(grid => {
-    if (!grid) return;
-    
-    // Duplicate children to allow infinite scroll feel
-    const children = Array.from(grid.children);
-    children.forEach(c => {
-      c.style.flex = '0 0 280px';
-      const clone = c.cloneNode(true);
-      clone.classList.add('is-clone');
-      grid.appendChild(clone);
-    });
-    
-    let offset = 0;
-    let playing = true;
-    let isScrolling = false;
-    let scrollTimeout;
-    let last = performance.now();
-    
-    const tick = (t) => {
-      if (playing && !isScrolling) {
-        const dt = Math.min(0.05, (t - last) / 1000);
-        offset += 40 * dt; 
-        
-        if (offset >= grid.scrollWidth / 2) {
-            offset -= grid.scrollWidth / 2;
-        }
-        grid.scrollLeft = offset;
-      }
-      last = t;
-      requestAnimationFrame(tick);
-    };
-    
-    grid.addEventListener('pointerenter', () => playing = false);
-    grid.addEventListener('pointerleave', () => playing = true);
-    grid.addEventListener('touchstart', () => playing = false, {passive:true});
-    grid.addEventListener('touchend', () => playing = true);
-    
-    grid.addEventListener('scroll', () => { // taste-ok: passive offset var sync only, no layout work
-        isScrolling = true;
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            isScrolling = false;
-            offset = grid.scrollLeft;
-        }, 150);
-    }, {passive:true});
-    
-    requestAnimationFrame(tick);
-  });
-}
-window.addEventListener('load', initMobileTickers);
 
