@@ -392,6 +392,7 @@ function buildMap() {
 
   Object.entries(CITIES).forEach(([id, c]) => {
     const g = svgEl("g", { class: "map__node" + (c.hub ? " hub" : ""), "data-city": id, tabindex: "0", role: "button", "aria-label": c.name });
+    g.appendChild(svgEl("circle", { cx: c.x, cy: c.y, r: 26, fill: "#ffffff", "fill-opacity": "0", class: "hit" }));
     g.appendChild(svgEl("circle", { cx: c.x, cy: c.y, r: c.hub ? 17 : 12, class: "halo" }));
     if (c.hub) g.appendChild(svgEl("circle", { cx: c.x, cy: c.y, r: 9, class: "halo pulse" }));
     g.appendChild(svgEl("circle", { cx: c.x, cy: c.y, r: c.hub ? 7 : 5.5 }));

@@ -83,7 +83,7 @@ const MR = {
   "From Nashik": "नाशिकहून",
   "From Sambhajinagar": "संभाजीनगरहून",
   "From Ahilyanagar": "अहिल्यानगरहून",
-  "Hover a route, tap a city": "मार्गावर हॉव्हर करा, शहर टॅप करा",
+  "Tap a city to filter routes": "मार्ग फिल्टर करण्यासाठी शहरावर टॅप करा",
   "Major hub": "प्रमुख शहर",
   "Getaway / temple town": "पर्यटन / तीर्थक्षेत्र",
   "Book this route": "हा मार्ग बुक करा",

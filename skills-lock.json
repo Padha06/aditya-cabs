@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "mobile-webapp-ux": {
+      "source": "swyxio/skills",
+      "sourceType": "github",
+      "skillPath": "mobile-webapp-ux/SKILL.md",
+      "computedHash": "b145a1c3441258836d870fd89099a91ed03948d8ba62d6378ae412722ff3345e"
+    }
+  }
+}
