@@ -24,6 +24,12 @@
       "sourceType": "github",
       "skillPath": "mobile-webapp-ux/SKILL.md",
       "computedHash": "b145a1c3441258836d870fd89099a91ed03948d8ba62d6378ae412722ff3345e"
+    },
+    "superdesign": {
+      "source": "cskwork/superdesign-skill",
+      "sourceType": "github",
+      "skillPath": "skills/superdesign/SKILL.md",
+      "computedHash": "d7b20fe06b7e070a7f9a240fba3af0e51da8256d763028b340d9f71d07fd20ce"
     }
   }
 }

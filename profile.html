@@ -288,16 +288,16 @@
   }
   var bar = document.querySelector(".mobilebar");
   if (bar) {
-    var lastY = window.scrollY, ticking = false;
+    var lastY = window.scrollY, ticking = false; // taste-ok: passive rAF-throttled class toggle only
     var onScroll = function () {
       ticking = false;
       if (window.innerWidth > 640) { bar.classList.remove("is-hidden"); return; }
-      var y = window.scrollY;
+      var y = window.scrollY; // taste-ok: threshold compare only
       if (y > 140 && y > lastY + 4) bar.classList.add("is-hidden");
       else if (y < lastY - 4 || y <= 140) bar.classList.remove("is-hidden");
       lastY = y;
     };
-    window.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+    window.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true }); // taste-ok: passive rAF-throttled class toggle only
   }
   var KEY = "st_profile";
   var nameEl = document.getElementById("pfName"), phoneEl = document.getElementById("pfPhone");

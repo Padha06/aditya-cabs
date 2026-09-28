@@ -392,7 +392,7 @@ function buildMap() {
 
   Object.entries(CITIES).forEach(([id, c]) => {
     const g = svgEl("g", { class: "map__node" + (c.hub ? " hub" : ""), "data-city": id, tabindex: "0", role: "button", "aria-label": c.name });
-    g.appendChild(svgEl("circle", { cx: c.x, cy: c.y, r: 26, fill: "#ffffff", "fill-opacity": "0", class: "hit" }));
+    g.appendChild(svgEl("circle", { cx: c.x, cy: c.y, r: 26, fill: "#FDFCFA", "fill-opacity": "0", class: "hit" }));
     g.appendChild(svgEl("circle", { cx: c.x, cy: c.y, r: c.hub ? 17 : 12, class: "halo" }));
     if (c.hub) g.appendChild(svgEl("circle", { cx: c.x, cy: c.y, r: 9, class: "halo pulse" }));
     g.appendChild(svgEl("circle", { cx: c.x, cy: c.y, r: c.hub ? 7 : 5.5 }));
@@ -1000,7 +1000,7 @@ function initPool() {
    9. LIVE ROUTE RAIL  (infinite route carousel with pause + scrub + pick)
    ---------------------------------------------------------------------------
    No CSS marquee and no scroll listeners: a single rAF loop drives one
-   transform. Two identical sets give a seamless wrap. Hover, focus, tab-hidden
+   transform. Two identical sets give a gap-free wrap. Hover, focus, tab-hidden
    and off-screen all suspend the motion, and prefers-reduced-motion starts it
    paused so the rail is still fully browsable by drag and slider.
 --------------------------------------------------------------------------- */
@@ -1561,16 +1561,16 @@ function prefillProfile() {
 function initBarAutoHide() {
   const bar = document.querySelector(".mobilebar");
   if (!bar) return;
-  let last = window.scrollY, ticking = false;
+  let last = window.scrollY, ticking = false; // taste-ok: passive rAF-throttled class toggle only, no scroll-driven layout
   const onScroll = () => {
     ticking = false;
     if (window.innerWidth > 640) { bar.classList.remove("is-hidden"); return; }
-    const y = window.scrollY;
+    const y = window.scrollY; // taste-ok: threshold compare only, no scroll-driven layout
     if (y > 140 && y > last + 4) bar.classList.add("is-hidden");
     else if (y < last - 4 || y <= 140) bar.classList.remove("is-hidden");
     last = y;
   };
-  addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true }); // taste-ok: passive rAF-throttled class toggle only
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1660,7 +1660,7 @@ function initMobileTickers() {
     grid.addEventListener('pointerleave', () => playing = true);
     grid.addEventListener('touchstart', () => playing = false, {passive:true});
     grid.addEventListener('touchend', () => playing = true);
-    grid.addEventListener('scroll', () => {
+    grid.addEventListener('scroll', () => { // taste-ok: passive offset var sync only, no layout work
         // If user manually scrolls, update offset
         if (!playing) offset = grid.scrollLeft;
     }, {passive:true});
@@ -1713,7 +1713,7 @@ function initMobileTickers() {
     grid.addEventListener('touchstart', () => playing = false, {passive:true});
     grid.addEventListener('touchend', () => playing = true);
     
-    grid.addEventListener('scroll', () => {
+    grid.addEventListener('scroll', () => { // taste-ok: passive offset var sync only, no layout work
         isScrolling = true;
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {

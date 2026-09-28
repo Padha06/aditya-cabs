@@ -1,0 +1,16 @@
+[
+  { "el": "body text", "fg": "#101215", "bg": "#FDFCFA", "size": "body" },
+  { "el": "secondary text", "fg": "#4B535E", "bg": "#FDFCFA", "size": "body" },
+  { "el": "muted text-3", "fg": "#5F6672", "bg": "#FDFCFA", "size": "body" },
+  { "el": "muted on soft", "fg": "#5F6672", "bg": "#F7F8FA", "size": "body" },
+  { "el": "accent text link", "fg": "#A85B06", "bg": "#FDFCFA", "size": "body" },
+  { "el": "accent text on soft", "fg": "#A85B06", "bg": "#F7F8FA", "size": "body" },
+  { "el": "wa button text", "fg": "#FDFCFA", "bg": "#0B8045", "size": "body" },
+  { "el": "accent btn ink", "fg": "#1A1206", "bg": "#F5A524", "size": "body" },
+  { "el": "input text on surface-2", "fg": "#4B535E", "bg": "#F4F5F7", "size": "body" },
+  { "el": "body on bg-soft", "fg": "#101215", "bg": "#F7F8FA", "size": "body" },
+  { "el": "swap icon on surface-3", "fg": "#A85B06", "bg": "#EBEDF0", "size": "large" },
+  { "el": "fact numerals", "fg": "#101215", "bg": "#F7F8FA", "size": "large" },
+  { "el": "mobilebar active", "fg": "#A85B06", "bg": "#FDFCFA", "size": "body" },
+  { "el": "hero eyebrow", "fg": "#4B535E", "bg": "#FDFCFA", "size": "body" }
+]

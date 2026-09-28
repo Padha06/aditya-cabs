@@ -1,0 +1,357 @@
+- generic [active] [ref=e1]:
+  - status "Loading Shivrudra Taxi" [ref=e2]:
+    - generic [ref=e3]: Shivrudra Taxi
+  - link "Skip to sharing" [ref=e6] [cursor=pointer]:
+    - /url: "#pool"
+  - banner [ref=e7]:
+    - generic [ref=e8]:
+      - link "Shivrudra Taxi home" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "Shivrudra Taxi" [ref=e10]
+      - navigation "Primary" [ref=e11]:
+        - link "All routes" [ref=e12] [cursor=pointer]:
+          - /url: /routes
+        - link "Share a Cab" [ref=e13] [cursor=pointer]:
+          - /url: /share
+      - generic [ref=e14]:
+        - group "Language / भाषा" [ref=e15]:
+          - button "EN" [pressed] [ref=e16] [cursor=pointer]
+          - button "मराठी" [ref=e17] [cursor=pointer]
+        - link "Call 24x7" [ref=e18] [cursor=pointer]:
+          - /url: tel:+918605953737
+        - link "Book on WhatsApp" [ref=e21] [cursor=pointer]:
+          - /url: https://wa.me/918605953737?text=Hi%20Shivrudra%20Taxi%2C%20I%20would%20like%20to%20book%20a%20one-way%20cab.%20Please%20share%20availability%20and%20the%20fixed%20fare.
+  - main [ref=e24]:
+    - generic [ref=e26]:
+      - navigation "Breadcrumb" [ref=e27]:
+        - link "Home" [ref=e28] [cursor=pointer]:
+          - /url: /
+        - generic [aria-hidden] [ref=e29]: /
+        - generic [ref=e30]: Share a Cab
+      - generic [ref=e31]:
+        - paragraph [ref=e32]: Pool and save
+        - heading "Same route, same day? Split the cab and halve the fare." [level=1] [ref=e33]
+        - paragraph [ref=e34]: Post your trip. If another traveller is going the same way on the same date, we pair you in one car and you each pay half. The office connects you both, so no phone number is shared until both sides agree.
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - generic [ref=e37]: Full one-way fare
+          - generic [ref=e38]: ₹2,799
+          - generic [ref=e39]: Pune to Mumbai, Sedan
+        - generic [ref=e42]:
+          - generic [ref=e43]: Each, when two share
+          - generic [ref=e44]: ₹1,400
+          - generic [ref=e45]: Same car, same driver, same comfort
+        - generic [ref=e46]:
+          - generic [ref=e47]: You save
+          - generic [ref=e48]: ₹1,399
+          - generic [ref=e49]: Booked and confirmed by our office
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - generic [ref=e52]:
+            - heading "Post your trip" [level=3] [ref=e53]
+            - paragraph [ref=e54]: Free to post. No payment until we confirm a match.
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - generic [ref=e57]:
+                - generic [ref=e58]: From
+                - combobox "From" [ref=e61] [cursor=pointer]:
+                  - option "Pune" [selected]
+                  - option "Mumbai"
+                  - option "Chhatrapati Sambhajinagar"
+                  - option "Nashik"
+                  - option "Ahilyanagar (Ahmednagar)"
+                  - option "Shirdi"
+                  - option "Mahabaleshwar"
+                  - option "Kolhapur"
+                  - option "Lonavala"
+              - generic [ref=e62]:
+                - generic [ref=e63]: To
+                - combobox "To" [ref=e66] [cursor=pointer]:
+                  - option "Pune"
+                  - option "Mumbai" [selected]
+                  - option "Chhatrapati Sambhajinagar"
+                  - option "Nashik"
+                  - option "Ahilyanagar (Ahmednagar)"
+                  - option "Shirdi"
+                  - option "Mahabaleshwar"
+                  - option "Kolhapur"
+                  - option "Lonavala"
+            - generic [ref=e67]:
+              - generic [ref=e68]:
+                - generic [ref=e69]: Travel date
+                - textbox "Travel date" [ref=e72] [cursor=pointer]: 2026-09-30
+              - generic [ref=e73]:
+                - generic [ref=e74]: Pickup time
+                - textbox "Pickup time" [ref=e77]: 07:00
+            - generic [ref=e78]:
+              - generic [ref=e79]:
+                - generic [ref=e80]: Seats you need
+                - combobox "Seats you need" [ref=e83] [cursor=pointer]:
+                  - option "1 seat" [selected]
+                  - option "2 seats"
+                  - option "3 seats"
+              - generic [ref=e84]:
+                - generic [ref=e85]: Your name
+                - textbox "Your name" [ref=e88]:
+                  - /placeholder: First and last name
+            - group "Preferred car" [ref=e89]:
+              - radiogroup "Preferred car class" [ref=e91]:
+                - generic [ref=e92]:
+                  - radio "Sedan Cheapest split" [checked] [ref=e93] [cursor=pointer]
+                  - generic [ref=e94]:
+                    - generic [ref=e95]: Sedan
+                    - generic [ref=e96]: Cheapest split
+                - generic [ref=e97]:
+                  - radio "SUV More room" [ref=e98] [cursor=pointer]
+                  - generic [ref=e99]:
+                    - generic [ref=e100]: SUV
+                    - generic [ref=e101]: More room
+            - button "Post my trip" [ref=e102] [cursor=pointer]
+            - paragraph [ref=e105]: Your number stays with our office. We only share it once both travellers confirm the seat.
+        - generic [ref=e106]:
+          - generic [ref=e107]:
+            - heading "Open seats on the board" [level=3] [ref=e108]
+            - generic [ref=e109]: 8 trips posted
+          - generic [aria-hidden] [ref=e110]:
+            - generic [ref=e111]: Traveller
+            - generic [ref=e112]: Route
+            - generic [ref=e113]: Date and time
+            - generic [ref=e114]: Fare each
+          - generic [ref=e115]:
+            - article [ref=e116]:
+              - generic [ref=e117]:
+                - generic [aria-hidden] [ref=e118]: NJ
+                - generic [ref=e119]:
+                  - generic [ref=e120]: Nikhil Joshi
+                  - generic [ref=e121]: Verified
+              - generic [ref=e124]:
+                - generic [ref=e125]: Mumbai to Pune
+                - generic [ref=e126]: Sedan · 1 seat needed
+              - generic [ref=e127]:
+                - generic [ref=e128]: 29 Sept
+                - generic [ref=e129]: 6:30 PM pickup
+              - generic [ref=e130]:
+                - generic [ref=e131]: ₹1,400
+                - generic [ref=e132]: full ₹2,799
+              - button "Request" [ref=e133] [cursor=pointer]
+            - article [ref=e135]:
+              - generic [ref=e136]:
+                - generic [aria-hidden] [ref=e137]: RD
+                - generic [ref=e138]:
+                  - generic [ref=e139]: Rohit Deshmukh
+                  - generic [ref=e140]:
+                    - generic [ref=e141]: Verified
+                    - generic [ref=e143]: Match
+              - generic [ref=e145]:
+                - generic [ref=e146]: Pune to Mumbai
+                - generic [ref=e147]: SUV · 2 seats needed
+              - generic [ref=e148]:
+                - generic [ref=e149]: 30 Sept
+                - generic [ref=e150]: 6:30 AM pickup
+              - generic [ref=e151]:
+                - generic [ref=e152]: ₹1,600
+                - generic [ref=e153]: full ₹3,199
+              - button "Request" [ref=e154] [cursor=pointer]
+            - article [ref=e156]:
+              - generic [ref=e157]:
+                - generic [aria-hidden] [ref=e158]: AN
+                - generic [ref=e159]:
+                  - generic [ref=e160]: Aarti Nair
+                  - generic [ref=e161]:
+                    - generic [ref=e162]: Verified
+                    - generic [ref=e164]: Match
+              - generic [ref=e166]:
+                - generic [ref=e167]: Pune to Mumbai
+                - generic [ref=e168]: SUV · 1 seat needed
+              - generic [ref=e169]:
+                - generic [ref=e170]: 30 Sept
+                - generic [ref=e171]: 7:00 AM pickup
+              - generic [ref=e172]:
+                - generic [ref=e173]: ₹1,600
+                - generic [ref=e174]: full ₹3,199
+              - button "Request" [ref=e175] [cursor=pointer]
+            - article [ref=e177]:
+              - generic [ref=e178]:
+                - generic [aria-hidden] [ref=e179]: PB
+                - generic [ref=e180]:
+                  - generic [ref=e181]: Pooja Bhosale
+                  - generic [ref=e182]: Verified
+              - generic [ref=e185]:
+                - generic [ref=e186]: Nashik to Pune
+                - generic [ref=e187]: Sedan · 2 seats needed
+              - generic [ref=e188]:
+                - generic [ref=e189]: 30 Sept
+                - generic [ref=e190]: 5:00 PM pickup
+              - generic [ref=e191]:
+                - generic [ref=e192]: ₹1,600
+                - generic [ref=e193]: full ₹3,199
+              - button "Request" [ref=e194] [cursor=pointer]
+            - article [ref=e196]:
+              - generic [ref=e197]:
+                - generic [aria-hidden] [ref=e198]: SK
+                - generic [ref=e199]:
+                  - generic [ref=e200]: Sameer Kulkarni
+                  - generic [ref=e201]: Verified
+              - generic [ref=e204]:
+                - generic [ref=e205]: Pune to Shirdi
+                - generic [ref=e206]: Sedan · 2 seats needed
+              - generic [ref=e207]:
+                - generic [ref=e208]: 1 Oct
+                - generic [ref=e209]: 5:00 AM pickup
+              - generic [ref=e210]:
+                - generic [ref=e211]: ₹1,500
+                - generic [ref=e212]: full ₹2,999
+              - button "Request" [ref=e213] [cursor=pointer]
+            - article [ref=e215]:
+              - generic [ref=e216]:
+                - generic [aria-hidden] [ref=e217]: FS
+                - generic [ref=e218]:
+                  - generic [ref=e219]: Farhan Shaikh
+                  - generic [ref=e220]: Verified
+              - generic [ref=e223]:
+                - generic [ref=e224]: Pune to Nashik
+                - generic [ref=e225]: Sedan · 2 seats needed
+              - generic [ref=e226]:
+                - generic [ref=e227]: 2 Oct
+                - generic [ref=e228]: 8:00 AM pickup
+              - generic [ref=e229]:
+                - generic [ref=e230]: ₹1,600
+                - generic [ref=e231]: full ₹3,199
+              - button "Request" [ref=e232] [cursor=pointer]
+            - article [ref=e234]:
+              - generic [ref=e235]:
+                - generic [aria-hidden] [ref=e236]: MI
+                - generic [ref=e237]:
+                  - generic [ref=e238]: Meera Iyer
+                  - generic [ref=e239]: Verified
+              - generic [ref=e242]:
+                - generic [ref=e243]: Mumbai to Sambhajinagar
+                - generic [ref=e244]: SUV · 2 seats needed
+              - generic [ref=e245]:
+                - generic [ref=e246]: 3 Oct
+                - generic [ref=e247]: 9:00 PM pickup
+              - generic [ref=e248]:
+                - generic [ref=e249]: ₹2,400
+                - generic [ref=e250]: full ₹4,799
+              - button "Request" [ref=e251] [cursor=pointer]
+            - article [ref=e253]:
+              - generic [ref=e254]:
+                - generic [aria-hidden] [ref=e255]: AR
+                - generic [ref=e256]:
+                  - generic [ref=e257]: Aditya Rane
+                  - generic [ref=e258]: Verified
+              - generic [ref=e261]:
+                - generic [ref=e262]: Pune to Kolhapur
+                - generic [ref=e263]: Sedan · 1 seat needed
+              - generic [ref=e264]:
+                - generic [ref=e265]: 4 Oct
+                - generic [ref=e266]: 7:30 AM pickup
+              - generic [ref=e267]:
+                - generic [ref=e268]: ₹1,750
+                - generic [ref=e269]: full ₹3,499
+              - button "Request" [ref=e270] [cursor=pointer]
+          - paragraph [ref=e272]: Posters are name and ID verified before a seat goes live. The office makes the introduction, then both travellers confirm.
+    - generic [ref=e275]:
+      - heading "Your cab is one message away." [level=2] [ref=e276]
+      - paragraph [ref=e277]: Tell us the route and the date. We will send the fare and the driver's details right back.
+      - generic [ref=e278]:
+        - link "Book on WhatsApp" [ref=e279] [cursor=pointer]:
+          - /url: https://wa.me/918605953737?text=Hi%20Shivrudra%20Taxi%2C%20I%20would%20like%20to%20book%20a%20one-way%20cab.%20Please%20share%20availability%20and%20the%20fixed%20fare.
+        - link "Call 24x7" [ref=e282] [cursor=pointer]:
+          - /url: tel:+918605953737
+  - contentinfo [ref=e285]:
+    - generic [ref=e286]:
+      - generic [ref=e287]:
+        - link "Shivrudra Taxi home" [ref=e288] [cursor=pointer]:
+          - /url: /
+          - img "Shivrudra Taxi" [ref=e289]
+        - paragraph [ref=e290]: Fixed-fare one-way cabs across Maharashtra, running 24x7 from Pune, Mumbai, Nashik, Chhatrapati Sambhajinagar and Ahilyanagar.
+        - generic [ref=e291]:
+          - link "+91 86059 53737" [ref=e292] [cursor=pointer]:
+            - /url: tel:+918605953737
+          - link "WhatsApp booking" [ref=e294] [cursor=pointer]:
+            - /url: https://wa.me/918605953737?text=Hi%20Shivrudra%20Taxi%2C%20I%20have%20a%20question%20about%20my%20booking.
+      - navigation "Popular one-way routes" [ref=e296]:
+        - heading "Popular one-way routes" [level=3] [ref=e297]
+        - list [ref=e298]:
+          - listitem [ref=e299]:
+            - link "Pune to Mumbai cab" [ref=e300] [cursor=pointer]:
+              - /url: /pune-to-mumbai-cab
+          - listitem [ref=e301]:
+            - link "Mumbai to Pune cab" [ref=e302] [cursor=pointer]:
+              - /url: /mumbai-to-pune-cab
+          - listitem [ref=e303]:
+            - link "Pune to Chhatrapati Sambhajinagar cab" [ref=e304] [cursor=pointer]:
+              - /url: /pune-to-chhatrapati-sambhajinagar-cab
+          - listitem [ref=e305]:
+            - link "Chhatrapati Sambhajinagar to Pune cab" [ref=e306] [cursor=pointer]:
+              - /url: /chhatrapati-sambhajinagar-to-pune-cab
+          - listitem [ref=e307]:
+            - link "Pune to Nashik cab" [ref=e308] [cursor=pointer]:
+              - /url: /pune-to-nashik-cab
+          - listitem [ref=e309]:
+            - link "Nashik to Pune cab" [ref=e310] [cursor=pointer]:
+              - /url: /nashik-to-pune-cab
+          - listitem [ref=e311]:
+            - link "Pune to Ahilyanagar cab" [ref=e312] [cursor=pointer]:
+              - /url: /pune-to-ahilyanagar-cab
+          - listitem [ref=e313]:
+            - link "Ahilyanagar to Pune cab" [ref=e314] [cursor=pointer]:
+              - /url: /ahilyanagar-to-pune-cab
+      - navigation "More routes" [ref=e315]:
+        - heading "More routes" [level=3] [ref=e316]
+        - list [ref=e317]:
+          - listitem [ref=e318]:
+            - link "Mumbai to Chhatrapati Sambhajinagar cab" [ref=e319] [cursor=pointer]:
+              - /url: /mumbai-to-chhatrapati-sambhajinagar-cab
+          - listitem [ref=e320]:
+            - link "Mumbai to Nashik cab" [ref=e321] [cursor=pointer]:
+              - /url: /mumbai-to-nashik-cab
+          - listitem [ref=e322]:
+            - link "Pune to Shirdi cab" [ref=e323] [cursor=pointer]:
+              - /url: /pune-to-shirdi-cab
+          - listitem [ref=e324]:
+            - link "Mumbai to Shirdi cab" [ref=e325] [cursor=pointer]:
+              - /url: /mumbai-to-shirdi-cab
+          - listitem [ref=e326]:
+            - link "Sambhajinagar to Shirdi cab" [ref=e327] [cursor=pointer]:
+              - /url: /chhatrapati-sambhajinagar-to-shirdi-cab
+          - listitem [ref=e328]:
+            - link "Pune to Mahabaleshwar cab" [ref=e329] [cursor=pointer]:
+              - /url: /pune-to-mahabaleshwar-cab
+          - listitem [ref=e330]:
+            - link "Pune to Kolhapur cab" [ref=e331] [cursor=pointer]:
+              - /url: /pune-to-kolhapur-cab
+          - listitem [ref=e332]:
+            - link "Mumbai to Lonavala cab" [ref=e333] [cursor=pointer]:
+              - /url: /mumbai-to-lonavala-cab
+      - navigation "Company" [ref=e334]:
+        - heading "Company" [level=3] [ref=e335]
+        - list [ref=e336]:
+          - listitem [ref=e337]:
+            - link "Our fleet" [ref=e338] [cursor=pointer]:
+              - /url: /#fleet
+          - listitem [ref=e339]:
+            - link "Why choose us" [ref=e340] [cursor=pointer]:
+              - /url: /#why
+          - listitem [ref=e341]:
+            - link "How it works" [ref=e342] [cursor=pointer]:
+              - /url: /#how
+          - listitem [ref=e343]:
+            - link "Get a fare" [ref=e344] [cursor=pointer]:
+              - /url: /#booking
+          - listitem [ref=e345]:
+            - link "All routes" [ref=e346] [cursor=pointer]:
+              - /url: /routes
+          - listitem [ref=e347]:
+            - link "Profile" [ref=e348] [cursor=pointer]:
+              - /url: /profile
+    - generic [ref=e349]:
+      - paragraph [ref=e350]: © 2026 Shivrudra Taxi. One-way taxi service, Maharashtra.
+      - paragraph [ref=e351]: Sedan and SUV · Airport transfers · Outstation · 24x7 dispatch
+  - generic [ref=e352]:
+    - link "Call Shivrudra Taxi" [ref=e353] [cursor=pointer]:
+      - /url: tel:+918605953737
+      - generic: Call 24x7
+    - link "Book on WhatsApp" [ref=e355] [cursor=pointer]:
+      - /url: https://wa.me/918605953737?text=Hi%20Shivrudra%20Taxi%2C%20I%20have%20a%20question%20about%20my%20booking.
