@@ -286,6 +286,19 @@
     Array.prototype.forEach.call(menu.querySelectorAll("a"), function (x) { x.addEventListener("click", close); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
   }
+  var bar = document.querySelector(".mobilebar");
+  if (bar) {
+    var lastY = window.scrollY, ticking = false;
+    var onScroll = function () {
+      ticking = false;
+      if (window.innerWidth > 640) { bar.classList.remove("is-hidden"); return; }
+      var y = window.scrollY;
+      if (y > 140 && y > lastY + 4) bar.classList.add("is-hidden");
+      else if (y < lastY - 4 || y <= 140) bar.classList.remove("is-hidden");
+      lastY = y;
+    };
+    window.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  }
   var KEY = "st_profile";
   var nameEl = document.getElementById("pfName"), phoneEl = document.getElementById("pfPhone");
   var err = document.getElementById("pfErr"), savedLine = document.getElementById("pfSaved");

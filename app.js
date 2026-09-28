@@ -1558,6 +1558,21 @@ function prefillProfile() {
   if (rn && !rn.value) rn.value = prof.name;
 }
 
+function initBarAutoHide() {
+  const bar = document.querySelector(".mobilebar");
+  if (!bar) return;
+  let last = window.scrollY, ticking = false;
+  const onScroll = () => {
+    ticking = false;
+    if (window.innerWidth > 640) { bar.classList.remove("is-hidden"); return; }
+    const y = window.scrollY;
+    if (y > 140 && y > last + 4) bar.classList.add("is-hidden");
+    else if (y < last - 4 || y <= 140) bar.classList.remove("is-hidden");
+    last = y;
+  };
+  addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const year = $("#year");
   if (year) year.textContent = new Date().getFullYear();
@@ -1578,6 +1593,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initReveals();
   initCounters();
   initMobilebar();
+  initBarAutoHide();
   prefillProfile();
   translateFooterLinks();
   translateRouteH1();

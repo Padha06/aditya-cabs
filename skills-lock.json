@@ -1,6 +1,18 @@
 {
   "version": 1,
   "skills": {
+    "mobile-design-android": {
+      "source": "ivan-magda/mobile-design-skills",
+      "sourceType": "github",
+      "skillPath": "mobile-design-android/SKILL.md",
+      "computedHash": "232dd52f43cf2899c9bbd6e964585af96509655a47917733011491c83c454615"
+    },
+    "mobile-design-ios": {
+      "source": "ivan-magda/mobile-design-skills",
+      "sourceType": "github",
+      "skillPath": "mobile-design-ios/SKILL.md",
+      "computedHash": "cbcc8abd756106ba31b243c8691586613c3a221985ed13932e1debb06f413a4c"
+    },
     "mobile-ux-design": {
       "source": "phazurlabs/ux-ui-mastery",
       "sourceType": "github",
