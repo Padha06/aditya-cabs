@@ -391,7 +391,7 @@ html[lang="mr"] .footer__col h3{letter-spacing:.06em}
 
 /* ---------- STICKY BOOKING BAR ---------- */
 .stickybar{
-  position:fixed;top:0;left:0;right:0;z-index:calc(var(--z-nav) - 1);
+  position:fixed;top:calc(72px + env(safe-area-inset-top, 0px));left:0;right:0;z-index:calc(var(--z-nav) - 1);
   padding:0;background:rgba(253,252,250,.92);
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid var(--line);
@@ -528,13 +528,13 @@ html[lang="mr"] .footer__col h3{letter-spacing:.06em}
 .rrail__scrub::-webkit-slider-thumb{
   appearance:none;-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
   background:var(--accent);border:3px solid var(--surface);box-shadow:0 0 0 2px rgba(245,165,36,.35),0 2px 8px rgba(16,18,21,.18);
-  cursor:grab;transition:transform .15s var(--ease);
+  margin-top:-8px;cursor:grab;transition:transform .15s var(--ease);
 }
 .rrail__scrub::-webkit-slider-thumb:hover{transform:scale(1.18)}
 .rrail__scrub:active::-webkit-slider-thumb{cursor:grabbing;transform:scale(1.18)}
 .rrail__scrub::-moz-range-track{height:5px;border-radius:var(--r-pill);background:rgba(16,18,21,.2)}
 .rrail__scrub::-moz-range-progress{height:5px;border-radius:var(--r-pill);background:var(--accent)}
-.rrail__scrub::-moz-range-thumb{width:20px;height:20px;border:3px solid var(--surface);border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px rgba(245,165,36,.35),0 2px 8px rgba(16,18,21,.18);cursor:grab}
+.rrail__scrub::-moz-range-thumb{width:20px;height:20px;border:3px solid var(--surface);border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px rgba(245,165,36,.35),0 2px 8px rgba(16,18,21,.18);transform:translateY(-2px);cursor:grab}
 
 /* ---------- ROUTE DETAIL MODAL ---------- */
 .rmodal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:20px}
@@ -1136,7 +1136,7 @@ body.rmodal-open{overflow:hidden}
 }
 @media (max-width:640px){
   html{scroll-padding-top:calc(82px + env(safe-area-inset-top,0px))}
-  body{padding-bottom:80px}
+  body{padding-bottom:64px}
   .nav__row{height:64px;gap:12px}
   .nav__phone span{display:none}
   .nav__cta .btn--wa span{display:none}
@@ -1147,7 +1147,7 @@ body.rmodal-open{overflow:hidden}
   .brand__mark svg{width:21px;height:21px}
   .brand__logo{height:36px}
   .footer__brand .brand__logo{height:46px}
-  .hero{padding:calc(82px + env(safe-area-inset-top,0px)) 0 34px;min-height:auto}
+  .hero{padding:calc(64px + env(safe-area-inset-top,0px)) 0 24px;min-height:auto}
   .hero__eyebrow{margin-bottom:15px;font-size:.65rem;padding:6px 12px 6px 10px;letter-spacing:.14em}
   .hero__h1{font-size:clamp(1.95rem,8.6vw,2.45rem);margin-bottom:13px;text-shadow:0 2px 22px rgba(7,8,11,.6)}
   .hero__sub{margin-bottom:0;font-size:.94rem;max-width:40ch}
@@ -1155,14 +1155,17 @@ body.rmodal-open{overflow:hidden}
   .sub--short{display:inline}
   /* the booking card already carries both actions, so the hero pair is redundant here */
   .hero__cta{display:none}
-  .bookcard{margin-top:24px;padding:18px}
+  .bookcard{margin-top:16px;padding:16px}
   /* compact the form so the hero does not run to two screens on a phone */
-  .bookform{gap:10px}
+  .bookform{gap:8px}
   .swaprow{margin:-16px 0;position:relative;z-index:2}
   .seg__opt i{display:none}
-  .fare{padding:12px 14px}
+  .fare{padding:10px 12px;margin-top:0}
   .bookcard__note{display:none}
   .poolcard{padding:18px}
+  .mapcard{position:static;padding:12px;margin-bottom:8px}
+  .mapcard__stage{max-height:200px}
+  .mapcard__legend{margin-top:8px}
   .poolform__row{grid-template-columns:1fr}
   .revform__row{grid-template-columns:1fr}
   .revform__actions .btn{width:100%}
@@ -1192,7 +1195,7 @@ body.rmodal-open{overflow:hidden}
   .stickybar__inner{padding:8px var(--gutter)}
   .stickybar__route{font-size:.82rem}
   .stickybar__fare{font-size:1.05rem}
-  .stickybar{top:64px}
+  .stickybar{top:calc(64px + env(safe-area-inset-top, 0px));}
   .truststrip{padding:12px 0}
   .truststrip__item{font-size:.76rem;gap:6px}
   .truststrip__item b{font-size:.92rem}
@@ -1216,10 +1219,11 @@ body.rmodal-open{overflow:hidden}
   .review blockquote{font-size:.88rem;line-height:1.55}
   .review figcaption{padding-top:10px;gap:0}
   .review figcaption b{font-size:.86rem}
-  .revform{margin-top:16px;padding:16px;gap:14px}
+  .revform{margin-top:16px;padding:14px;gap:10px}
   .revform__intro h3{font-size:1.05rem;margin-bottom:5px}
-  .revform__intro p{font-size:.82rem;line-height:1.55}
+  .revform__intro p{display:none}
   .select select,.select input,.revform textarea{font-size:16px}
+  .revform textarea{height:60px}
   .ctaband__cta{width:100%}
   .ctaband__cta .btn{flex:1 1 auto}
   .section{padding-top:clamp(48px,7vw,72px);padding-bottom:clamp(48px,7vw,72px)}
@@ -1229,8 +1233,8 @@ body.rmodal-open{overflow:hidden}
   .rcard2__media{height:150px}
   .rrail{border-radius:14px;padding:10px 14px;margin-top:16px}
   .rrail__scrub{height:28px}
-  .rrail__scrub::-webkit-slider-thumb{width:16px;height:16px;border-width:2px}
-  .rrail__scrub::-moz-range-thumb{width:16px;height:16px;border-width:2px}
+  .rrail__scrub::-webkit-slider-thumb{width:16px;height:16px;border-width:2px;margin-top:-6px}
+  .rrail__scrub::-moz-range-thumb{width:16px;height:16px;border-width:2px;transform:translateY(-1px)}
   .rrail__scrub::-webkit-slider-runnable-track{height:4px}
   .rrail__scrub::-moz-range-track{height:4px}
   .rrail__scrub::-moz-range-progress{height:4px}

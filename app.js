@@ -1716,7 +1716,6 @@ function initMobileTickers() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const grids = [
-    document.querySelector('.bento'),
     document.querySelector('.reviews__grid')
   ];
 
