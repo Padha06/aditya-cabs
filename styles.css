@@ -1073,7 +1073,11 @@ body.rmodal-open{overflow:hidden}
   }
   .hero__scroll{display:none}
   .routes__grid{grid-template-columns:1fr}
-  .mapcard{position:static}
+  .routes__list{display:contents}
+  .filters{order:1;margin-bottom:0}
+  .mapcard{position:static;order:2}
+  .rcards{order:3}
+  .rcards__noscript{order:4}
   .pool__grid{grid-template-columns:minmax(0,1fr)}
   .poolcard{position:static;max-width:640px}
   .pstrip{grid-template-columns:1fr 1fr;gap:12px}
