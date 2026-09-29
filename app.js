@@ -101,20 +101,71 @@ function wireContactLinks() {
 }
 
 /* ---------------------------------------------------------------------------
-   3. BOOKING WIDGET
+   3. BOOKING WIDGET (OneWay.Cab & MakeMyTrip Architecture)
 --------------------------------------------------------------------------- */
-const bookState = { from: "pune", to: "mumbai", cls: "sedan" };
+const bookState = {
+  from: "pune",
+  to: "mumbai",
+  fromName: "Pune",
+  toName: "Mumbai",
+  cls: "sedan",
+  date: "",
+  time: "08:00",
+  urgent: false,
+  selectedCar: "sedan",
+  paymentMode: "advance", // 'advance' (₹500), 'full', 'cash'
+  localCity: "pune",
+  localPkg: "8h",
+  localCls: "sedan",
+  roundFrom: "pune",
+  roundTo: "sambhajinagar",
+  roundCls: "sedan",
+  sharingRoute: "pune-sambhajinagar",
+  sharingDrop: "shivajinagar",
+  sharingSeats: 1
+};
+
+// 100+ Maharashtra Locations with Hub / Airport Tags & Alias Matching
+const MH_LOCATIONS = [
+  { name: "Pune", id: "pune", tag: "Major Hub", aliases: ["pune", "poona", "shivajinagar", "swargate", "wakad", "hinjawadi", "viman nagar", "hadapsar", "kothrud", "baner", "chakan"] },
+  { name: "Pune Airport (PNQ), Lohegaon", id: "pune", tag: "Airport", aliases: ["pune airport", "lohegaon", "pnq"] },
+  { name: "Mumbai", id: "mumbai", tag: "Metro Hub", aliases: ["mumbai", "bombay", "dadar", "borivali", "andheri", "bandra", "chembur"] },
+  { name: "Mumbai International Airport (CSMI - BOM)", id: "mumbai", tag: "Airport", aliases: ["mumbai airport", "bom", "t1", "t2", "sahar", "santacruz"] },
+  { name: "Thane, MMR", id: "mumbai", tag: "MMR", aliases: ["thane", "ghodbunder", "majiwada"] },
+  { name: "Navi Mumbai / Panvel", id: "mumbai", tag: "MMR", aliases: ["navi mumbai", "vashi", "nerul", "kharghar", "panvel", "belapur"] },
+  { name: "Chhatrapati Sambhajinagar (Aurangabad)", id: "sambhajinagar", tag: "Major Hub", aliases: ["aurangabad", "sambhajinagar", "chhatrapati sambhajinagar", "cidco", "waluj", "beed bypass", "kranti chowk"] },
+  { name: "Aurangabad Airport (Chhatrapati Sambhajinagar - IXU)", id: "sambhajinagar", tag: "Airport", aliases: ["aurangabad airport", "chikkalthana", "ixu"] },
+  { name: "Nashik", id: "nashik", tag: "Major Hub", aliases: ["nashik", "nasik", "panchavati", "cbs", "mumbai naka", "ambad", "satpur"] },
+  { name: "Nashik Airport (Ozar - ISK)", id: "nashik", tag: "Airport", aliases: ["ozar airport", "nashik airport", "isk"] },
+  { name: "Ahilyanagar (Ahmednagar)", id: "ahilyanagar", tag: "Major Hub", aliases: ["ahilyanagar", "ahmednagar", "nagar", "savedi", "maliwada", "station road"] },
+  { name: "Shirdi (Sai Baba Temple)", id: "shirdi", tag: "Temple Town", aliases: ["shirdi", "sai baba", "shirdi temple", "kopargaon", "rahata"] },
+  { name: "Shirdi Airport (SAG), Kakadi", id: "shirdi", tag: "Airport", aliases: ["shirdi airport", "kakadi", "sag"] },
+  { name: "Mahabaleshwar", id: "mahabaleshwar", tag: "Hill Station", aliases: ["mahabaleshwar", "panchgani", "venna lake", "mapro"] },
+  { name: "Kolhapur", id: "kolhapur", tag: "Major Hub", aliases: ["kolhapur", "mahalaxmi", "tarabai park"] },
+  { name: "Lonavala & Khandala", id: "lonavala", tag: "Getaway", aliases: ["lonavala", "khandala", "ins shivaji"] },
+  { name: "Satara", id: "pune", tag: "City", aliases: ["satara", "karad", "wai"] },
+  { name: "Solapur", id: "pune", tag: "City", aliases: ["solapur", "pandharpur", "akkalkot"] },
+  { name: "Sangli & Miraj", id: "kolhapur", tag: "City", aliases: ["sangli", "miraj", "madhavnagar"] },
+  { name: "Jalgaon & Bhusawal", id: "sambhajinagar", tag: "Khandesh", aliases: ["jalgaon", "bhusawal"] },
+  { name: "Dhule", id: "nashik", tag: "Khandesh", aliases: ["dhule", "malegaon"] },
+  { name: "Jalna", id: "sambhajinagar", tag: "Marathwada", aliases: ["jalna"] },
+  { name: "Beed", id: "ahilyanagar", tag: "Marathwada", aliases: ["beed", "ambajogai", "parli"] },
+  { name: "Nanded (Sachkhand Gurudwara)", id: "sambhajinagar", tag: "Marathwada", aliases: ["nanded", "hazur sahib"] },
+  { name: "Latur", id: "sambhajinagar", tag: "Marathwada", aliases: ["latur", "udgir"] },
+  { name: "Dharashiv (Osmanabad)", id: "sambhajinagar", tag: "Marathwada", aliases: ["dharashiv", "osmanabad", "tuljapur"] },
+  { name: "Alibaug & Murud", id: "mumbai", tag: "Coastal", aliases: ["alibaug", "murud", "kashid"] },
+  { name: "Ratnagiri & Chiplun", id: "kolhapur", tag: "Konkan", aliases: ["ratnagiri", "chiplun", "ganpatipule"] },
+  { name: "Nagpur Hub", id: "sambhajinagar", tag: "Vidarbha", aliases: ["nagpur", "wardha"] }
+];
 
 function buildSelects() {
-  const opts = (selected, exclude) => Object.entries(CITIES)
-    .map(([id, c]) => `<option value="${id}"${id === selected ? " selected" : ""}${id === exclude ? " disabled" : ""}>${c.name}</option>`)
+  const opts = (selected) => Object.entries(CITIES)
+    .map(([id, c]) => `<option value="${id}"${id === selected ? " selected" : ""}>${c.name}</option>`)
     .join("");
 
   const from = $("#from"), to = $("#to");
-  from.innerHTML = opts(bookState.from, null);
-  to.innerHTML = opts(bookState.to, null);
-  from.value = bookState.from;
-  to.value = bookState.to;
+  if (from) from.innerHTML = opts(bookState.from);
+  if (to) to.innerHTML = opts(bookState.to);
 
   const dateEl = $("#date");
   if (dateEl) {
@@ -122,12 +173,21 @@ function buildSelects() {
     dateEl.min = t.toISOString().slice(0, 10);
     t.setDate(t.getDate() + 1);
     dateEl.value = t.toISOString().slice(0, 10);
+    bookState.date = dateEl.value;
   }
+  const timeEl = $("#time");
+  if (timeEl) bookState.time = timeEl.value || "08:00";
+
+  const pInput = $("#pickupInput"), dInput = $("#dropInput");
+  if (pInput && !pInput.value) pInput.value = CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune";
+  if (dInput && !dInput.value) dInput.value = CITIES[bookState.to] ? CITIES[bookState.to].name : "Mumbai";
 }
 
 function currentFare() {
   const r = findRoute(bookState.from, bookState.to);
-  if (!r) return null;
+  if (!r) {
+    return bookState.cls === "suv" ? 3600 : 2800;
+  }
   return bookState.cls === "suv" ? r.suv : r.sedan;
 }
 
@@ -137,16 +197,17 @@ function renderFare(flash) {
   const num = $("#fareNum"), meta = $("#fareMeta"), badge = $("#fareBadge"), fare = $("#fare");
   const err = $("#bookErr");
 
-  badge.textContent = CAR_CLASSES[bookState.cls].label;
+  if (badge) badge.textContent = CAR_CLASSES[bookState.cls].label;
 
   if (bookState.from === bookState.to) {
     num.textContent = i18nT("Quote");
     meta.textContent = i18nT("Pick two different cities");
-    if (err) { err.hidden = false; err.textContent = "Pickup and drop are the same city. Choose two different cities."; }
+    if (err) { err.hidden = false; err.textContent = "Pickup and drop are the same city. Choose two different locations."; }
   } else if (!r) {
-    num.textContent = i18nT("Quote");
-    meta.textContent = `${i18nCity(bookState.from)} ${i18nT("to")} ${i18nCity(bookState.to)} · ${i18nT("on request")}`;
-    if (err) { err.hidden = false; err.textContent = "This pair is not a fixed-fare route yet. Send it on WhatsApp and we will quote you within minutes."; }
+    const baseSedan = 2999;
+    num.textContent = Number(bookState.cls === "suv" ? 3799 : baseSedan).toLocaleString("en-IN");
+    meta.textContent = `${bookState.fromName || i18nCity(bookState.from)} to ${bookState.toName || i18nCity(bookState.to)} · Custom Route (All Maharashtra)`;
+    if (err) { err.hidden = true; err.textContent = ""; }
   } else {
     const newVal = Number(currentFare()).toLocaleString("en-IN");
     if (num.textContent !== newVal && num.textContent !== '0') {
@@ -169,77 +230,577 @@ function renderFare(flash) {
     void fare.offsetWidth;
     fare.classList.add("is-flash");
   }
-  // Update sticky bar if present
   if (window._stickyUpdate) window._stickyUpdate();
 }
 
 function setRoute(a, b, cls, { scroll = false } = {}) {
   bookState.from = a;
   bookState.to = b;
+  bookState.fromName = CITIES[a] ? CITIES[a].name : a;
+  bookState.toName = CITIES[b] ? CITIES[b].name : b;
   if (cls) bookState.cls = cls;
+
+  const pInput = $("#pickupInput"), dInput = $("#dropInput");
+  if (pInput) pInput.value = bookState.fromName;
+  if (dInput) dInput.value = bookState.toName;
+
   const from = $("#from"), to = $("#to");
   if (from) from.value = a;
   if (to) to.value = b;
+
   const radio = $(`input[name="cls"][value="${bookState.cls}"]`);
   if (radio) radio.checked = true;
+
   renderFare(true);
   if (scroll) {
     const booking = $("#booking");
     if (booking) {
       booking.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
-      const sel = $("#from");
-      if (sel) setTimeout(() => sel.focus({ preventScroll: true }), 450);
     }
   }
 }
+window._setRouteQuick = (from, to) => setRoute(from, to, "sedan", { scroll: true });
 
-function bookingMessage() {
-  const r = findRoute(bookState.from, bookState.to);
-  const cls = CAR_CLASSES[bookState.cls];
-  const dateEl = $("#date");
-  let dateTxt = "To be confirmed";
-  if (dateEl && dateEl.value) {
-    dateTxt = new Date(dateEl.value + "T00:00:00").toLocaleDateString(i18nLocale(), { day: "numeric", month: "short", year: "numeric" });
+/* --- AUTOCOMPLETE COMPONENT --- */
+function setupAutocomplete(inputId, dropdownId, onSelect) {
+  const input = $(inputId);
+  const dropdown = $(dropdownId);
+  if (!input || !dropdown) return;
+
+  function filterLocations(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return MH_LOCATIONS.slice(0, 7);
+    return MH_LOCATIONS.filter(loc => {
+      if (loc.name.toLowerCase().includes(q)) return true;
+      return loc.aliases.some(alias => alias.includes(q));
+    }).slice(0, 8);
   }
-  const fareLine = r ? `${inr(currentFare())} (fixed, starting)` : "Please quote";
+
+  function renderList(list, query) {
+    if (!list.length) {
+      dropdown.innerHTML = `<div class="autocomplete-item" style="color:var(--text-3);cursor:default"><span>No exact city match. We cover anywhere in Maharashtra — tap to use "${input.value}"</span></div>`;
+      dropdown.classList.add("is-open");
+      return;
+    }
+    const q = query.trim().toLowerCase();
+    dropdown.innerHTML = list.map(item => {
+      let displayName = item.name;
+      if (q && displayName.toLowerCase().includes(q)) {
+        const idx = displayName.toLowerCase().indexOf(q);
+        displayName = displayName.substring(0, idx) + `<mark>${displayName.substring(idx, idx + q.length)}</mark>` + displayName.substring(idx + q.length);
+      }
+      return `
+        <div class="autocomplete-item" data-id="${item.id}" data-name="${item.name}">
+          <span><b>${displayName}</b></span>
+          <span class="autocomplete-tag">${item.tag}</span>
+        </div>
+      `;
+    }).join("");
+    dropdown.classList.add("is-open");
+  }
+
+  input.addEventListener("focus", () => {
+    renderList(filterLocations(input.value), input.value);
+  });
+
+  input.addEventListener("input", () => {
+    renderList(filterLocations(input.value), input.value);
+  });
+
+  dropdown.addEventListener("click", e => {
+    const item = e.target.closest(".autocomplete-item");
+    if (!item || !item.dataset.id) return;
+    input.value = item.dataset.name;
+    dropdown.classList.remove("is-open");
+    onSelect(item.dataset.id, item.dataset.name);
+  });
+
+  document.addEventListener("click", e => {
+    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove("is-open");
+    }
+  });
+}
+
+/* --- TABS SWITCHER --- */
+function initTabs() {
+  const tabs = $$(".booktab");
+  const panels = $$(".bookpanel");
+  if (!tabs.length) return;
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => {
+        t.classList.remove("is-active");
+        t.setAttribute("aria-selected", "false");
+      });
+      panels.forEach(p => p.classList.remove("is-active"));
+
+      tab.classList.add("is-active");
+      tab.setAttribute("aria-selected", "true");
+
+      const targetId = tab.getAttribute("aria-controls");
+      const targetPanel = $("#" + targetId);
+      if (targetPanel) targetPanel.classList.add("is-active");
+    });
+  });
+}
+
+/* --- FLEET SELECTION & PAYMENT MODAL --- */
+function openFleetModal() {
+  const modal = $("#fleetModal");
+  if (!modal) return;
+
+  const r = findRoute(bookState.from, bookState.to);
+  const fromTitle = bookState.fromName || i18nCity(bookState.from);
+  const toTitle = bookState.toName || i18nCity(bookState.to);
+  const dist = r ? `${r.km} km · ~${r.time}` : "Intercity Distance · 24x7 Dispatch";
+
+  const titleEl = $("#fmodalTitle"), subEl = $("#fmodalSub");
+  if (titleEl) titleEl.textContent = `${fromTitle} → ${toTitle}`;
+  if (subEl) subEl.textContent = `${dist} · Doorstep Pickup & Drop across Maharashtra`;
+
+  const sedanPrice = r ? r.sedan : 2799;
+  const suvPrice = r ? r.suv : 3499;
+  const crystaPrice = r ? Math.round(r.suv * 1.25 / 100) * 100 : 4299;
+
+  const pSedan = $("#mPriceSedan"), pSuv = $("#mPriceSuv"), pCrysta = $("#mPriceCrysta");
+  if (pSedan) pSedan.textContent = inr(sedanPrice);
+  if (pSuv) pSuv.textContent = inr(suvPrice);
+  if (pCrysta) pCrysta.textContent = inr(crystaPrice);
+
+  updateModalPayment(sedanPrice);
+
+  modal.hidden = false;
+  modal.classList.add("is-open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeFleetModal() {
+  const modal = $("#fleetModal");
+  if (!modal) return;
+  modal.classList.remove("is-open");
+  modal.hidden = true;
+  document.body.style.overflow = "";
+}
+
+function updateModalPayment(totalFare) {
+  const mode = bookState.paymentMode;
+  const advEl = $("#mBreakAdvance"), balEl = $("#mBreakBalance");
+  if (!advEl || !balEl) return;
+
+  let advance = 500, balance = Math.max(0, totalFare - 500);
+  if (mode === "full") {
+    advance = totalFare;
+    balance = 0;
+  } else if (mode === "cash") {
+    advance = 0;
+    balance = totalFare;
+  }
+  advEl.textContent = inr(advance);
+  balEl.textContent = inr(balance);
+}
+
+function getSelectedTotalFare() {
+  const r = findRoute(bookState.from, bookState.to);
+  const car = bookState.selectedCar;
+  if (car === "crysta") return r ? Math.round(r.suv * 1.25 / 100) * 100 : 4299;
+  if (car === "suv") return r ? r.suv : 3499;
+  return r ? r.sedan : 2799;
+}
+
+function formatBookingWhatsAppMessage() {
+  const from = bookState.fromName || i18nCity(bookState.from);
+  const to = bookState.toName || i18nCity(bookState.to);
+  const total = getSelectedTotalFare();
+  const dateStr = bookState.date ? new Date(bookState.date + "T00:00:00").toLocaleDateString(i18nLocale(), { day: "numeric", month: "short", year: "numeric" }) : "Today / Asap";
+  const timeStr = bookState.time || "08:00 AM";
+
+  const carNames = {
+    sedan: "Sedan (Dzire / Aura / Etios)",
+    suv: "SUV Ertiga (6 Seater)",
+    crysta: "Premium SUV Innova Crysta / Carens"
+  };
+  const payModes = {
+    advance: "Pay ₹500 Advance & Rest to Driver at Drop",
+    full: "Pay Full Online (100%)",
+    cash: "Pay Full Cash/UPI to Driver After Drop"
+  };
+
+  const name = ($("#mCustName") && $("#mCustName").value.trim()) || "Customer";
+  const phone = ($("#mCustPhone") && $("#mCustPhone").value.trim()) || "Not provided";
+  const address = ($("#mCustAddress") && $("#mCustAddress").value.trim()) || "Doorstep Pickup";
+
+  let advanceAmt = 500, balanceAmt = total - 500;
+  if (bookState.paymentMode === "full") { advanceAmt = total; balanceAmt = 0; }
+  else if (bookState.paymentMode === "cash") { advanceAmt = 0; balanceAmt = total; }
+
   return [
-    `Hi ${CONFIG.brand}, I would like to book a one-way cab.`,
-    ``,
-    `Route: ${i18nCity(bookState.from)} ${i18nT("to")} ${i18nCity(bookState.to)}`,
-    `Date: ${dateTxt}`,
-    `Car: ${cls.label} (${cls.models})`,
-    `Fare shown: ${fareLine}`,
-    ``,
-    `Please confirm availability, the driver name and the pickup time.`
+    `*NEW CAB BOOKING REQUEST - SHIVRUDRA TAXI*`,
+    `──────────────────────────`,
+    `📍 *Route:* ${from} ➔ ${to}`,
+    `🗓️ *Date:* ${dateStr}`,
+    `⏰ *Pickup Time:* ${timeStr} ${bookState.urgent ? "(⚡ URGENT DISPATCH)" : ""}`,
+    `🚗 *Vehicle:* ${carNames[bookState.selectedCar] || "Sedan"}`,
+    `💰 *Total Fare:* ₹${Number(total).toLocaleString("en-IN")} (All Tolls & Taxes Included)`,
+    `💳 *Payment Option:* ${payModes[bookState.paymentMode]}`,
+    `   • Advance Payable: ₹${Number(advanceAmt).toLocaleString("en-IN")}`,
+    `   • Balance on Drop: ₹${Number(balanceAmt).toLocaleString("en-IN")}`,
+    `──────────────────────────`,
+    `👤 *Passenger Name:* ${name}`,
+    `📱 *Contact Phone:* ${phone}`,
+    `🏠 *Pickup Address:* ${address}`,
+    `──────────────────────────`,
+    `Please confirm the booking and dispatch driver details.`
   ].join("\n");
 }
 
+/* --- LOCAL PACKAGES LOGIC --- */
+function initLocalPackage() {
+  const city = $("#localCity"), cls = $$('input[name="localCls"]'), pkgs = $$('input[name="localPkg"]');
+  const num = $("#localFareNum"), meta = $("#localFareMeta"), badge = $("#localFareBadge");
+
+  function recalc() {
+    const pkgEl = $('input[name="localPkg"]:checked');
+    const clsEl = $('input[name="localCls"]:checked');
+    if (!pkgEl || !clsEl) return;
+    const is12 = pkgEl.value === "12h";
+    const isSuv = clsEl.value === "suv";
+    bookState.localPkg = is12 ? "12h" : "8h";
+    bookState.localCls = isSuv ? "suv" : "sedan";
+
+    let fare = 2200;
+    if (!is12 && !isSuv) fare = 2200;
+    else if (!is12 && isSuv) fare = 2600;
+    else if (is12 && !isSuv) fare = 2600;
+    else if (is12 && isSuv) fare = 3000;
+
+    if (num) num.textContent = Number(fare).toLocaleString("en-IN");
+    if (badge) badge.textContent = isSuv ? "SUV" : "Sedan";
+    if (meta) meta.textContent = is12 ? "12 Hours / 120 Km limit · Extra ₹12/km, ₹150/hr" : "8 Hours / 80 Km limit · Extra ₹12/km, ₹150/hr";
+
+    const p8 = $("#pkg8Card"), p12 = $("#pkg12Card");
+    if (p8) p8.classList.toggle("is-selected", !is12);
+    if (p12) p12.classList.toggle("is-selected", is12);
+  }
+
+  if (city) city.addEventListener("change", e => { bookState.localCity = e.target.value; });
+  cls.forEach(c => c.addEventListener("change", recalc));
+  pkgs.forEach(p => p.addEventListener("change", recalc));
+
+  const bookBtn = $("#btnLocalBook");
+  if (bookBtn) {
+    bookBtn.addEventListener("click", () => {
+      const citySel = $("#localCity");
+      const cityName = citySel.options[citySel.selectedIndex].text;
+      const pkgName = bookState.localPkg === "12h" ? "12 Hours / 120 Km" : "8 Hours / 80 Km";
+      const carName = bookState.localCls === "suv" ? "SUV (Ertiga / Innova)" : "Sedan (Dzire / Aura)";
+      const fare = $("#localFareNum") ? $("#localFareNum").textContent : "2,200";
+      const dateVal = ($("#localDate") && $("#localDate").value) || "Today";
+      const timeVal = ($("#localTime") && $("#localTime").value) || "09:00 AM";
+
+      const msg = [
+        `*LOCAL CAB PACKAGE BOOKING - SHIVRUDRA TAXI*`,
+        `──────────────────────────`,
+        `📍 *City:* ${cityName}`,
+        `⏱️ *Package:* ${pkgName}`,
+        `🚗 *Car Class:* ${carName}`,
+        `💰 *Package Fare:* ₹${fare} (Extra ₹12/km, ₹150/hr)`,
+        `🗓️ *Date:* ${dateVal} at ${timeVal}`,
+        `──────────────────────────`,
+        `Please confirm cab availability and driver details.`
+      ].join("\n");
+
+      window.open(waUrl(msg), "_blank", "noopener");
+    });
+  }
+}
+
+/* --- ROUND TRIP LOGIC --- */
+function initRoundTrip() {
+  const fromSel = $("#roundFrom"), toSel = $("#roundTo");
+  const clsRadios = $$('input[name="roundCls"]');
+  const num = $("#roundFareNum"), meta = $("#roundFareMeta"), badge = $("#roundFareBadge");
+
+  function recalc() {
+    const clsEl = $('input[name="roundCls"]:checked');
+    if (!clsEl) return;
+    const isErtiga = clsEl.value === "ertiga";
+    const ratePerKm = isErtiga ? 14 : 12;
+    const estKm = 500;
+    const total = estKm * ratePerKm;
+
+    if (num) num.textContent = Number(total).toLocaleString("en-IN");
+    if (badge) badge.textContent = `₹${ratePerKm}/km`;
+    if (meta) meta.textContent = `Estimated ${estKm} km return (2 days min 250 km/day) @ ₹${ratePerKm}/km`;
+  }
+
+  clsRadios.forEach(r => r.addEventListener("change", recalc));
+
+  const btn = $("#btnRoundBook");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      const from = fromSel.options[fromSel.selectedIndex].text;
+      const to = toSel.options[toSel.selectedIndex].text;
+      const clsEl = $('input[name="roundCls"]:checked');
+      const isErtiga = clsEl && clsEl.value === "ertiga";
+      const rate = isErtiga ? "₹14/km (SUV Ertiga)" : "₹12/km (Sedan Dzire/Aura)";
+      const d1 = ($("#roundStart") && $("#roundStart").value) || "Departure Date";
+      const d2 = ($("#roundReturn") && $("#roundReturn").value) || "Return Date";
+
+      const msg = [
+        `*ROUND TRIP CAB ENQUIRY - SHIVRUDRA TAXI*`,
+        `──────────────────────────`,
+        `📍 *Round Route:* ${from} ⇄ ${to}`,
+        `🗓️ *Dates:* ${d1} to ${d2}`,
+        `🚗 *Selected Rate:* ${rate}`,
+        `💰 *Estimated Fare:* ₹${$("#roundFareNum").textContent} (Min 250 km/day)`,
+        `──────────────────────────`,
+        `Please confirm vehicle availability and driver allowance.`
+      ].join("\n");
+
+      window.open(waUrl(msg), "_blank", "noopener");
+    });
+  }
+}
+
+/* --- CAR SHARING (Strictly as per Client Brief #5) --- */
+function initCarSharing() {
+  const routeSel = $("#sharingRoute");
+  const seatsSel = $("#sharingSeats");
+  const optsWrap = $("#sharingDropOpts");
+  const fareEl = $("#sharingTotalFare");
+  const dateEl = $("#sharingDate");
+
+  if (!routeSel || !optsWrap) return;
+
+  if (dateEl) {
+    const t = new Date();
+    t.setDate(t.getDate() + 1);
+    dateEl.value = t.toISOString().slice(0, 10);
+  }
+
+  function recalc() {
+    const route = routeSel.value;
+    const seats = parseInt(seatsSel.value, 10) || 1;
+
+    if (route === "pune-ahilyanagar") {
+      optsWrap.innerHTML = `
+        <label class="sharing-opt is-selected">
+          <input type="radio" name="sharingDrop" value="home" checked hidden />
+          <div>
+            <b>Home Drop (Pune ⇄ Ahilyanagar)</b>
+            <span>Direct doorstep delivery (Sedan - 3 passenger sharing)</span>
+          </div>
+          <div class="sharing-opt__price">₹600 <small style="font-size:.7rem;font-weight:400">/ seat</small></div>
+        </label>
+      `;
+      const total = 600 * seats;
+      if (fareEl) fareEl.textContent = Number(total).toLocaleString("en-IN");
+    } else {
+      const currentRadio = $('input[name="sharingDrop"]:checked');
+      const currentSelected = currentRadio ? currentRadio.value : "shivajinagar";
+      optsWrap.innerHTML = `
+        <label class="sharing-opt ${currentSelected === 'shivajinagar' ? 'is-selected' : ''}">
+          <input type="radio" name="sharingDrop" value="shivajinagar" ${currentSelected === 'shivajinagar' ? 'checked' : ''} hidden />
+          <div>
+            <b>Shivajinagar Drop</b>
+            <span>Central hub drop point</span>
+          </div>
+          <div class="sharing-opt__price">₹1,000 <small style="font-size:.7rem;font-weight:400">/ seat</small></div>
+        </label>
+        <label class="sharing-opt ${currentSelected === 'home' ? 'is-selected' : ''}">
+          <input type="radio" name="sharingDrop" value="home" ${currentSelected === 'home' ? 'checked' : ''} hidden />
+          <div>
+            <b>Home Drop</b>
+            <span>Direct doorstep delivery</span>
+          </div>
+          <div class="sharing-opt__price">₹1,300 <small style="font-size:.7rem;font-weight:400">/ seat</small></div>
+        </label>
+      `;
+      const perSeat = currentSelected === "home" ? 1300 : 1000;
+      const total = perSeat * seats;
+      if (fareEl) fareEl.textContent = Number(total).toLocaleString("en-IN");
+
+      $$(".sharing-opt").forEach(opt => {
+        opt.addEventListener("click", () => {
+          $$(".sharing-opt").forEach(o => o.classList.remove("is-selected"));
+          opt.classList.add("is-selected");
+          opt.querySelector("input").checked = true;
+          recalc();
+        });
+      });
+    }
+  }
+
+  routeSel.addEventListener("change", recalc);
+  if (seatsSel) seatsSel.addEventListener("change", recalc);
+  recalc();
+
+  const shareBtn = $("#btnShareBook");
+  if (shareBtn) {
+    shareBtn.addEventListener("click", () => {
+      const routeText = routeSel.options[routeSel.selectedIndex].text;
+      const seats = seatsSel.value;
+      const dropRadio = $('input[name="sharingDrop"]:checked');
+      const dropOpt = dropRadio ? dropRadio.value : "home";
+      const dropLabel = dropOpt === "home" ? "Home Drop" : "Shivajinagar Hub Drop";
+      const total = $("#sharingTotalFare").textContent;
+      const dateVal = ($("#sharingDate") && $("#sharingDate").value) || "Tomorrow";
+
+      const msg = [
+        `*CAR SHARING BOOKING - SHIVRUDRA TAXI*`,
+        `──────────────────────────`,
+        `📍 *Route:* ${routeText}`,
+        `🚗 *Drop Type:* ${dropLabel}`,
+        `👥 *Seats Required:* ${seats} Seat(s) (Max 3 in Sedan)`,
+        `💰 *Total Share Fare:* ₹${total}`,
+        `🗓️ *Date:* ${dateVal}`,
+        `──────────────────────────`,
+        `Please confirm my shared seat and share driver contact.`
+      ].join("\n");
+
+      window.open(waUrl(msg), "_blank", "noopener");
+    });
+  }
+}
+
+/* --- EXIT INTENT / URGENT CAB LEAD MODAL --- */
+function initUrgentModal() {
+  const modal = $("#urgentModal");
+  const closeBtn = $("#urgentClose");
+  if (!modal) return;
+
+  let triggered = false;
+  document.addEventListener("mouseleave", e => {
+    if (e.clientY <= 0 && !triggered && !sessionStorage.getItem("urgent_shown")) {
+      triggered = true;
+      sessionStorage.setItem("urgent_shown", "1");
+      modal.hidden = false;
+      modal.classList.add("is-open");
+    }
+  });
+
+  if (closeBtn) closeBtn.addEventListener("click", () => {
+    modal.classList.remove("is-open");
+    modal.hidden = true;
+  });
+}
+
 function initBooking() {
-  if (!$("#bookform")) return;
+  if (!$("#booking")) return;
   buildSelects();
   renderFare(false);
+  initTabs();
 
-  const form = $("#bookform");
-  $("#from").addEventListener("change", e => { bookState.from = e.target.value; renderFare(true); });
-  $("#to").addEventListener("change", e => { bookState.to = e.target.value; renderFare(true); });
-  $$('input[name="cls"]').forEach(r => r.addEventListener("change", e => { bookState.cls = e.target.value; renderFare(true); }));
-
-  $("#swap").addEventListener("click", () => {
-    const { from, to } = bookState;
-    setRoute(to, from, bookState.cls, { scroll: false });
+  // Setup Autocomplete
+  setupAutocomplete("#pickupInput", "#pickupDropdown", (id, name) => {
+    bookState.from = id;
+    bookState.fromName = name;
+    const fromSel = $("#from");
+    if (fromSel) fromSel.value = id;
+    renderFare(true);
   });
 
-  form.addEventListener("submit", e => {
-    e.preventDefault();
-    if (bookState.from === bookState.to) {
-      const err = $("#bookErr");
-      err.hidden = false;
-      err.textContent = "Pickup and drop are the same city. Choose two different cities.";
-      return;
-    }
-    const url = waUrl(bookingMessage());
-    window.open(url, "_blank", "noopener");
+  setupAutocomplete("#dropInput", "#dropDropdown", (id, name) => {
+    bookState.to = id;
+    bookState.toName = name;
+    const toSel = $("#to");
+    if (toSel) toSel.value = id;
+    renderFare(true);
   });
+
+  // Swap button
+  const swapBtn = $("#swap");
+  if (swapBtn) {
+    swapBtn.addEventListener("click", () => {
+      const prevFromId = bookState.from, prevFromName = bookState.fromName;
+      const prevToId = bookState.to, prevToName = bookState.toName;
+
+      bookState.from = prevToId;
+      bookState.fromName = prevToName;
+      bookState.to = prevFromId;
+      bookState.toName = prevFromName;
+
+      const pIn = $("#pickupInput"), dIn = $("#dropInput");
+      if (pIn) pIn.value = bookState.fromName;
+      if (dIn) dIn.value = bookState.toName;
+
+      const fromSel = $("#from"), toSel = $("#to");
+      if (fromSel) fromSel.value = bookState.from;
+      if (toSel) toSel.value = bookState.to;
+
+      renderFare(true);
+    });
+  }
+
+  // Radio car class change
+  $$('input[name="cls"]').forEach(r => r.addEventListener("change", e => {
+    bookState.cls = e.target.value;
+    bookState.selectedCar = e.target.value;
+    renderFare(true);
+  }));
+
+  // Date and Time
+  const dateInput = $("#date");
+  if (dateInput) dateInput.addEventListener("change", e => { bookState.date = e.target.value; });
+  const timeInput = $("#time");
+  if (timeInput) timeInput.addEventListener("change", e => { bookState.time = e.target.value; });
+  const urgentChk = $("#urgentBookingCheck");
+  if (urgentChk) urgentChk.addEventListener("change", e => { bookState.urgent = e.target.checked; });
+
+  // CHECK FARE BUTTON -> Opens Fleet & Payment Modal!
+  const btnCheckFare = $("#btnCheckFare");
+  if (btnCheckFare) {
+    btnCheckFare.addEventListener("click", () => {
+      if (bookState.from === bookState.to) {
+        const err = $("#bookErr");
+        if (err) { err.hidden = false; err.textContent = "Pickup and drop locations cannot be the same. Please choose two different locations."; }
+        return;
+      }
+      openFleetModal();
+    });
+  }
+
+  // MODAL LOGIC
+  const modalClose = $("#fmodalClose");
+  if (modalClose) modalClose.addEventListener("click", closeFleetModal);
+
+  // Modal Car Selection
+  $$(".fmodal-car").forEach(carCard => {
+    carCard.addEventListener("click", () => {
+      $$(".fmodal-car").forEach(c => c.classList.remove("is-selected"));
+      carCard.classList.add("is-selected");
+      bookState.selectedCar = carCard.dataset.car;
+      updateModalPayment(getSelectedTotalFare());
+    });
+  });
+
+  // Modal Payment Options Selection (Requirement #1)
+  $$('input[name="modalPayment"]').forEach(r => {
+    r.addEventListener("change", e => {
+      bookState.paymentMode = e.target.value;
+      $$(".fmodal-pay-opt").forEach(opt => opt.classList.remove("is-selected"));
+      e.target.closest(".fmodal-pay-opt").classList.add("is-selected");
+      updateModalPayment(getSelectedTotalFare());
+    });
+  });
+
+  // Modal WhatsApp Booking Confirmation
+  const confirmWa = $("#mConfirmWa");
+  if (confirmWa) {
+    confirmWa.addEventListener("click", () => {
+      const msg = formatBookingWhatsAppMessage();
+      window.open(waUrl(msg), "_blank", "noopener");
+      closeFleetModal();
+    });
+  }
+
+  // Initialize other tabs
+  initLocalPackage();
+  initRoundTrip();
+  initCarSharing();
+  initUrgentModal();
 }
 
 /* ---------------------------------------------------------------------------

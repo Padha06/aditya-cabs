@@ -1392,3 +1392,335 @@ body.rmodal-open{overflow:hidden}
   .float--wa::after{display:none}
   .map__arc{opacity:.8}
 }
+
+/* ============================================================================
+   ONEWAY.CAB STYLE HOMEPAGE SEARCH WIDGET & ADVANCED FEATURES
+   ========================================================================= */
+
+/* --- TABS --- */
+.booktabs{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+  background:var(--surface-3);padding:5px;border-radius:16px;
+  margin-bottom:18px;border:1px solid var(--line-2);
+}
+@media (max-width:480px){
+  .booktabs{grid-template-columns:repeat(2,1fr);gap:6px}
+}
+.booktab{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 8px;border-radius:12px;font-family:var(--font-d);
+  font-size:.84rem;font-weight:700;color:var(--text-2);
+  background:transparent;border:0;cursor:pointer;
+  transition:all .2s var(--ease);text-align:center;white-space:nowrap;
+}
+.booktab .ic{width:16px;height:16px;transition:transform .2s}
+.booktab:hover{color:var(--text);background:rgba(255,255,255,.5)}
+.booktab.is-active{
+  background:linear-gradient(135deg,#0284C7 0%,#0369A1 100%);
+  color:#FFF;box-shadow:0 6px 18px rgba(2,132,199,.32);
+}
+.booktab.is-active .ic{transform:scale(1.1)}
+.booktab--sharing.is-active{
+  background:linear-gradient(135deg,#F5A524 0%,#D97706 100%);
+  color:#1A1206;box-shadow:0 6px 18px rgba(245,165,36,.32);
+}
+.booktab-badge{
+  font-size:.65rem;font-weight:800;background:#E11D48;color:#FFF;
+  padding:2px 6px;border-radius:999px;margin-left:2px;letter-spacing:.02em;
+}
+
+/* --- TAB CONTENT PANELS --- */
+.bookpanel{display:none;animation:fadeIn .25s var(--ease)}
+.bookpanel.is-active{display:grid;gap:13px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* --- AUTOCOMPLETE INPUTS --- */
+.autocomplete-wrap{position:relative;width:100%}
+.autocomplete-clear{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:var(--surface-3);color:var(--text-3);border:0;
+  width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
+  cursor:pointer;font-size:12px;line-height:1;transition:background .15s;
+}
+.autocomplete-clear:hover{background:var(--line-2);color:var(--text)}
+.autocomplete-dropdown{
+  position:absolute;top:calc(100% + 5px);left:0;right:0;max-height:260px;
+  overflow-y:auto;background:var(--surface);border:1px solid var(--line-2);
+  border-radius:14px;box-shadow:0 18px 42px -10px rgba(16,18,21,.28);
+  z-index:100;display:none;padding:6px;overscroll-behavior:contain;
+}
+.autocomplete-dropdown.is-open{display:block}
+.autocomplete-item{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:9px 12px;border-radius:9px;cursor:pointer;font-size:.88rem;
+  color:var(--text);transition:background .15s,color .15s;
+}
+.autocomplete-item:hover,.autocomplete-item.is-selected{
+  background:rgba(2,132,199,.1);color:#0284C7;
+}
+.autocomplete-item b{font-weight:700;color:var(--text)}
+.autocomplete-item:hover b,.autocomplete-item.is-selected b{color:#0284C7}
+.autocomplete-item mark{background:rgba(245,165,36,.25);color:inherit;padding:0 2px;border-radius:3px}
+.autocomplete-tag{
+  font-size:.68rem;font-weight:700;padding:3px 7px;border-radius:6px;
+  background:var(--surface-3);color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;
+}
+
+/* --- SWAP BUTTON ROW --- */
+.swaprow--oneway{
+  display:flex;align-items:center;justify-content:space-between;
+  margin:-4px 0;position:relative;
+}
+.urgent-pill{
+  display:inline-flex;align-items:center;gap:6px;font-size:.76rem;font-weight:700;
+  color:#B45309;background:rgba(245,165,36,.15);border:1px solid rgba(245,165,36,.3);
+  padding:5px 12px;border-radius:999px;cursor:pointer;transition:all .2s;
+}
+.urgent-pill:hover{background:rgba(245,165,36,.25)}
+.urgent-pill input{accent-color:#D97706;cursor:pointer}
+
+/* --- MAIN CHECK FARE BUTTON --- */
+.btn--checkfare{
+  background:linear-gradient(135deg,#0284C7 0%,#0369A1 100%);
+  color:#FFF;padding:15px 22px;border-radius:var(--r-ctl);
+  font-size:1.02rem;font-weight:800;letter-spacing:.01em;
+  box-shadow:0 10px 24px -6px rgba(2,132,199,.42);border:0;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;cursor:pointer;transition:all .2s var(--ease);
+}
+.btn--checkfare:hover{
+  background:linear-gradient(135deg,#0369A1 0%,#075985 100%);
+  transform:translateY(-1px);box-shadow:0 14px 30px -6px rgba(2,132,199,.5);
+}
+.btn--checkfare .ic{width:20px;height:20px;stroke-width:2.2}
+
+/* --- WIDGET RATING & TRUST BADGE --- */
+.widget-trust{
+  display:grid;gap:6px;text-align:center;padding-top:12px;
+  border-top:1px solid var(--line);margin-top:4px;
+}
+.widget-trust__rating{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  font-family:var(--font-d);font-weight:800;font-size:.88rem;color:var(--text);
+}
+.widget-trust__rating svg{width:16px;height:16px;color:#F59E0B;fill:#F59E0B}
+.widget-trust__meta{
+  font-size:.76rem;color:var(--text-3);display:flex;align-items:center;
+  justify-content:center;gap:8px;flex-wrap:wrap;
+}
+.widget-trust__meta span{display:inline-flex;align-items:center;gap:4px}
+.widget-trust__meta span::after{content:"•";margin-left:8px;opacity:.5}
+.widget-trust__meta span:last-child::after{display:none}
+
+/* --- LOCAL PACKAGES SELECTOR --- */
+.pkg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pkg-card{
+  position:relative;border:1px solid var(--line-2);border-radius:12px;
+  background:var(--surface-2);padding:12px 14px;cursor:pointer;
+  transition:all .2s;text-align:left;
+}
+.pkg-card:hover{border-color:#0284C7;background:rgba(2,132,199,.04)}
+.pkg-card input{position:absolute;opacity:0}
+.pkg-card input:checked ~ .pkg-card__body{border-color:#0284C7}
+.pkg-card.is-selected{border-color:#0284C7;background:rgba(2,132,199,.08);box-shadow:0 0 0 1px #0284C7}
+.pkg-card__head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px}
+.pkg-card__time{font-family:var(--font-d);font-weight:800;font-size:.96rem;color:var(--text)}
+.pkg-card__km{font-size:.74rem;color:var(--text-3);font-weight:600}
+.pkg-card__prices{display:grid;gap:2px;font-size:.8rem}
+.pkg-card__price-row{display:flex;justify-content:space-between;color:var(--text-2)}
+.pkg-card__price-row b{color:#0284C7;font-weight:700}
+.pkg-note{font-size:.73rem;color:var(--text-3);text-align:center;line-height:1.4}
+
+/* --- ROUND TRIP RATE PREVIEWS --- */
+.rt-rates{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:2px 0}
+@media (max-width:540px){.rt-rates{grid-template-columns:repeat(2,1fr)}}
+.rt-rate-chip{
+  background:var(--surface-2);border:1px solid var(--line-2);border-radius:10px;
+  padding:8px 6px;text-align:center;display:grid;gap:2px;
+}
+.rt-rate-chip b{font-size:.9rem;color:#0284C7;font-weight:800}
+.rt-rate-chip span{font-size:.68rem;color:var(--text-2);font-weight:600}
+
+/* --- CAR SHARING RULES BOX --- */
+.sharing-box{
+  background:linear-gradient(135deg,rgba(245,165,36,.12),rgba(245,165,36,.04));
+  border:1px solid rgba(245,165,36,.32);border-radius:14px;padding:14px;display:grid;gap:10px;
+}
+.sharing-route-badge{
+  font-size:.75rem;font-weight:800;color:#92400E;background:rgba(245,165,36,.2);
+  padding:3px 8px;border-radius:6px;display:inline-block;width:fit-content;
+}
+.sharing-options{display:grid;gap:8px}
+.sharing-opt{
+  display:flex;align-items:center;justify-content:space-between;padding:10px 12px;
+  background:var(--surface);border:1px solid var(--line-2);border-radius:10px;
+  cursor:pointer;transition:all .15s;
+}
+.sharing-opt:hover,.sharing-opt.is-selected{border-color:#F5A524;background:rgba(245,165,36,.06)}
+.sharing-opt b{font-size:.9rem;color:var(--text)}
+.sharing-opt span{font-size:.78rem;color:var(--text-2)}
+.sharing-opt__price{font-family:var(--font-d);font-weight:800;color:#D97706;font-size:1.02rem}
+
+/* ============================================================================
+   FLEET SELECTION & BOOKING MODAL (OneWay.Cab / MakeMyTrip style)
+   ========================================================================= */
+.fmodal{
+  position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+  padding:16px;background:rgba(10,14,20,.65);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  opacity:0;pointer-events:none;transition:opacity .25s var(--ease);overflow-y:auto;
+}
+.fmodal.is-open{opacity:1;pointer-events:auto}
+.fmodal__panel{
+  background:var(--surface);border:1px solid var(--line-2);border-radius:22px;
+  width:100%;max-width:760px;box-shadow:0 30px 70px -15px rgba(0,0,0,.35);
+  overflow:hidden;position:relative;animation:modalUp .3s var(--ease);
+  max-height:92vh;display:flex;flex-direction:column;
+}
+@keyframes modalUp{from{transform:translateY(24px) scale(.98)}to{transform:none}}
+.fmodal__header{
+  padding:18px 22px;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);
+  color:#FFF;display:flex;align-items:center;justify-content:space-between;gap:14px;
+}
+.fmodal__title{display:grid;gap:3px}
+.fmodal__title h2{font-size:1.18rem;font-weight:800;color:#FFF;letter-spacing:-.01em}
+.fmodal__title p{font-size:.78rem;color:#94A3B8}
+.fmodal__close{
+  width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);
+  color:#FFF;border:0;display:grid;place-items:center;cursor:pointer;transition:background .2s;
+}
+.fmodal__close:hover{background:rgba(255,255,255,.2)}
+.fmodal__body{padding:20px 22px;overflow-y:auto;display:grid;gap:20px}
+
+/* Vehicle selection cards */
+.fmodal-cars{display:grid;gap:12px}
+.fmodal-car{
+  display:grid;grid-template-columns:90px minmax(0,1fr) auto;gap:14px;align-items:center;
+  padding:12px 14px;border:1px solid var(--line-2);border-radius:14px;
+  background:var(--surface-2);cursor:pointer;transition:all .2s;position:relative;
+}
+.fmodal-car:hover{border-color:#0284C7;background:rgba(2,132,199,.04)}
+.fmodal-car.is-selected{
+  border-color:#0284C7;background:rgba(2,132,199,.08);
+  box-shadow:0 0 0 2px #0284C7;
+}
+.fmodal-car__img{width:90px;height:60px;object-fit:cover;border-radius:8px;background:#FFF}
+.fmodal-car__info h4{font-size:.98rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.fmodal-car__models{font-size:.76rem;color:var(--text-3);margin-bottom:4px}
+.fmodal-car__badges{display:flex;gap:6px;flex-wrap:wrap}
+.fmodal-car__badge{font-size:.68rem;padding:2px 6px;border-radius:4px;background:var(--surface-3);color:var(--text-2);font-weight:600}
+.fmodal-car__price{text-align:right}
+.fmodal-car__amount{font-family:var(--font-d);font-weight:800;font-size:1.35rem;color:#0284C7;letter-spacing:-.02em}
+.fmodal-car__taxnote{font-size:.68rem;color:var(--wa);font-weight:700}
+
+/* PAYMENT OPTIONS (Requirement #1) */
+.fmodal-pay{
+  background:var(--surface-2);border:1px solid var(--line-2);
+  border-radius:16px;padding:16px;display:grid;gap:10px;
+}
+.fmodal-pay__title{
+  font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text-3);display:flex;align-items:center;justify-content:space-between;
+}
+.fmodal-pay__opts{display:grid;gap:8px}
+.fmodal-pay-opt{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 14px;border:1px solid var(--line-2);border-radius:12px;
+  background:var(--surface);cursor:pointer;transition:all .18s;
+}
+.fmodal-pay-opt:hover{border-color:#0284C7}
+.fmodal-pay-opt.is-selected{
+  border-color:#0284C7;background:rgba(2,132,199,.06);
+  box-shadow:0 0 0 1px #0284C7;
+}
+.fmodal-pay-opt__left{display:flex;align-items:center;gap:10px}
+.fmodal-pay-opt input[type=radio]{accent-color:#0284C7;width:18px;height:18px;cursor:pointer}
+.fmodal-pay-opt__label{font-weight:700;font-size:.88rem;color:var(--text);display:grid}
+.fmodal-pay-opt__desc{font-size:.72rem;color:var(--text-3);font-weight:400}
+.fmodal-pay-opt__badge{
+  font-size:.66rem;font-weight:800;background:rgba(11,128,69,.15);
+  color:#0B8045;padding:3px 8px;border-radius:999px;white-space:nowrap;
+}
+.fmodal-breakdown{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 14px;background:rgba(2,132,199,.07);border-radius:10px;
+  font-size:.84rem;color:var(--text-2);margin-top:2px;
+}
+.fmodal-breakdown b{color:#0284C7;font-weight:800}
+
+/* Passenger details */
+.fmodal-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:540px){.fmodal-fields{grid-template-columns:1fr}}
+
+/* Footer action buttons */
+.fmodal__footer{
+  padding:16px 22px;border-top:1px solid var(--line-2);
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  background:var(--surface);
+}
+@media (max-width:540px){
+  .fmodal__footer{flex-direction:column;gap:10px}
+  .fmodal__footer .btn{width:100%}
+}
+.btn--book-wa{
+  background:linear-gradient(135deg,#16A34A 0%,#15803D 100%);
+  color:#FFF;font-size:1.02rem;font-weight:800;padding:14px 24px;border-radius:999px;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;
+  cursor:pointer;box-shadow:0 8px 20px rgba(22,163,74,.38);flex:1;
+}
+.btn--book-wa:hover{background:#15803D;transform:translateY(-1px)}
+
+/* ============================================================================
+   EXIT INTENT / URGENT CAB LEAD POPUP (Requirement #12)
+   ========================================================================= */
+.urgent-exit{
+  position:fixed;inset:0;z-index:220;display:grid;place-items:center;
+  padding:16px;background:rgba(7,8,11,.75);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  opacity:0;pointer-events:none;transition:opacity .25s var(--ease);
+}
+.urgent-exit.is-open{opacity:1;pointer-events:auto}
+.urgent-exit__card{
+  background:var(--surface);border:2px solid #F5A524;border-radius:20px;
+  max-width:480px;width:100%;padding:26px;position:relative;
+  box-shadow:0 25px 60px rgba(0,0,0,.45);text-align:center;
+  animation:modalUp .25s var(--ease);display:grid;gap:16px;
+}
+.urgent-exit__icon{
+  width:60px;height:60px;border-radius:50%;background:rgba(245,165,36,.18);
+  color:#D97706;display:grid;place-items:center;margin:0 auto;
+}
+.urgent-exit__icon svg{width:32px;height:32px;stroke-width:2.2}
+.urgent-exit h3{font-size:1.35rem;font-weight:800;color:var(--text)}
+.urgent-exit p{font-size:.9rem;color:var(--text-2);line-height:1.55}
+.urgent-exit__actions{display:grid;gap:10px}
+.urgent-exit__close{
+  position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;
+  background:var(--surface-2);border:0;cursor:pointer;color:var(--text-3);
+  display:grid;place-items:center;
+}
+
+/* ============================================================================
+   ALL MAHARASHTRA NETWORK & EXPANDED FLEET
+   ========================================================================= */
+.maha-network{padding:clamp(48px,6vw,72px) 0;background:var(--bg-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.maha-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.maha-chip{
+  padding:8px 14px;border-radius:999px;font-size:.82rem;font-weight:700;
+  background:var(--surface);border:1px solid var(--line-2);color:var(--text);
+  cursor:pointer;transition:all .18s;
+}
+.maha-chip:hover,.maha-chip.is-active{
+  border-color:#0284C7;background:#0284C7;color:#FFF;
+}
+.fleet__more-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:20px;
+}
+@media (max-width:840px){.fleet__more-grid{grid-template-columns:1fr}}
+.fcard--extra{
+  background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-card);
+  padding:20px;display:grid;gap:10px;transition:transform .2s,border-color .2s;
+}
+.fcard--extra:hover{transform:translateY(-2px);border-color:#F5A524}
+.fcard--extra h3{font-size:1.15rem;margin:0}
+.fcard--extra p{font-size:.86rem;color:var(--text-2)}

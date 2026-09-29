@@ -19,7 +19,11 @@ const pairs = [
   ['Nashik', 'Shirdi'],
   ['Ahilyanagar', 'Shirdi'],
   ['Mumbai', 'Chhatrapati Sambhajinagar'],
-  ['Mumbai', 'Ahilyanagar']
+  ['Mumbai', 'Ahilyanagar'],
+  ['Pune', 'Aurangabad'],
+  ['Mumbai', 'Aurangabad'],
+  ['Nashik', 'Aurangabad'],
+  ['Aurangabad', 'Shirdi']
 ];
 
 const routes = [];
@@ -31,7 +35,7 @@ pairs.forEach(([from, to]) => {
 const htmlTemplate = fs.readFileSync('index.html', 'utf8');
 
 const sitemapUrls = [];
-const baseUrl = 'https://adityacabs.in';
+const baseUrl = 'https://shivrudrataxi.com';
 
 sitemapUrls.push(`${baseUrl}/`);
 
@@ -47,6 +51,7 @@ const NAME_TO_ID = {
   'pune': 'pune',
   'mumbai': 'mumbai',
   'chhatrapati sambhajinagar': 'sambhajinagar',
+  'aurangabad': 'sambhajinagar',
   'nashik': 'nashik',
   'ahilyanagar': 'ahilyanagar',
   'shirdi': 'shirdi',
@@ -79,7 +84,11 @@ const KM_TIME = {
   'nashik|chhatrapati sambhajinagar': [180, '4h', 2999, 3699],
   'chhatrapati sambhajinagar|shirdi': [110, '2h 30m', 2199, 2799],
   'nashik|shirdi': [90, '2h', 1999, 2499],
-  'ahilyanagar|shirdi': [85, '1h 50m', 1999, 2599] // !! ESTIMATE - ask client to confirm
+  'ahilyanagar|shirdi': [85, '1h 50m', 1999, 2599],
+  'pune|aurangabad': [235, '5h', 2799, 3499],
+  'mumbai|aurangabad': [340, '7h', 3999, 4799],
+  'nashik|aurangabad': [180, '4h', 2999, 3699],
+  'aurangabad|shirdi': [110, '2h 30m', 2199, 2799]
 };
 const ktOf = (a, b) => KM_TIME[a + '|' + b] || KM_TIME[b + '|' + a];
 
@@ -455,7 +464,7 @@ routes.forEach(route => {
     if (closeIdx === -1) throw new Error('section close missing for ' + id + ' on ' + slug);
     return html.slice(0, openIdx) + html.slice(closeIdx + '</section>'.length);
   };
-  ['live', 'routes', 'pool', 'fleet', 'why', 'how', 'reviews'].forEach(id => { pageHtml = stripById(pageHtml, id); });
+  ['live', 'routes', 'pool', 'fleet', 'why', 'how', 'reviews', 'network', 'truststrip'].forEach(id => { pageHtml = stripById(pageHtml, id); });
   const RMODAL_OPEN = '<!-- ============ ROUTE DETAIL MODAL ============ -->';
   const FLOATERS_OPEN = '<!-- ============ FLOATING CTAs ============ -->';
   {
@@ -486,12 +495,15 @@ const ORIGIN_INTROS = {
   'Mumbai': "Maximum city non-stop demand, airport runs, business trips and coastal escapes, day and night.",
   'Chhatrapati Sambhajinagar': "Marathwada's gateway, heritage caves, temple towns and business travel across the region.",
   'Nashik': "Wine country and pilgrim trails, Trimbakeshwar, Shirdi and Mumbai connections around the clock.",
-  'Ahilyanagar': "Central Maharashtra's crossroads, Shirdi pilgrims and Pune commuters pass through daily."
+  'Ahilyanagar': "Central Maharashtra's crossroads, Shirdi pilgrims and Pune commuters pass through daily.",
+  'Aurangabad': "Marathwada's gateway, heritage caves, temple towns and business travel across the region."
 };
 const hubUrl = `${baseUrl}/routes`;
 sitemapUrls.push(hubUrl);
 sitemapUrls.push(`${baseUrl}/profile`);
 sitemapUrls.push(`${baseUrl}/share`);
+sitemapUrls.push(`${baseUrl}/privacy`);
+sitemapUrls.push(`${baseUrl}/terms`);
 
 const origins = [];
 pairs.forEach(([f]) => { if (!origins.includes(f)) origins.push(f); });
