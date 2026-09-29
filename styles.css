@@ -1,3 +1,8 @@
+/* Strict hidden rule to prevent class display overrides */
+[hidden], .field[hidden], .field--custom[hidden], div[hidden] {
+  display: none !important;
+}
+
 /* ============================================================================
    SHIVRUDRA CABS - one-way taxi landing page
    Direction: cinematic night-expressway. Off-black + single amber accent.
@@ -296,18 +301,28 @@ html[lang="mr"] .footer__col h3{letter-spacing:.06em}
 .field label,.field legend{font-size:.74rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3)}
 .field--class{display:grid;gap:8px}
 
-.select{position:relative;display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r-ctl);padding:0 12px;transition:border-color .2s,background .2s}
-.select:focus-within{border-color:rgba(245,165,36,.6);background:var(--surface)}
-.select > .ic{color:var(--text-3);width:18px;height:18px}
-.select .ic--chev{margin-left:auto;pointer-events:none}
+.select{
+  position:relative;display:flex;align-items:center;gap:10px;
+  background:#FFFFFF;border:1.5px solid var(--line-2);border-radius:var(--r-ctl);
+  padding:0 14px;transition:all .2s var(--ease);
+  box-shadow:0 1px 3px rgba(16,24,40,.04);
+}
+.select:hover{border-color:#94A3B8}
+.select:focus-within{border-color:#0284C7;background:#FFFFFF;box-shadow:0 0 0 3px rgba(2,132,199,.15)}
+.select > .ic{color:#64748B;width:18px;height:18px;flex-shrink:0}
+.select .ic--chev{margin-left:auto;pointer-events:none;color:#64748B}
 .select select,.select input{
   appearance:none;-webkit-appearance:none;width:100%;border:0;background:none;
-  padding:12px 0;font-size:.95rem;font-weight:500;color:var(--text);
+  padding:13px 0;font-size:.94rem;font-weight:600;color:var(--text);
 }
-.select select{cursor:pointer;padding-right:24px}
-.select select option,
-.select select optgroup{background:#FFFFFF !important;color:#101215 !important;font-family:var(--font-b);font-size:.92rem;padding:8px 12px}
-.select select optgroup{font-weight:700;color:#0284C7 !important;background:#F3F4F6 !important}
+.select select{cursor:pointer;padding-right:28px}
+.select select optgroup{
+  font-weight:800;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+  color:#0369A1 !important;background:#F1F5F9 !important;padding:8px 12px;
+}
+.select select option{
+  background:#FFFFFF !important;color:#0F172A !important;font-size:.92rem;font-weight:500;padding:10px 14px;
+}
 .select input[type=date]{color-scheme:light;cursor:pointer}
 .select input[type=date]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.65}
 
@@ -1402,39 +1417,33 @@ body.rmodal-open{overflow:hidden}
    ONEWAY.CAB STYLE HOMEPAGE SEARCH WIDGET & ADVANCED FEATURES
    ========================================================================= */
 
-/* --- TABS --- */
+/* --- TABS (2x2 Balanced Grid: Clean & Immune to Overlapping) --- */
 .booktabs{
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;
-  background:var(--surface-3);padding:6px;border-radius:16px;
-  margin-bottom:18px;border:1px solid var(--line-2);
-}
-@media (max-width:1220px){
-  .booktabs{grid-template-columns:repeat(2,1fr);gap:8px}
-}
-@media (max-width:480px){
-  .booktabs{grid-template-columns:repeat(2,1fr);gap:6px}
+  display:grid;grid-template-columns:repeat(2,1fr);gap:8px;
+  background:var(--surface-3);padding:8px;border-radius:16px;
+  margin-bottom:20px;border:1px solid var(--line-2);
 }
 .booktab{
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  padding:10px 8px;border-radius:12px;font-family:var(--font-d);
-  font-size:.85rem;font-weight:700;color:var(--text-2);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 14px;border-radius:12px;font-family:var(--font-d);
+  font-size:.88rem;font-weight:700;color:var(--text-2);
   background:transparent;border:0;cursor:pointer;
   transition:all .2s var(--ease);text-align:center;white-space:nowrap;
 }
-.booktab .ic{width:16px;height:16px;transition:transform .2s;flex-shrink:0}
-.booktab:hover{color:var(--text);background:rgba(255,255,255,.65)}
+.booktab .ic{width:18px;height:18px;transition:transform .2s;flex-shrink:0}
+.booktab:hover{color:var(--text);background:rgba(255,255,255,.75)}
 .booktab.is-active{
   background:linear-gradient(135deg,#0284C7 0%,#0369A1 100%);
   color:#FFF;box-shadow:0 6px 18px rgba(2,132,199,.32);
 }
-.booktab.is-active .ic{transform:scale(1.08)}
+.booktab.is-active .ic{transform:scale(1.1)}
 .booktab--sharing.is-active{
   background:linear-gradient(135deg,#F5A524 0%,#D97706 100%);
   color:#1A1206;box-shadow:0 6px 18px rgba(245,165,36,.32);
 }
 .booktab-badge{
-  font-size:.65rem;font-weight:800;background:#E11D48;color:#FFF;
-  padding:2px 6px;border-radius:999px;margin-left:2px;letter-spacing:.02em;line-height:1.2;
+  font-size:.66rem;font-weight:800;background:#E11D48;color:#FFF;
+  padding:2px 7px;border-radius:999px;margin-left:4px;letter-spacing:.02em;line-height:1.2;
 }
 
 /* Custom location & helper fields */
@@ -1742,3 +1751,56 @@ body.rmodal-open{overflow:hidden}
 .fcard--extra:hover{transform:translateY(-2px);border-color:#F5A524}
 .fcard--extra h3{font-size:1.15rem;margin:0}
 .fcard--extra p{font-size:.86rem;color:var(--text-2)}
+
+
+/* --- VEHICLE MODAL CARDS (Image on Top, clean responsive layout) --- */
+.fmodal-cars{display:grid;gap:14px}
+.fmodal-car{
+  display:flex;flex-direction:column;border:1.5px solid var(--line-2);border-radius:16px;
+  background:var(--surface);overflow:hidden;cursor:pointer;transition:all .2s var(--ease);
+}
+.fmodal-car:hover{border-color:#0284C7;transform:translateY(-2px);box-shadow:0 10px 24px -8px rgba(2,132,199,.18)}
+.fmodal-car.is-selected{
+  border-color:#0284C7;background:#FFFFFF;box-shadow:0 0 0 2px #0284C7,0 12px 28px -6px rgba(2,132,199,.22);
+}
+.fmodal-car__top{
+  position:relative;background:linear-gradient(180deg,#F8FAFC 0%,#EEF2F6 100%);
+  display:flex;align-items:center;justify-content:center;padding:16px 20px;border-bottom:1px solid var(--line);
+}
+.fmodal-car__img{
+  height:95px;width:auto;max-width:220px;object-fit:contain;
+  filter:drop-shadow(0 6px 12px rgba(16,24,40,.14));transition:transform .25s var(--ease);
+}
+.fmodal-car:hover .fmodal-car__img{transform:scale(1.04)}
+.fmodal-car__check{
+  position:absolute;top:12px;right:12px;width:26px;height:26px;border-radius:50%;
+  border:2px solid #CBD5E1;background:#FFF;display:grid;place-items:center;color:transparent;transition:all .2s var(--ease);
+}
+.fmodal-car.is-selected .fmodal-car__check{border-color:#0284C7;background:#0284C7;color:#FFF}
+.fmodal-car__check .ic{width:14px;height:14px;stroke-width:3}
+.fmodal-car__body{padding:14px 16px;display:grid;gap:10px}
+.fmodal-car__header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.fmodal-car__header h4{font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:2px}
+.fmodal-car__models{font-size:.78rem;color:var(--text-3)}
+.fmodal-car__price{text-align:right;flex-shrink:0}
+.fmodal-car__amount{font-family:var(--font-d);font-weight:800;font-size:1.4rem;color:#0284C7;letter-spacing:-.02em;line-height:1}
+.fmodal-car__taxnote{font-size:.7rem;color:#0B8045;font-weight:700;margin-top:3px}
+.fmodal-car__badges{display:flex;flex-wrap:wrap;gap:6px}
+.fmodal-car__badge{font-size:.72rem;padding:3px 8px;border-radius:6px;background:var(--surface-2);color:var(--text-2);font-weight:600;border:1px solid var(--line)}
+
+/* --- ROUND TRIP VEHICLE CARDS GRID --- */
+.rt-cars-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:540px){.rt-cars-grid{grid-template-columns:repeat(2,1fr)}}
+.rt-car-card{
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  padding:12px 8px;border:1.5px solid var(--line-2);border-radius:12px;
+  background:var(--surface-2);cursor:pointer;transition:all .2s var(--ease);
+}
+.rt-car-card:hover{border-color:#0284C7;background:#FFF}
+.rt-car-card.is-selected{border-color:#0284C7;background:rgba(2,132,199,.08);box-shadow:0 0 0 2px #0284C7}
+.rt-car-card__rate{font-family:var(--font-d);font-size:1.15rem;font-weight:800;color:#0284C7;line-height:1.1}
+.rt-car-card__rate small{font-size:.7rem;font-weight:600;color:var(--text-3)}
+.rt-car-card__name{font-size:.85rem;font-weight:700;color:var(--text);margin-top:3px}
+.rt-car-card__models{font-size:.68rem;color:var(--text-3);margin-top:1px}
+.rt-car-card__meta{font-size:.65rem;font-weight:700;color:#0B8045;margin-top:4px}
+.pkg-card__sub{font-size:.72rem;color:var(--text-3);display:block;margin-top:2px}
