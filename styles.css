@@ -1115,7 +1115,12 @@ body.rmodal-open{overflow:hidden}
     scrollbar-width:none;overscroll-behavior-x:contain;
   }
   .fleet__grid::-webkit-scrollbar{display:none}
-  .fcard{flex:0 0 82%;scroll-snap-align:start}
+  .fcard{flex:0 0 84%;scroll-snap-align:start}
+  .fcard__media{aspect-ratio:2/1}
+  .fcard__body{padding:14px;gap:8px}
+  .fcard__from{padding-top:10px}
+  .fcard__from b{font-size:1.15rem}
+  .fcard__specs li{padding:5px 9px;font-size:.7rem}
   .rail__head{flex-direction:column;align-items:flex-start;gap:16px}
   .rcard2{width:300px}
   .rcard2__media{height:162px}
@@ -1150,15 +1155,24 @@ body.rmodal-open{overflow:hidden}
 
   .revform{grid-template-columns:1fr}
   .revthanks{grid-column:auto}
-  .steps{grid-template-columns:1fr;gap:22px}
-  .steps::before{display:none}
-  .step:not(:last-child)::after{
-    content:"";position:absolute;top:76px;left:48px;
-    width:2px;height:calc(100% + 22px - 50px);
-    background:linear-gradient(180deg,rgba(245,165,36,.6) 50%,transparent 50%);
-    background-size:2px 14px;opacity:0;z-index:1;
+  .steps{
+    display:block;position:relative;
+    padding-bottom:12vh;
   }
-  .js .step.is-in:not(:last-child)::after{animation:drawDashY .9s cubic-bezier(.1,.9,.2,1) forwards;animation-delay:.3s}
+  .steps::before{
+    content:"";position:absolute;top:-40px;left:0;right:0;bottom:0;
+    background:radial-gradient(circle at 50% 30%, rgba(245,165,36,.14) 0%, transparent 60%);
+    z-index:0;pointer-events:none;display:block;
+  }
+  .step{
+    position:sticky;margin-bottom:20vh;
+    box-shadow:0 -6px 30px rgba(7,8,11,.08), 0 8px 30px rgba(7,8,11,.02);
+  }
+  .step:last-child{margin-bottom:0}
+  .step:nth-child(1){top:calc(76px + env(safe-area-inset-top));z-index:10;transform-origin:top center}
+  .step:nth-child(2){top:calc(92px + env(safe-area-inset-top));z-index:11;transform-origin:top center}
+  .step:nth-child(3){top:calc(108px + env(safe-area-inset-top));z-index:12;transform-origin:top center}
+  .step:not(:last-child)::after{display:none !important}
   .stats{grid-template-columns:1fr 1fr;gap:20px}
   .prow--head{display:none}
   .prow{
