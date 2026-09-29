@@ -127,35 +127,77 @@ const bookState = {
 
 // 100+ Maharashtra Locations with Hub / Airport Tags & Alias Matching
 const MH_LOCATIONS = [
-  { name: "Pune", id: "pune", tag: "Major Hub", aliases: ["pune", "poona", "shivajinagar", "swargate", "wakad", "hinjawadi", "viman nagar", "hadapsar", "kothrud", "baner", "chakan"] },
-  { name: "Pune Airport (PNQ), Lohegaon", id: "pune", tag: "Airport", aliases: ["pune airport", "lohegaon", "pnq"] },
-  { name: "Mumbai", id: "mumbai", tag: "Metro Hub", aliases: ["mumbai", "bombay", "dadar", "borivali", "andheri", "bandra", "chembur"] },
-  { name: "Mumbai International Airport (CSMI - BOM)", id: "mumbai", tag: "Airport", aliases: ["mumbai airport", "bom", "t1", "t2", "sahar", "santacruz"] },
-  { name: "Thane, MMR", id: "mumbai", tag: "MMR", aliases: ["thane", "ghodbunder", "majiwada"] },
-  { name: "Navi Mumbai / Panvel", id: "mumbai", tag: "MMR", aliases: ["navi mumbai", "vashi", "nerul", "kharghar", "panvel", "belapur"] },
-  { name: "Chhatrapati Sambhajinagar (Aurangabad)", id: "sambhajinagar", tag: "Major Hub", aliases: ["aurangabad", "sambhajinagar", "chhatrapati sambhajinagar", "cidco", "waluj", "beed bypass", "kranti chowk"] },
-  { name: "Aurangabad Airport (Chhatrapati Sambhajinagar - IXU)", id: "sambhajinagar", tag: "Airport", aliases: ["aurangabad airport", "chikkalthana", "ixu"] },
-  { name: "Nashik", id: "nashik", tag: "Major Hub", aliases: ["nashik", "nasik", "panchavati", "cbs", "mumbai naka", "ambad", "satpur"] },
-  { name: "Nashik Airport (Ozar - ISK)", id: "nashik", tag: "Airport", aliases: ["ozar airport", "nashik airport", "isk"] },
-  { name: "Ahilyanagar (Ahmednagar)", id: "ahilyanagar", tag: "Major Hub", aliases: ["ahilyanagar", "ahmednagar", "nagar", "savedi", "maliwada", "station road"] },
-  { name: "Shirdi (Sai Baba Temple)", id: "shirdi", tag: "Temple Town", aliases: ["shirdi", "sai baba", "shirdi temple", "kopargaon", "rahata"] },
-  { name: "Shirdi Airport (SAG), Kakadi", id: "shirdi", tag: "Airport", aliases: ["shirdi airport", "kakadi", "sag"] },
-  { name: "Mahabaleshwar", id: "mahabaleshwar", tag: "Hill Station", aliases: ["mahabaleshwar", "panchgani", "venna lake", "mapro"] },
-  { name: "Kolhapur", id: "kolhapur", tag: "Major Hub", aliases: ["kolhapur", "mahalaxmi", "tarabai park"] },
-  { name: "Lonavala & Khandala", id: "lonavala", tag: "Getaway", aliases: ["lonavala", "khandala", "ins shivaji"] },
-  { name: "Satara", id: "pune", tag: "City", aliases: ["satara", "karad", "wai"] },
-  { name: "Solapur", id: "pune", tag: "City", aliases: ["solapur", "pandharpur", "akkalkot"] },
-  { name: "Sangli & Miraj", id: "kolhapur", tag: "City", aliases: ["sangli", "miraj", "madhavnagar"] },
-  { name: "Jalgaon & Bhusawal", id: "sambhajinagar", tag: "Khandesh", aliases: ["jalgaon", "bhusawal"] },
-  { name: "Dhule", id: "nashik", tag: "Khandesh", aliases: ["dhule", "malegaon"] },
-  { name: "Jalna", id: "sambhajinagar", tag: "Marathwada", aliases: ["jalna"] },
-  { name: "Beed", id: "ahilyanagar", tag: "Marathwada", aliases: ["beed", "ambajogai", "parli"] },
-  { name: "Nanded (Sachkhand Gurudwara)", id: "sambhajinagar", tag: "Marathwada", aliases: ["nanded", "hazur sahib"] },
-  { name: "Latur", id: "sambhajinagar", tag: "Marathwada", aliases: ["latur", "udgir"] },
-  { name: "Dharashiv (Osmanabad)", id: "sambhajinagar", tag: "Marathwada", aliases: ["dharashiv", "osmanabad", "tuljapur"] },
-  { name: "Alibaug & Murud", id: "mumbai", tag: "Coastal", aliases: ["alibaug", "murud", "kashid"] },
-  { name: "Ratnagiri & Chiplun", id: "kolhapur", tag: "Konkan", aliases: ["ratnagiri", "chiplun", "ganpatipule"] },
-  { name: "Nagpur Hub", id: "sambhajinagar", tag: "Vidarbha", aliases: ["nagpur", "wardha"] }
+  // --- PRIMARY TRANSIT HUBS & AIRPORTS ---
+  { name: "Pune", id: "pune", tag: "Major Hub", aliases: ["pune", "poona", "shivajinagar", "swargate", "wakad", "hinjawadi", "viman nagar", "hadapsar", "kothrud", "baner", "chakan", "pcmc", "pimpri", "chinchwad", "bhosari", "talegaon", "kharadi", "magarpatta"] },
+  { name: "Pune Airport (PNQ), Lohegaon", id: "pune", tag: "Airport", aliases: ["pune airport", "lohegaon", "pnq", "viman nagar airport"] },
+  { name: "Mumbai (All MMR)", id: "mumbai", tag: "Metro Hub", aliases: ["mumbai", "bombay", "dadar", "borivali", "andheri", "bandra", "chembur", "kurla", "ghatkopar", "colaba", "cst", "mumbai central"] },
+  { name: "Mumbai International Airport (CSMI - BOM T1/T2)", id: "mumbai", tag: "Airport", aliases: ["mumbai airport", "bom", "t1", "t2", "sahar", "santacruz", "domestic airport", "csmi"] },
+  { name: "Thane, MMR", id: "mumbai", tag: "MMR", aliases: ["thane", "ghodbunder", "majiwada", "viviana", "wagle estate", "naupada"] },
+  { name: "Navi Mumbai / Panvel", id: "mumbai", tag: "MMR", aliases: ["navi mumbai", "vashi", "nerul", "kharghar", "panvel", "belapur", "airoli", "ghansoli", "koparkhairane", "kamothe"] },
+  { name: "Kalyan - Dombivli - Ulhasnagar", id: "mumbai", tag: "MMR", aliases: ["kalyan", "dombivli", "dombivali", "ulhasnagar", "titwala", "badlapur", "ambarnath"] },
+  { name: "Vasai - Virar - Palghar", id: "mumbai", tag: "MMR", aliases: ["vasai", "virar", "palghar", "boisar", "dahanu", "naigaon", "nallasopara"] },
+  { name: "Chhatrapati Sambhajinagar (Aurangabad)", id: "sambhajinagar", tag: "Major Hub", aliases: ["aurangabad", "sambhajinagar", "chhatrapati sambhajinagar", "cidco", "waluj", "beed bypass", "kranti chowk", "chikalthana", "prozone"] },
+  { name: "Aurangabad Airport (Chhatrapati Sambhajinagar - IXU)", id: "sambhajinagar", tag: "Airport", aliases: ["aurangabad airport", "chikkalthana", "ixu", "sambhajinagar airport"] },
+  { name: "Nashik", id: "nashik", tag: "Major Hub", aliases: ["nashik", "nasik", "panchavati", "cbs", "mumbai naka", "ambad", "satpur", "indira nagar", "college road", "gangapur road"] },
+  { name: "Nashik Airport (Ozar - ISK)", id: "nashik", tag: "Airport", aliases: ["ozar airport", "nashik airport", "isk", "hal ozar"] },
+  { name: "Ahilyanagar (Ahmednagar)", id: "ahilyanagar", tag: "Major Hub", aliases: ["ahilyanagar", "ahmednagar", "nagar", "savedi", "maliwada", "station road", "midc ahmednagar", "bhingar"] },
+  { name: "Shirdi (Sai Baba Temple)", id: "shirdi", tag: "Temple Town", aliases: ["shirdi", "sai baba", "shirdi temple", "kopargaon", "rahata", "shirdi trust", "samadhi mandir"] },
+  { name: "Shirdi International Airport (SAG), Kakadi", id: "shirdi", tag: "Airport", aliases: ["shirdi airport", "kakadi", "sag", "shirdi flight"] },
+
+  // --- WESTERN MAHARASHTRA & HILL STATIONS ---
+  { name: "Kolhapur City (Mahalaxmi Temple)", id: "kolhapur", tag: "Major Hub", aliases: ["kolhapur", "mahalaxmi", "tarabai park", "rajarampuri", "rankala", "panhala"] },
+  { name: "Kolhapur Airport (KLH), Ujalaiwadi", id: "kolhapur", tag: "Airport", aliases: ["kolhapur airport", "klh", "ujalaiwadi"] },
+  { name: "Ichalkaranji & Kagal", id: "kolhapur", tag: "Hub", aliases: ["ichalkaranji", "kagal", "jaysingpur", "gadhinglaj"] },
+  { name: "Mahabaleshwar & Panchgani", id: "mahabaleshwar", tag: "Hill Station", aliases: ["mahabaleshwar", "panchgani", "venna lake", "mapro", "pratapgad", "old mahabaleshwar"] },
+  { name: "Lonavala & Khandala", id: "lonavala", tag: "Getaway", aliases: ["lonavala", "khandala", "ins shivaji", "tiger point", "bushy dam", "wet n joy"] },
+  { name: "Satara City & Karad", id: "pune", tag: "District", aliases: ["satara", "karad", "wai", "kaas plateau", "koregaon", "shirwal", "phaltan"] },
+  { name: "Solapur (Pandharpur / Akkalkot)", id: "pune", tag: "District", aliases: ["solapur", "pandharpur", "akkalkot", "vithoba", "swami samarth", "barshi", "kurduvadi", "mohol"] },
+  { name: "Sangli & Miraj", id: "kolhapur", tag: "District", aliases: ["sangli", "miraj", "madhavnagar", "islampur", "vita", "tasgaon"] },
+
+  // --- KONKAN & COASTAL DESTINATIONS ---
+  { name: "Alibaug & Kashid Beach", id: "mumbai", tag: "Coastal", aliases: ["alibaug", "kashid", "murud", "kihim", "nagaon", "mandwa", "revdanda"] },
+  { name: "Karjat, Khopoli & Imagica", id: "mumbai", tag: "Getaway", aliases: ["karjat", "khopoli", "imagica", "matheran", "neral"] },
+  { name: "Pen, Mangaon & Mahad", id: "mumbai", tag: "Konkan", aliases: ["pen", "mangaon", "mahad", "roha", "raigad fort"] },
+  { name: "Ratnagiri & Chiplun", id: "kolhapur", tag: "Konkan", aliases: ["ratnagiri", "chiplun", "ganpatipule", "khed", "dapoli", "guhagar", "rajapur", "derwan"] },
+  { name: "Sindhudurg (Malvan, Tarkarli & Sawantwadi)", id: "kolhapur", tag: "Konkan", aliases: ["sindhudurg", "malvan", "tarkarli", "sawantwadi", "kankavli", "vengurla", "kudal", "chipi airport", "sdw"] },
+
+  // --- NORTH MAHARASHTRA & KHANDESH ---
+  { name: "Jalgaon & Bhusawal", id: "sambhajinagar", tag: "District", aliases: ["jalgaon", "bhusawal", "chalisgaon", "amalner", "pachora", "deepnagar"] },
+  { name: "Dhule & Shirpur", id: "nashik", tag: "District", aliases: ["dhule", "shirpur", "sakri", "sindkheda"] },
+  { name: "Malegaon & Manmad", id: "nashik", tag: "Hub", aliases: ["malegaon", "manmad", "yeola", "chandwad", "satana"] },
+  { name: "Nandurbar & Shahada", id: "nashik", tag: "District", aliases: ["nandurbar", "shahada", "navapur", "toranmal"] },
+  { name: "Trimbakeshwar (Jyotirlinga)", id: "nashik", tag: "Temple Town", aliases: ["trimbakeshwar", "trambakeshwar", "brahmagiri"] },
+  { name: "Igatpuri (Bhatsa / Vipassana)", id: "nashik", tag: "Hill Station", aliases: ["igatpuri", "ghoti", "kasara", "vipassana"] },
+  { name: "Sangamner & Kopargaon", id: "ahilyanagar", tag: "Hub", aliases: ["sangamner", "kopargaon", "shrirampur", "newasa", "rahata"] },
+
+  // --- MARATHWADA ---
+  { name: "Jalna City", id: "sambhajinagar", tag: "District", aliases: ["jalna", "partur", "ambad", "bhokardan", "jafrabad"] },
+  { name: "Beed & Parli Vaijnath (Jyotirlinga)", id: "ahilyanagar", tag: "District", aliases: ["beed", "parli", "parli vaijnath", "ambajogai", "majalgaon", "georai"] },
+  { name: "Nanded (Hazur Sachkhand Sahib Gurudwara)", id: "sambhajinagar", tag: "District", aliases: ["nanded", "hazur sahib", "sachkhand", "degloor", "kinwat", "nanded airport", "ndc"] },
+  { name: "Latur & Udgir", id: "sambhajinagar", tag: "District", aliases: ["latur", "udgir", "ausa", "nilanga", "ahmedpur"] },
+  { name: "Dharashiv (Osmanabad) & Tuljapur Temple", id: "sambhajinagar", tag: "District", aliases: ["dharashiv", "osmanabad", "tuljapur", "bhavani mandir", "omerga"] },
+  { name: "Parbhani & Gangakhed", id: "sambhajinagar", tag: "District", aliases: ["parbhani", "gangakhed", "jintur", "sailu"] },
+  { name: "Hingoli & Aundha Nagnath (Jyotirlinga)", id: "sambhajinagar", tag: "District", aliases: ["hingoli", "aundha nagnath", "basmath", "kalamnuri"] },
+  { name: "Ellora & Ajanta Caves (UNESCO World Heritage)", id: "sambhajinagar", tag: "Heritage", aliases: ["ellora", "ajanta", "grishneshwar", "kailasa temple", "khuldabad"] },
+
+  // --- VIDARBHA ---
+  { name: "Nagpur (Zero Mile / MIHAN)", id: "sambhajinagar", tag: "Major Hub", aliases: ["nagpur", "mihan", "sitabuldi", "dharampeth", "kamptee", "butibori", "ramtek"] },
+  { name: "Nagpur Airport (Dr. Babasaheb Ambedkar - NAG)", id: "sambhajinagar", tag: "Airport", aliases: ["nagpur airport", "nag", "sonaebgaon"] },
+  { name: "Amravati City & Badnera", id: "sambhajinagar", tag: "District", aliases: ["amravati", "badnera", "achlapur", "morshi", "melghat", "chikhaldara"] },
+  { name: "Akola City", id: "sambhajinagar", tag: "District", aliases: ["akola", "akot", "murtizapur", "balapur"] },
+  { name: "Buldhana & Shegaon (Gajanan Maharaj)", id: "sambhajinagar", tag: "District", aliases: ["buldhana", "shegaon", "gajanan maharaj", "khamgaon", "malkapur", "mehkar", "lonar"] },
+  { name: "Wardha & Sevagram Ashram", id: "sambhajinagar", tag: "District", aliases: ["wardha", "sevagram", "hinganghat", "arvi"] },
+  { name: "Yavatmal & Pusad", id: "sambhajinagar", tag: "District", aliases: ["yavatmal", "pusad", "umarkhed", "digras", "wani"] },
+  { name: "Washim & Karanja Lad", id: "sambhajinagar", tag: "District", aliases: ["washim", "karanja", "risod", "mangrulpir"] },
+  { name: "Chandrapur City & Tadoba National Park", id: "sambhajinagar", tag: "District", aliases: ["chandrapur", "tadoba", "ballarpur", "warora", "tiger reserve"] },
+  { name: "Bhandara & Gondia", id: "sambhajinagar", tag: "District", aliases: ["bhandara", "gondia", "tumsar", "tirora"] },
+  { name: "Gadchiroli", id: "sambhajinagar", tag: "District", aliases: ["gadchiroli", "chamorshi", "aheri"] },
+
+  // --- POPULAR OUTSTATIONS ---
+  { name: "Goa (North & South Goa / Mopa Airport GOX)", id: "kolhapur", tag: "Outstation", aliases: ["goa", "panaji", "calangute", "baga", "candolim", "mopa", "dabolim", "margao", "vasco"] },
+  { name: "Surat, Gujarat", id: "mumbai", tag: "Interstate", aliases: ["surat", "vapi", "valsad", "navsari"] },
+  { name: "Belgaum (Belagavi), Karnataka", id: "kolhapur", tag: "Interstate", aliases: ["belgaum", "belagavi", "hubli", "dharwad"] },
+  { name: "Indore & Ujjain (Mahakaleshwar), MP", id: "nashik", tag: "Interstate", aliases: ["indore", "ujjain", "mahakal"] }
 ];
 
 function buildSelects() {
@@ -199,14 +241,19 @@ function renderFare(flash) {
 
   if (badge) badge.textContent = CAR_CLASSES[bookState.cls].label;
 
-  if (bookState.from === bookState.to) {
+  const fromName = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : bookState.from);
+  const toName = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : bookState.to);
+
+  if (bookState.from === bookState.to && bookState.from !== "custom") {
     num.textContent = i18nT("Quote");
     meta.textContent = i18nT("Pick two different cities");
     if (err) { err.hidden = false; err.textContent = "Pickup and drop are the same city. Choose two different locations."; }
   } else if (!r) {
     const baseSedan = 2999;
-    num.textContent = Number(bookState.cls === "suv" ? 3799 : baseSedan).toLocaleString("en-IN");
-    meta.textContent = `${bookState.fromName || i18nCity(bookState.from)} to ${bookState.toName || i18nCity(bookState.to)} · Custom Route (All Maharashtra)`;
+    const customFare = bookState.cls === "suv" ? 3799 : baseSedan;
+    num.textContent = `${Number(customFare).toLocaleString("en-IN")}*`;
+    meta.textContent = `${fromName} to ${toName} · Custom Route (Instant Fixed Fare via WhatsApp)`;
+    if (badge) badge.textContent = "Instant Quote";
     if (err) { err.hidden = true; err.textContent = ""; }
   } else {
     const newVal = Number(currentFare()).toLocaleString("en-IN");
@@ -268,34 +315,50 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
   if (!input || !dropdown) return;
 
   function filterLocations(query) {
-    const q = query.trim().toLowerCase();
-    if (!q) return MH_LOCATIONS.slice(0, 7);
+    const q = (query || "").trim().toLowerCase();
+    if (!q) return MH_LOCATIONS.slice(0, 10);
     return MH_LOCATIONS.filter(loc => {
       if (loc.name.toLowerCase().includes(q)) return true;
       return loc.aliases.some(alias => alias.includes(q));
-    }).slice(0, 8);
+    }).slice(0, 12);
   }
 
   function renderList(list, query) {
-    if (!list.length) {
-      dropdown.innerHTML = `<div class="autocomplete-item" style="color:var(--text-3);cursor:default"><span>No exact city match. We cover anywhere in Maharashtra — tap to use "${input.value}"</span></div>`;
-      dropdown.classList.add("is-open");
-      return;
+    const qClean = (query || "").trim();
+    const q = qClean.toLowerCase();
+    let html = "";
+
+    if (list.length) {
+      html += list.map(item => {
+        let displayName = item.name;
+        if (q && displayName.toLowerCase().includes(q)) {
+          const idx = displayName.toLowerCase().indexOf(q);
+          displayName = displayName.substring(0, idx) + `<mark>${displayName.substring(idx, idx + q.length)}</mark>` + displayName.substring(idx + q.length);
+        }
+        return `
+          <div class="autocomplete-item" data-id="${item.id}" data-name="${item.name}">
+            <span><b>${displayName}</b></span>
+            <span class="autocomplete-tag">${item.tag}</span>
+          </div>
+        `;
+      }).join("");
     }
-    const q = query.trim().toLowerCase();
-    dropdown.innerHTML = list.map(item => {
-      let displayName = item.name;
-      if (q && displayName.toLowerCase().includes(q)) {
-        const idx = displayName.toLowerCase().indexOf(q);
-        displayName = displayName.substring(0, idx) + `<mark>${displayName.substring(idx, idx + q.length)}</mark>` + displayName.substring(idx + q.length);
-      }
-      return `
-        <div class="autocomplete-item" data-id="${item.id}" data-name="${item.name}">
-          <span><b>${displayName}</b></span>
-          <span class="autocomplete-tag">${item.tag}</span>
+
+    // Always offer custom typed location if user typed something
+    if (qClean) {
+      html += `
+        <div class="autocomplete-item autocomplete-item--custom" data-id="custom" data-name="${qClean}">
+          <span>✨ <b>Use "${qClean}"</b> <small style="color:var(--text-3)">(Any location in Maharashtra · 24x7 Dispatch)</small></span>
+          <span class="autocomplete-tag" style="background:#FEF3C7;color:#B45309">Instant Quote</span>
         </div>
       `;
-    }).join("");
+    }
+
+    if (!html) {
+      html = `<div class="autocomplete-item" style="color:var(--text-3);cursor:default"><span>Type any city or town in Maharashtra...</span></div>`;
+    }
+
+    dropdown.innerHTML = html;
     dropdown.classList.add("is-open");
   }
 
@@ -313,6 +376,24 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
     input.value = item.dataset.name;
     dropdown.classList.remove("is-open");
     onSelect(item.dataset.id, item.dataset.name);
+  });
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const val = input.value.trim();
+      if (val) {
+        dropdown.classList.remove("is-open");
+        onSelect("custom", val);
+      }
+    }
+  });
+
+  input.addEventListener("change", () => {
+    const val = input.value.trim();
+    if (val) {
+      onSelect("custom", val);
+    }
   });
 
   document.addEventListener("click", e => {
@@ -352,17 +433,17 @@ function openFleetModal() {
   if (!modal) return;
 
   const r = findRoute(bookState.from, bookState.to);
-  const fromTitle = bookState.fromName || i18nCity(bookState.from);
-  const toTitle = bookState.toName || i18nCity(bookState.to);
-  const dist = r ? `${r.km} km · ~${r.time}` : "Intercity Distance · 24x7 Dispatch";
+  const fromTitle = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : bookState.from);
+  const toTitle = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : bookState.to);
+  const dist = r ? `${r.km} km · ~${r.time}` : "Intercity Route · 24x7 Driver Dispatch across Maharashtra";
 
   const titleEl = $("#fmodalTitle"), subEl = $("#fmodalSub");
   if (titleEl) titleEl.textContent = `${fromTitle} → ${toTitle}`;
-  if (subEl) subEl.textContent = `${dist} · Doorstep Pickup & Drop across Maharashtra`;
+  if (subEl) subEl.textContent = `${dist} · Doorstep Pickup & Drop`;
 
-  const sedanPrice = r ? r.sedan : 2799;
-  const suvPrice = r ? r.suv : 3499;
-  const crystaPrice = r ? Math.round(r.suv * 1.25 / 100) * 100 : 4299;
+  const sedanPrice = r ? r.sedan : 2999;
+  const suvPrice = r ? r.suv : 3799;
+  const crystaPrice = r ? Math.round(r.suv * 1.25 / 100) * 100 : 4799;
 
   const pSedan = $("#mPriceSedan"), pSuv = $("#mPriceSuv"), pCrysta = $("#mPriceCrysta");
   if (pSedan) pSedan.textContent = inr(sedanPrice);
@@ -457,8 +538,9 @@ function formatBookingWhatsAppMessage() {
 
 /* --- LOCAL PACKAGES LOGIC --- */
 function initLocalPackage() {
-  const city = $("#localCity"), cls = $$('input[name="localCls"]'), pkgs = $$('input[name="localPkg"]');
+  const city = $("#localCity"), cls = $('input[name="localCls"]'), pkgs = $('input[name="localPkg"]');
   const num = $("#localFareNum"), meta = $("#localFareMeta"), badge = $("#localFareBadge");
+  const customWrap = $("#localCustomWrap");
 
   function recalc() {
     const pkgEl = $('input[name="localPkg"]:checked');
@@ -484,7 +566,18 @@ function initLocalPackage() {
     if (p12) p12.classList.toggle("is-selected", is12);
   }
 
-  if (city) city.addEventListener("change", e => { bookState.localCity = e.target.value; });
+  if (city) {
+    city.addEventListener("change", e => {
+      bookState.localCity = e.target.value;
+      if (customWrap) {
+        customWrap.hidden = (e.target.value !== "custom");
+        if (e.target.value === "custom") {
+          const inp = $("#localCustomCity");
+          if (inp) inp.focus();
+        }
+      }
+    });
+  }
   cls.forEach(c => c.addEventListener("change", recalc));
   pkgs.forEach(p => p.addEventListener("change", recalc));
 
@@ -492,7 +585,11 @@ function initLocalPackage() {
   if (bookBtn) {
     bookBtn.addEventListener("click", () => {
       const citySel = $("#localCity");
-      const cityName = citySel.options[citySel.selectedIndex].text;
+      let cityName = citySel.options[citySel.selectedIndex].text;
+      if (citySel.value === "custom") {
+        const customInp = $("#localCustomCity");
+        cityName = (customInp && customInp.value.trim()) || "Custom Maharashtra Location";
+      }
       const pkgName = bookState.localPkg === "12h" ? "12 Hours / 120 Km" : "8 Hours / 80 Km";
       const carName = bookState.localCls === "suv" ? "SUV (Ertiga / Innova)" : "Sedan (Dzire / Aura)";
       const fare = $("#localFareNum") ? $("#localFareNum").textContent : "2,200";
@@ -519,8 +616,33 @@ function initLocalPackage() {
 /* --- ROUND TRIP LOGIC --- */
 function initRoundTrip() {
   const fromSel = $("#roundFrom"), toSel = $("#roundTo");
-  const clsRadios = $$('input[name="roundCls"]');
+  const clsRadios = $('input[name="roundCls"]');
   const num = $("#roundFareNum"), meta = $("#roundFareMeta"), badge = $("#roundFareBadge");
+  const fromCustomWrap = $("#roundFromCustomWrap"), toCustomWrap = $("#roundToCustomWrap");
+
+  if (fromSel) {
+    fromSel.addEventListener("change", e => {
+      if (fromCustomWrap) {
+        fromCustomWrap.hidden = (e.target.value !== "custom");
+        if (e.target.value === "custom") {
+          const inp = $("#roundFromCustom");
+          if (inp) inp.focus();
+        }
+      }
+    });
+  }
+
+  if (toSel) {
+    toSel.addEventListener("change", e => {
+      if (toCustomWrap) {
+        toCustomWrap.hidden = (e.target.value !== "custom");
+        if (e.target.value === "custom") {
+          const inp = $("#roundToCustom");
+          if (inp) inp.focus();
+        }
+      }
+    });
+  }
 
   function recalc() {
     const clsEl = $('input[name="roundCls"]:checked');
@@ -540,8 +662,17 @@ function initRoundTrip() {
   const btn = $("#btnRoundBook");
   if (btn) {
     btn.addEventListener("click", () => {
-      const from = fromSel.options[fromSel.selectedIndex].text;
-      const to = toSel.options[toSel.selectedIndex].text;
+      let from = fromSel.options[fromSel.selectedIndex].text;
+      if (fromSel.value === "custom") {
+        const inp = $("#roundFromCustom");
+        from = (inp && inp.value.trim()) || "Custom Pickup Location";
+      }
+      let to = toSel.options[toSel.selectedIndex].text;
+      if (toSel.value === "custom") {
+        const inp = $("#roundToCustom");
+        to = (inp && inp.value.trim()) || "Custom Destination";
+      }
+
       const clsEl = $('input[name="roundCls"]:checked');
       const isErtiga = clsEl && clsEl.value === "ertiga";
       const rate = isErtiga ? "₹14/km (SUV Ertiga)" : "₹12/km (Sedan Dzire/Aura)";
@@ -564,13 +695,15 @@ function initRoundTrip() {
   }
 }
 
-/* --- CAR SHARING (Strictly as per Client Brief #5) --- */
+/* --- CAR SHARING (Special Routes & All Maharashtra) --- */
 function initCarSharing() {
   const routeSel = $("#sharingRoute");
   const seatsSel = $("#sharingSeats");
   const optsWrap = $("#sharingDropOpts");
   const fareEl = $("#sharingTotalFare");
   const dateEl = $("#sharingDate");
+  const customWrap = $("#sharingCustomWrap");
+  const dropWrap = $("#sharingDropWrap");
 
   if (!routeSel || !optsWrap) return;
 
@@ -583,6 +716,15 @@ function initCarSharing() {
   function recalc() {
     const route = routeSel.value;
     const seats = parseInt(seatsSel.value, 10) || 1;
+
+    if (customWrap) customWrap.hidden = (route !== "custom");
+    if (dropWrap) dropWrap.hidden = (route === "custom");
+
+    if (route === "custom") {
+      const estTotal = 800 * seats;
+      if (fareEl) fareEl.textContent = `${Number(estTotal).toLocaleString("en-IN")}*`;
+      return;
+    }
 
     if (route === "pune-ahilyanagar") {
       optsWrap.innerHTML = `
@@ -597,7 +739,7 @@ function initCarSharing() {
       `;
       const total = 600 * seats;
       if (fareEl) fareEl.textContent = Number(total).toLocaleString("en-IN");
-    } else {
+    } else if (route === "pune-sambhajinagar") {
       const currentRadio = $('input[name="sharingDrop"]:checked');
       const currentSelected = currentRadio ? currentRadio.value : "shivajinagar";
       optsWrap.innerHTML = `
@@ -622,14 +764,40 @@ function initCarSharing() {
       const total = perSeat * seats;
       if (fareEl) fareEl.textContent = Number(total).toLocaleString("en-IN");
 
-      $$(".sharing-opt").forEach(opt => {
+      $(".sharing-opt").forEach(opt => {
         opt.addEventListener("click", () => {
-          $$(".sharing-opt").forEach(o => o.classList.remove("is-selected"));
+          $(".sharing-opt").forEach(o => o.classList.remove("is-selected"));
           opt.classList.add("is-selected");
           opt.querySelector("input").checked = true;
           recalc();
         });
       });
+    } else if (route === "sambhajinagar-shirdi") {
+      optsWrap.innerHTML = `
+        <label class="sharing-opt is-selected">
+          <input type="radio" name="sharingDrop" value="standard" checked hidden />
+          <div>
+            <b>Shirdi / Sambhajinagar Doorstep Drop</b>
+            <span>Comfortable AC sedan shared ride</span>
+          </div>
+          <div class="sharing-opt__price">₹600 <small style="font-size:.7rem;font-weight:400">/ seat</small></div>
+        </label>
+      `;
+      const total = 600 * seats;
+      if (fareEl) fareEl.textContent = Number(total).toLocaleString("en-IN");
+    } else {
+      optsWrap.innerHTML = `
+        <label class="sharing-opt is-selected">
+          <input type="radio" name="sharingDrop" value="standard" checked hidden />
+          <div>
+            <b>Express Hub Drop</b>
+            <span>AC sedan (Max 3 co-passengers)</span>
+          </div>
+          <div class="sharing-opt__price">₹800 <small style="font-size:.7rem;font-weight:400">/ seat</small></div>
+        </label>
+      `;
+      const total = 800 * seats;
+      if (fareEl) fareEl.textContent = Number(total).toLocaleString("en-IN");
     }
   }
 
@@ -640,24 +808,29 @@ function initCarSharing() {
   const shareBtn = $("#btnShareBook");
   if (shareBtn) {
     shareBtn.addEventListener("click", () => {
-      const routeText = routeSel.options[routeSel.selectedIndex].text;
+      let routeText = routeSel.options[routeSel.selectedIndex].text;
+      if (routeSel.value === "custom") {
+        const cFrom = ($("#sharingCustomFrom") && $("#sharingCustomFrom").value.trim()) || "Any Maharashtra Pickup";
+        const cTo = ($("#sharingCustomTo") && $("#sharingCustomTo").value.trim()) || "Any Maharashtra Drop";
+        routeText = `${cFrom} ⇄ ${cTo} (Custom Shared Route)`;
+      }
       const seats = seatsSel.value;
       const dropRadio = $('input[name="sharingDrop"]:checked');
       const dropOpt = dropRadio ? dropRadio.value : "home";
-      const dropLabel = dropOpt === "home" ? "Home Drop" : "Shivajinagar Hub Drop";
+      const dropLabel = routeSel.value === "custom" ? "Custom Drop" : (dropOpt === "home" ? "Home Drop" : "Hub Drop");
       const total = $("#sharingTotalFare").textContent;
       const dateVal = ($("#sharingDate") && $("#sharingDate").value) || "Tomorrow";
 
       const msg = [
-        `*CAR SHARING BOOKING - SHIVRUDRA TAXI*`,
+        `*CAR SHARING BOOKING REQUEST - SHIVRUDRA TAXI*`,
         `──────────────────────────`,
         `📍 *Route:* ${routeText}`,
-        `🚗 *Drop Type:* ${dropLabel}`,
-        `👥 *Seats Required:* ${seats} Seat(s) (Max 3 in Sedan)`,
-        `💰 *Total Share Fare:* ₹${total}`,
+        `👥 *Passengers / Seats:* ${seats} Seat(s) (Max 3 passengers in Sedan)`,
+        `🚪 *Drop Preference:* ${dropLabel}`,
+        `💰 *Total Sharing Fare:* ₹${total}`,
         `🗓️ *Date:* ${dateVal}`,
         `──────────────────────────`,
-        `Please confirm my shared seat and share driver contact.`
+        `Please confirm shared cab seat availability and pickup point.`
       ].join("\n");
 
       window.open(waUrl(msg), "_blank", "noopener");
@@ -665,7 +838,7 @@ function initCarSharing() {
   }
 }
 
-/* --- EXIT INTENT / URGENT CAB LEAD MODAL --- */
+/* --- URGENT EXIT INTENT MODAL --- */
 function initUrgentModal() {
   const modal = $("#urgentModal");
   const closeBtn = $("#urgentClose");

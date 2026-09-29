@@ -344,18 +344,73 @@
         <div class="bookpanel" id="panel-local" role="tabpanel" aria-labelledby="tab-local">
           <form class="bookform" id="localForm" novalidate onsubmit="return false;">
             <div class="field">
-              <label for="localCity">CITY</label>
+              <label for="localCity">SELECT CITY IN MAHARASHTRA</label>
               <div class="select">
                 <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
                 <select id="localCity">
-                  <option value="pune">Pune</option>
-                  <option value="mumbai">Mumbai</option>
-                  <option value="sambhajinagar">Chhatrapati Sambhajinagar (Aurangabad)</option>
-                  <option value="nashik">Nashik</option>
-                  <option value="ahilyanagar">Ahilyanagar (Ahmednagar)</option>
-                  <option value="shirdi">Shirdi</option>
+                  <optgroup label="⭐ Primary Transit Hubs">
+                    <option value="pune" selected>Pune (Pimpri-Chinchwad, Hinjawadi)</option>
+                    <option value="mumbai">Mumbai (MMR, Thane, Navi Mumbai)</option>
+                    <option value="sambhajinagar">Chhatrapati Sambhajinagar (Aurangabad)</option>
+                    <option value="nashik">Nashik (Panchavati, Trimbakeshwar)</option>
+                    <option value="ahilyanagar">Ahilyanagar (Ahmednagar)</option>
+                    <option value="shirdi">Shirdi (Sai Baba Temple)</option>
+                  </optgroup>
+                  <optgroup label="📍 Western Maharashtra">
+                    <option value="kolhapur">Kolhapur (Mahalaxmi Temple)</option>
+                    <option value="satara">Satara, Karad & Wai</option>
+                    <option value="mahabaleshwar">Mahabaleshwar & Panchgani</option>
+                    <option value="lonavala">Lonavala & Khandala</option>
+                    <option value="solapur">Solapur, Pandharpur & Akkalkot</option>
+                    <option value="sangli">Sangli & Miraj</option>
+                  </optgroup>
+                  <optgroup label="📍 Konkan & MMR">
+                    <option value="thane">Thane & Kalyan-Dombivli</option>
+                    <option value="navimumbai">Navi Mumbai & Panvel</option>
+                    <option value="palghar">Palghar, Vasai & Virar</option>
+                    <option value="raigad">Alibaug, Pen & Karjat</option>
+                    <option value="ratnagiri">Ratnagiri & Chiplun</option>
+                    <option value="sindhudurg">Sindhudurg, Malvan & Sawantwadi</option>
+                  </optgroup>
+                  <optgroup label="📍 Khandesh & North Maharashtra">
+                    <option value="jalgaon">Jalgaon & Bhusawal</option>
+                    <option value="dhule">Dhule & Shirpur</option>
+                    <option value="malegaon">Malegaon & Manmad</option>
+                    <option value="nandurbar">Nandurbar & Shahada</option>
+                  </optgroup>
+                  <optgroup label="📍 Marathwada">
+                    <option value="jalna">Jalna</option>
+                    <option value="latur">Latur & Udgir</option>
+                    <option value="beed">Beed, Parli & Ambajogai</option>
+                    <option value="nanded">Nanded (Sachkhand Gurudwara)</option>
+                    <option value="dharashiv">Dharashiv (Osmanabad) & Tuljapur</option>
+                    <option value="parbhani">Parbhani</option>
+                    <option value="hingoli">Hingoli & Aundha Nagnath</option>
+                  </optgroup>
+                  <optgroup label="📍 Vidarbha">
+                    <option value="nagpur">Nagpur (MIHAN / Zero Mile)</option>
+                    <option value="amravati">Amravati & Badnera</option>
+                    <option value="akola">Akola</option>
+                    <option value="buldhana">Buldhana & Shegaon</option>
+                    <option value="yavatmal">Yavatmal</option>
+                    <option value="wardha">Wardha & Sevagram</option>
+                    <option value="washim">Washim</option>
+                    <option value="chandrapur">Chandrapur & Tadoba</option>
+                    <option value="bhandara">Bhandara & Gondia</option>
+                    <option value="gadchiroli">Gadchiroli</option>
+                  </optgroup>
+                  <optgroup label="✨ Custom Location">
+                    <option value="custom">+ Other / Any Town in Maharashtra</option>
+                  </optgroup>
                 </select>
                 <svg class="ic ic--chev" aria-hidden="true"><use href="#i-chev"/></svg>
+              </div>
+            </div>
+            <div class="field field--custom" id="localCustomWrap" hidden>
+              <label for="localCustomCity">ENTER YOUR TOWN / LOCALITY</label>
+              <div class="select">
+                <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
+                <input type="text" id="localCustomCity" placeholder="e.g. Baramati, Chiplun, Wai, Phaltan, Pandharpur..." autocomplete="off" />
               </div>
             </div>
 
@@ -428,7 +483,7 @@
               <svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>
               <span>Book Local Package</span>
             </button>
-            <p class="pkg-note">Ideal for city shopping, corporate meetings, temple visits & hospital runs.</p>
+            <p class="pkg-note">Ideal for city shopping, corporate meetings, temple visits & hospital runs across Maharashtra.</p>
           </form>
         </div>
 
@@ -440,14 +495,69 @@
               <div class="select">
                 <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
                 <select id="roundFrom">
-                  <option value="pune">Pune</option>
-                  <option value="mumbai">Mumbai</option>
-                  <option value="sambhajinagar">Chhatrapati Sambhajinagar (Aurangabad)</option>
-                  <option value="nashik">Nashik</option>
-                  <option value="ahilyanagar">Ahilyanagar (Ahmednagar)</option>
-                  <option value="shirdi">Shirdi</option>
+                  <optgroup label="⭐ Primary Transit Hubs">
+                    <option value="pune" selected>Pune (Pimpri-Chinchwad, Hinjawadi)</option>
+                    <option value="mumbai">Mumbai (MMR, Thane, Navi Mumbai)</option>
+                    <option value="sambhajinagar">Chhatrapati Sambhajinagar (Aurangabad)</option>
+                    <option value="nashik">Nashik (Panchavati, Trimbakeshwar)</option>
+                    <option value="ahilyanagar">Ahilyanagar (Ahmednagar)</option>
+                    <option value="shirdi">Shirdi (Sai Baba Temple)</option>
+                  </optgroup>
+                  <optgroup label="📍 Western Maharashtra">
+                    <option value="kolhapur">Kolhapur</option>
+                    <option value="satara">Satara & Karad</option>
+                    <option value="mahabaleshwar">Mahabaleshwar & Panchgani</option>
+                    <option value="lonavala">Lonavala & Khandala</option>
+                    <option value="solapur">Solapur & Pandharpur</option>
+                    <option value="sangli">Sangli & Miraj</option>
+                  </optgroup>
+                  <optgroup label="📍 Konkan & MMR">
+                    <option value="thane">Thane & Kalyan-Dombivli</option>
+                    <option value="navimumbai">Navi Mumbai & Panvel</option>
+                    <option value="palghar">Palghar, Vasai & Virar</option>
+                    <option value="raigad">Alibaug, Pen & Karjat</option>
+                    <option value="ratnagiri">Ratnagiri & Chiplun</option>
+                    <option value="sindhudurg">Sindhudurg & Malvan</option>
+                  </optgroup>
+                  <optgroup label="📍 Khandesh & North Maharashtra">
+                    <option value="jalgaon">Jalgaon & Bhusawal</option>
+                    <option value="dhule">Dhule & Shirpur</option>
+                    <option value="malegaon">Malegaon & Manmad</option>
+                    <option value="nandurbar">Nandurbar & Shahada</option>
+                  </optgroup>
+                  <optgroup label="📍 Marathwada">
+                    <option value="jalna">Jalna</option>
+                    <option value="latur">Latur & Udgir</option>
+                    <option value="beed">Beed & Parli</option>
+                    <option value="nanded">Nanded</option>
+                    <option value="dharashiv">Dharashiv (Osmanabad) & Tuljapur</option>
+                    <option value="parbhani">Parbhani</option>
+                    <option value="hingoli">Hingoli</option>
+                  </optgroup>
+                  <optgroup label="📍 Vidarbha">
+                    <option value="nagpur">Nagpur</option>
+                    <option value="amravati">Amravati</option>
+                    <option value="akola">Akola</option>
+                    <option value="buldhana">Buldhana & Shegaon</option>
+                    <option value="yavatmal">Yavatmal</option>
+                    <option value="wardha">Wardha</option>
+                    <option value="washim">Washim</option>
+                    <option value="chandrapur">Chandrapur</option>
+                    <option value="bhandara">Bhandara & Gondia</option>
+                    <option value="gadchiroli">Gadchiroli</option>
+                  </optgroup>
+                  <optgroup label="✨ Custom Location">
+                    <option value="custom">+ Other / Any Town in Maharashtra</option>
+                  </optgroup>
                 </select>
                 <svg class="ic ic--chev" aria-hidden="true"><use href="#i-chev"/></svg>
+              </div>
+            </div>
+            <div class="field field--custom" id="roundFromCustomWrap" hidden>
+              <label for="roundFromCustom">ENTER CUSTOM PICKUP LOCATION</label>
+              <div class="select">
+                <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
+                <input type="text" id="roundFromCustom" placeholder="e.g. Baramati, Chiplun, Wai, Phaltan..." autocomplete="off" />
               </div>
             </div>
 
@@ -456,16 +566,54 @@
               <div class="select">
                 <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
                 <select id="roundTo">
-                  <option value="sambhajinagar">Chhatrapati Sambhajinagar (Aurangabad)</option>
-                  <option value="mumbai">Mumbai</option>
-                  <option value="pune">Pune</option>
-                  <option value="nashik">Nashik</option>
-                  <option value="shirdi">Shirdi</option>
-                  <option value="mahabaleshwar">Mahabaleshwar</option>
-                  <option value="kolhapur">Kolhapur</option>
-                  <option value="lonavala">Lonavala</option>
+                  <optgroup label="⭐ Primary Transit Hubs">
+                    <option value="sambhajinagar" selected>Chhatrapati Sambhajinagar (Aurangabad)</option>
+                    <option value="mumbai">Mumbai (MMR, Thane, Navi Mumbai)</option>
+                    <option value="pune">Pune (Pimpri-Chinchwad, Hinjawadi)</option>
+                    <option value="nashik">Nashik (Panchavati, Trimbakeshwar)</option>
+                    <option value="ahilyanagar">Ahilyanagar (Ahmednagar)</option>
+                    <option value="shirdi">Shirdi (Sai Baba Temple)</option>
+                  </optgroup>
+                  <optgroup label="📍 Popular Tourist & Temple Destinations">
+                    <option value="mahabaleshwar">Mahabaleshwar & Panchgani</option>
+                    <option value="kolhapur">Kolhapur (Mahalaxmi Temple)</option>
+                    <option value="lonavala">Lonavala & Khandala</option>
+                    <option value="solapur">Solapur, Pandharpur & Akkalkot</option>
+                    <option value="alibaug">Alibaug & Kashid Beach</option>
+                    <option value="goa">Goa (North / South / Airport)</option>
+                  </optgroup>
+                  <optgroup label="📍 All Maharashtra Districts">
+                    <option value="satara">Satara & Karad</option>
+                    <option value="sangli">Sangli & Miraj</option>
+                    <option value="ratnagiri">Ratnagiri & Chiplun</option>
+                    <option value="sindhudurg">Sindhudurg & Malvan</option>
+                    <option value="jalgaon">Jalgaon & Bhusawal</option>
+                    <option value="dhule">Dhule</option>
+                    <option value="malegaon">Malegaon</option>
+                    <option value="nandurbar">Nandurbar</option>
+                    <option value="jalna">Jalna</option>
+                    <option value="latur">Latur</option>
+                    <option value="beed">Beed & Parli</option>
+                    <option value="nanded">Nanded (Sachkhand Gurudwara)</option>
+                    <option value="dharashiv">Dharashiv (Osmanabad) & Tuljapur</option>
+                    <option value="nagpur">Nagpur</option>
+                    <option value="amravati">Amravati</option>
+                    <option value="akola">Akola</option>
+                    <option value="buldhana">Buldhana & Shegaon</option>
+                    <option value="chandrapur">Chandrapur & Tadoba</option>
+                  </optgroup>
+                  <optgroup label="✨ Custom Location">
+                    <option value="custom">+ Other / Any Town or Outstation</option>
+                  </optgroup>
                 </select>
                 <svg class="ic ic--chev" aria-hidden="true"><use href="#i-chev"/></svg>
+              </div>
+            </div>
+            <div class="field field--custom" id="roundToCustomWrap" hidden>
+              <label for="roundToCustom">ENTER CUSTOM DESTINATION</label>
+              <div class="select">
+                <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
+                <input type="text" id="roundToCustom" placeholder="e.g. Surat, Indore, Baramati, Chiplun..." autocomplete="off" />
               </div>
             </div>
 
@@ -524,7 +672,7 @@
           </form>
         </div>
 
-        <!-- PANEL 4: CAR SHARING (Special Routes as per Client Brief #5) -->
+        <!-- PANEL 4: CAR SHARING (Special Routes & All Maharashtra) -->
         <div class="bookpanel" id="panel-sharing" role="tabpanel" aria-labelledby="tab-sharing">
           <div class="sharing-box">
             <span class="sharing-route-badge">STRICTLY FIXED ROUTES & PER-SEAT RATES</span>
@@ -533,10 +681,35 @@
               <div class="select">
                 <svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>
                 <select id="sharingRoute">
-                  <option value="pune-sambhajinagar">Pune ⇄ Chhatrapati Sambhajinagar (Aurangabad)</option>
-                  <option value="pune-ahilyanagar">Pune ⇄ Ahilyanagar (Ahmednagar)</option>
+                  <optgroup label="⭐ Verified Express Share Routes">
+                    <option value="pune-sambhajinagar" selected>Pune ⇄ Chhatrapati Sambhajinagar (Aurangabad)</option>
+                    <option value="pune-ahilyanagar">Pune ⇄ Ahilyanagar (Ahmednagar)</option>
+                    <option value="pune-mumbai">Pune ⇄ Mumbai / Thane / Navi Mumbai</option>
+                    <option value="pune-nashik">Pune ⇄ Nashik</option>
+                    <option value="sambhajinagar-nashik">Chhatrapati Sambhajinagar ⇄ Nashik</option>
+                    <option value="sambhajinagar-shirdi">Chhatrapati Sambhajinagar ⇄ Shirdi</option>
+                    <option value="pune-shirdi">Pune ⇄ Shirdi</option>
+                    <option value="mumbai-nashik">Mumbai ⇄ Nashik</option>
+                  </optgroup>
+                  <optgroup label="✨ Custom Shared Route">
+                    <option value="custom">+ Other / Custom Shared Route in Maharashtra</option>
+                  </optgroup>
                 </select>
                 <svg class="ic ic--chev" aria-hidden="true"><use href="#i-chev"/></svg>
+              </div>
+            </div>
+
+            <div class="field field--custom" id="sharingCustomWrap" hidden>
+              <label>ENTER CUSTOM PICKUP & DROP</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
+                  <input type="text" id="sharingCustomFrom" placeholder="Pickup (e.g. Kolhapur)" />
+                </div>
+                <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
+                  <input type="text" id="sharingCustomTo" placeholder="Drop (e.g. Pune)" />
+                </div>
               </div>
             </div>
 
