@@ -1157,7 +1157,7 @@ body.rmodal-open{overflow:hidden}
   .revthanks{grid-column:auto}
   .steps{
     display:block;position:relative;
-    padding-bottom:12vh;
+    padding-bottom:24px;
   }
   .steps::before{
     content:"";position:absolute;top:-40px;left:0;right:0;bottom:0;
@@ -1165,7 +1165,7 @@ body.rmodal-open{overflow:hidden}
     z-index:0;pointer-events:none;display:block;
   }
   .step{
-    position:sticky;margin-bottom:20vh;
+    position:sticky;margin-bottom:24px;
     box-shadow:0 -6px 30px rgba(7,8,11,.08), 0 8px 30px rgba(7,8,11,.02);
   }
   .step:last-child{margin-bottom:0}
