@@ -1715,9 +1715,7 @@ function initMobileTickers() {
   if (!window.matchMedia('(max-width: 860px)').matches) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const grids = [
-    document.querySelector('.reviews__grid')
-  ];
+  const grids = [];
 
   grids.forEach(grid => {
     if (!grid) return;
