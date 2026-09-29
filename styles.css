@@ -163,8 +163,8 @@ h3{font-size:clamp(1.08rem,1.7vw,1.32rem);line-height:1.2}
 }
 .nav__row{display:flex;align-items:center;gap:22px;height:72px}
 .brand{display:flex;align-items:center;gap:11px;flex:none;min-width:0}
-.brand__logo{height:44px;width:auto;display:block;border-radius:8px}
-.footer__brand .brand__logo{height:56px}
+.brand__logo{height:56px;width:auto;display:block;border-radius:8px}
+.footer__brand .brand__logo{height:76px}
 .brand__mark{
   display:grid;place-items:center;width:38px;height:38px;border-radius:11px;
   background:linear-gradient(150deg,rgba(245,165,36,.2),rgba(245,165,36,.04));
@@ -1197,8 +1197,8 @@ body.rmodal-open{overflow:hidden}
   .brand__name{font-size:.97rem;white-space:nowrap}
   .brand__mark{width:34px;height:34px}
   .brand__mark svg{width:21px;height:21px}
-  .brand__logo{height:36px}
-  .footer__brand .brand__logo{height:46px}
+  .brand__logo{height:48px}
+  .footer__brand .brand__logo{height:60px}
   .hero{padding:calc(64px + env(safe-area-inset-top,0px)) 0 24px;min-height:auto}
   .hero__eyebrow{margin-bottom:15px;font-size:.65rem;padding:6px 12px 6px 10px;letter-spacing:.14em}
   .hero__h1{font-size:clamp(1.95rem,8.6vw,2.45rem);margin-bottom:13px;text-shadow:0 2px 22px rgba(7,8,11,.6)}
