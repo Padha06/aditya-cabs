@@ -114,6 +114,9 @@ const bookState = {
   urgent: false,
   selectedCar: "sedan",
   paymentMode: "advance", // 'advance' (₹500), 'full', 'cash'
+  hasPersonalAddress: false,
+  pickupAddress: "",
+  dropAddress: "",
   localCity: "pune",
   localPkg: "8h",
   localCls: "sedan",
@@ -428,6 +431,327 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
   });
 }
 
+/* --- MAHARASHTRA CITY GEO & LOCAL LANDMARKS FOR DOORSTEP ADDRESSES --- */
+const CITY_GEO = {
+  pune:          { name: "Pune", lat: 18.5204, lon: 73.8567 },
+  mumbai:        { name: "Mumbai", lat: 19.0760, lon: 72.8777 },
+  sambhajinagar: { name: "Chhatrapati Sambhajinagar", lat: 19.8762, lon: 75.3433 },
+  nashik:        { name: "Nashik", lat: 19.9975, lon: 73.7898 },
+  ahilyanagar:   { name: "Ahilyanagar", lat: 19.0952, lon: 74.7496 },
+  shirdi:        { name: "Shirdi", lat: 19.7645, lon: 74.4774 },
+  kolhapur:      { name: "Kolhapur", lat: 16.7050, lon: 74.2433 },
+  mahabaleshwar: { name: "Mahabaleshwar", lat: 17.9237, lon: 73.6586 },
+  lonavala:      { name: "Lonavala", lat: 18.7546, lon: 73.4062 }
+};
+
+const MH_LOCAL_LANDMARKS = {
+  pune: [
+    { name: "Hinjawadi Phase 1, Rajiv Gandhi Infotech Park", sub: "Pimpri-Chinchwad, Pune 411057", icon: "🏢", type: "Tech Park" },
+    { name: "Hinjawadi Phase 2 & 3, Embassy TechZone", sub: "Mulshi, Pune 411057", icon: "🏢", type: "Tech Park" },
+    { name: "Wakad, Dange Chowk & Datta Mandir Road", sub: "PCMC, Pune 411057", icon: "🏠", type: "Residential Hub" },
+    { name: "Kothrud, Paud Road & Chandani Chowk", sub: "West Pune 411038", icon: "🏠", type: "Residential Area" },
+    { name: "Baner & Balewadi High Street", sub: "Pune 411045", icon: "🏢", type: "Commercial & Dining" },
+    { name: "Viman Nagar & Phoenix Marketcity", sub: "East Pune 411014", icon: "🏢", type: "Shopping & Residential" },
+    { name: "Kharadi, EON Free Zone & World Trade Center", sub: "East Pune 411014", icon: "🏢", type: "IT SEZ" },
+    { name: "Magarpatta City & Cybercity SEZ, Hadapsar", sub: "Pune 411028", icon: "🏢", type: "Township" },
+    { name: "Koregaon Park & Kalyani Nagar", sub: "Central Pune 411001", icon: "🏠", type: "Prime Area" },
+    { name: "Shivajinagar & Pune Railway Station", sub: "Central Transit Hub 411005", icon: "🚆", type: "Railway Station" },
+    { name: "Pune International Airport (PNQ), Lohegaon", sub: "Airport Road, Pune 411032", icon: "✈️", type: "Airport" },
+    { name: "Swargate & Deccan Gymkhana", sub: "Central Pune 411042", icon: "📍", type: "City Center" },
+    { name: "Pimpri, Chinchwad & Bhosari MIDC", sub: "Industrial Belt, PCMC 411018", icon: "🏢", type: "MIDC Area" },
+    { name: "Chakan MIDC & Auto Hub, Talegaon", sub: "North Pune Industrial Corridor", icon: "🏢", type: "Industrial SEZ" },
+    { name: "Aundh, University Road & SB Road", sub: "Pune 411007", icon: "🏠", type: "Residential Area" },
+    { name: "Bavdhan & Pashan Sus Road", sub: "West Pune 411021", icon: "🏠", type: "Residential Area" },
+    { name: "Ravet, Punawale & Kiwale (Expressway Exit)", sub: "PCMC Pune 412101", icon: "📍", type: "Expressway Entry" }
+  ],
+  mumbai: [
+    { name: "Chhatrapati Shivaji Maharaj International Airport (BOM T2)", sub: "Sahar, Andheri East, Mumbai 400099", icon: "✈️", type: "International Terminal" },
+    { name: "Domestic Airport Terminal 1 (BOM T1)", sub: "Santacruz East, Mumbai 400099", icon: "✈️", type: "Domestic Terminal" },
+    { name: "Bandra Kurla Complex (BKC)", sub: "Bandra East, Mumbai 400051", icon: "🏢", type: "Financial District" },
+    { name: "Dadar TT Circle & Dadar Railway Station", sub: "Central Mumbai 400014", icon: "🚆", type: "Transit Hub" },
+    { name: "Andheri East, MIDC, Chakala & Sakinaka", sub: "Western Suburbs, Mumbai 400093", icon: "🏢", type: "Commercial Hub" },
+    { name: "Andheri West, Lokhandwala & Versova", sub: "Mumbai 400053", icon: "🏠", type: "Residential Area" },
+    { name: "Borivali West & Shimpoli Road", sub: "Western Suburbs, Mumbai 400092", icon: "🏠", type: "Residential Hub" },
+    { name: "Powai, Hiranandani Gardens & IIT Bombay", sub: "Mumbai 400076", icon: "🏢", type: "Township & Tech" },
+    { name: "Lower Parel, Phoenix Palladium & Kamala Mills", sub: "South Central Mumbai 400013", icon: "🏢", type: "Corporate & Lifestyle" },
+    { name: "Colaba, Nariman Point & Marine Drive", sub: "South Mumbai 400005", icon: "📍", type: "South Mumbai" },
+    { name: "CSMT (Chhatrapati Shivaji Maharaj Terminus)", sub: "Fort, South Mumbai 400001", icon: "🚆", type: "Heritage Station" },
+    { name: "Thane West, Majiwada & Viviana Mall", sub: "Ghodbunder Road, Thane 400601", icon: "🏠", type: "MMR Hub" },
+    { name: "Navi Mumbai - Vashi Sector 17 & Station", sub: "Navi Mumbai 400703", icon: "🏢", type: "Commercial Hub" },
+    { name: "Navi Mumbai - Kharghar, Nerul & Belapur CBD", sub: "Navi Mumbai 400614", icon: "🏢", type: "Business District" },
+    { name: "Goregaon East, Oberoi Mall & Nesco", sub: "Western Express Highway 400063", icon: "🏢", type: "Corporate Hub" },
+    { name: "Malad West, Mindspace IT Park & Link Road", sub: "Mumbai 400064", icon: "🏢", type: "IT Tech Park" }
+  ],
+  sambhajinagar: [
+    { name: "CIDCO Cannaught Place & Town Centre", sub: "Chhatrapati Sambhajinagar 431003", icon: "🏢", type: "Commercial Hub" },
+    { name: "CIDCO N-1, N-2, N-5 & N-7 Colonies", sub: "Aurangabad 431003", icon: "🏠", type: "Residential Hub" },
+    { name: "Waluj MIDC & Bajaj Nagar", sub: "Industrial Area, Aurangabad 431136", icon: "🏢", type: "Industrial SEZ" },
+    { name: "Kranti Chowk & Station Road", sub: "Central Aurangabad 431001", icon: "📍", type: "City Center" },
+    { name: "Beed Bypass Road & Prozone Mall", sub: "Chikalthana, Aurangabad 431005", icon: "🏢", type: "Commercial & Mall" },
+    { name: "Aurangabad Airport (IXU), Chikalthana", sub: "Jalna Road, Aurangabad 431006", icon: "✈️", type: "Airport" },
+    { name: "Chhatrapati Sambhajinagar Railway Station", sub: "Station Road 431005", icon: "🚆", type: "Railway Station" },
+    { name: "Shendra MIDC & AURIC City (DMIC)", sub: "Jalna Road SEZ 431154", icon: "🏢", type: "Smart City SEZ" },
+    { name: "Seven Hills & Jalna Road Corridor", sub: "Aurangabad 431001", icon: "📍", type: "Main Highway" },
+    { name: "Samarth Nagar & Nirala Bazar", sub: "Old City Aurangabad 431001", icon: "🏠", type: "Prime Area" }
+  ],
+  nashik: [
+    { name: "Panchavati, Ramkund & Sita Gufa", sub: "Old Nashik 422003", icon: "📍", type: "Heritage & Pilgrimage" },
+    { name: "College Road & Gangapur Road", sub: "West Nashik 422005", icon: "🏠", type: "Prime Living" },
+    { name: "Indira Nagar & Mumbai Naka", sub: "Nashik 422009", icon: "📍", type: "Highway Transit" },
+    { name: "Ambad MIDC & ABB Circle", sub: "Industrial Belt, Nashik 422010", icon: "🏢", type: "Industrial Hub" },
+    { name: "Satpur MIDC & Trimbak Road", sub: "Nashik 422007", icon: "🏢", type: "Industrial Belt" },
+    { name: "Nashik Road Railway Station", sub: "Nashik Road 422101", icon: "🚆", type: "Railway Junction" },
+    { name: "Nashik Airport (Ozar - ISK)", sub: "HAL Ozar, Nashik 422221", icon: "✈️", type: "Airport" },
+    { name: "Pathardi Phata & Govind Nagar", sub: "Nashik 422010", icon: "🏠", type: "Residential Area" }
+  ],
+  ahilyanagar: [
+    { name: "Savedi, Pipeline Road & Premdan Chowk", sub: "Ahilyanagar 414003", icon: "🏠", type: "Residential Hub" },
+    { name: "MIDC Ahmednagar & Nagapur", sub: "Industrial Area, Ahilyanagar 414111", icon: "🏢", type: "Industrial Belt" },
+    { name: "Station Road & Ahmednagar Railway Station", sub: "Ahilyanagar 414001", icon: "🚆", type: "Railway Station" },
+    { name: "Maliwada, Delhi Gate & Market Yard", sub: "Old City, Ahilyanagar 414001", icon: "📍", type: "Market Hub" }
+  ],
+  shirdi: [
+    { name: "Shirdi Sai Baba Samadhi Mandir (Gate 1, 2, 3)", sub: "Pimpalwadi Road, Shirdi 423109", icon: "📍", type: "Temple Complex" },
+    { name: "Sainagar Shirdi Railway Station", sub: "Shirdi 423107", icon: "🚆", type: "Railway Station" },
+    { name: "Shirdi International Airport (SAG), Kakadi", sub: "Kakadi, Shirdi 423107", icon: "✈️", type: "Airport" },
+    { name: "Nagar-Manmad Highway & Shirdi Bus Stand", sub: "Central Shirdi 423109", icon: "📍", type: "Transit Circle" }
+  ],
+  kolhapur: [
+    { name: "Shri Mahalaxmi (Ambapua) Temple", sub: "Bhavani Mandap, Kolhapur 416012", icon: "📍", type: "Heritage Temple" },
+    { name: "Tarabai Park & Rajarampuri", sub: "Kolhapur 416003", icon: "🏠", type: "Prime Living" },
+    { name: "Kolhapur Chhatrapati Shahu Maharaj Terminus", sub: "Kolhapur 416001", icon: "🚆", type: "Railway Station" },
+    { name: "Kolhapur Airport (KLH), Ujalaiwadi", sub: "Ujalaiwadi, Kolhapur 416004", icon: "✈️", type: "Airport" }
+  ],
+  lonavala: [
+    { name: "Lonavala Main Market & Railway Station", sub: "Lonavala 410401", icon: "🚆", type: "Town Center" },
+    { name: "Khandala, Sunset Point & Rajmachi Garden", sub: "Khandala 410301", icon: "📍", type: "Viewpoint" },
+    { name: "Bushy Dam & INS Shivaji Road", sub: "Lonavala 410402", icon: "📍", type: "Tourist Spot" }
+  ],
+  mahabaleshwar: [
+    { name: "Mahabaleshwar Main Market & ST Bus Stand", sub: "Mahabaleshwar 412806", icon: "📍", type: "Town Center" },
+    { name: "Venna Lake & Panchgani Road", sub: "Mahabaleshwar 412806", icon: "📍", type: "Lakefront" },
+    { name: "Panchgani Table Land & Market", sub: "Panchgani 412805", icon: "📍", type: "Hill Station" },
+    { name: "Mapro Garden & Kate's Point", sub: "Gureghar, Panchgani 412805", icon: "📍", type: "Tourist Attraction" }
+  ]
+};
+
+/* --- ADDRESS AUTOCOMPLETE & VALIDATION ENGINE --- */
+function setupAddressAutocomplete(inputSelector, dropdownSelector, statusSelector, getCityContext, onSelect) {
+  const input = $(inputSelector);
+  const dropdown = $(dropdownSelector);
+  const statusEl = $(statusSelector);
+  if (!input || !dropdown) return;
+
+  let debounceTimer = null;
+
+  function getLocalMatches(q, cityKey) {
+    const query = (q || "").trim().toLowerCase();
+    const cityList = MH_LOCAL_LANDMARKS[cityKey] || [];
+    if (!query) return cityList.slice(0, 8);
+
+    let matches = cityList.filter(item => 
+      item.name.toLowerCase().includes(query) || (item.sub && item.sub.toLowerCase().includes(query))
+    );
+    if (matches.length < 5) {
+      Object.entries(MH_LOCAL_LANDMARKS).forEach(([k, list]) => {
+        if (k !== cityKey) {
+          list.forEach(item => {
+            if (item.name.toLowerCase().includes(query) || (item.sub && item.sub.toLowerCase().includes(query))) {
+              if (!matches.some(m => m.name === item.name)) matches.push(item);
+            }
+          });
+        }
+      });
+    }
+    return matches.slice(0, 6);
+  }
+
+  async function fetchLivePhoton(q, geo) {
+    if (!q || q.length < 2) return [];
+    try {
+      const lat = geo.lat || 18.5204;
+      const lon = geo.lon || 73.8567;
+      const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lat=${lat}&lon=${lon}&limit=5`;
+      const res = await fetch(url, { signal: AbortSignal.timeout ? AbortSignal.timeout(3000) : undefined });
+      if (!res.ok) return [];
+      const data = await res.json();
+      if (!data.features) return [];
+      return data.features.map(f => {
+        const p = f.properties || {};
+        const parts = [p.street, p.locality || p.district || p.suburb, p.city || p.county, p.state, p.postcode].filter(Boolean);
+        let icon = "📍";
+        if (p.osm_key === "highway") icon = "📍";
+        else if (p.osm_key === "railway") icon = "🚆";
+        else if (p.osm_key === "aeroway") icon = "✈️";
+        else if (p.osm_value === "suburb" || p.osm_value === "residential") icon = "🏠";
+        else if (p.osm_value === "commercial" || p.osm_value === "industrial") icon = "🏢";
+        return {
+          name: p.name || parts[0] || q,
+          sub: parts.join(", "),
+          icon,
+          type: "Map Verified",
+          isLive: true
+        };
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  async function fetchGooglePlaces(q) {
+    if (!window.google?.maps?.places?.AutocompleteService) return [];
+    try {
+      return new Promise(resolve => {
+        const service = new google.maps.places.AutocompleteService();
+        service.getPlacePredictions({
+          input: q,
+          componentRestrictions: { country: "in" }
+        }, (preds, status) => {
+          if (status !== google.maps.places.PlacesServiceStatus.OK || !preds) return resolve([]);
+          resolve(preds.slice(0, 5).map(p => ({
+            name: p.structured_formatting ? p.structured_formatting.main_text : p.description,
+            sub: p.structured_formatting ? p.structured_formatting.secondary_text : "",
+            icon: "📍",
+            type: "Google Maps",
+            isLive: true
+          })));
+        });
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  async function renderDropdown(q) {
+    const qClean = (q || "").trim();
+    const city = getCityContext();
+    const geo = CITY_GEO[city.key] || { lat: 18.5204, lon: 73.8567, name: city.name };
+
+    const local = getLocalMatches(qClean, city.key);
+    let live = [];
+
+    if (qClean.length >= 2) {
+      const gResults = await fetchGooglePlaces(qClean);
+      if (gResults.length) {
+        live = gResults;
+      } else {
+        live = await fetchLivePhoton(qClean, geo);
+      }
+    }
+
+    const combined = [...local];
+    live.forEach(lItem => {
+      if (!combined.some(c => c.name.toLowerCase() === lItem.name.toLowerCase())) {
+        combined.push(lItem);
+      }
+    });
+
+    let html = "";
+    if (combined.length) {
+      html += combined.map(item => {
+        let title = item.name;
+        if (qClean && title.toLowerCase().includes(qClean.toLowerCase())) {
+          const idx = title.toLowerCase().indexOf(qClean.toLowerCase());
+          title = title.substring(0, idx) + `<mark>${title.substring(idx, idx + qClean.length)}</mark>` + title.substring(idx + qClean.length);
+        }
+        return `
+          <div class="autocomplete-item" data-name="${item.name}" data-sub="${item.sub || ""}">
+            <span class="addr-item-icon">${item.icon || "📍"}</span>
+            <div class="addr-item-content">
+              <span class="addr-item-name">${title}</span>
+              ${item.sub ? `<span class="addr-item-detail">${item.sub}</span>` : ""}
+            </div>
+            <span class="autocomplete-tag">${item.type || "Area"}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    if (qClean) {
+      html += `
+        <div class="autocomplete-item autocomplete-item--custom" data-name="${qClean}" data-sub="Exact Doorstep Address in ${city.name}">
+          <span class="addr-item-icon">✨</span>
+          <div class="addr-item-content">
+            <span class="addr-item-name"><b>Use "${qClean}"</b></span>
+            <span class="addr-item-detail">Doorstep pickup &amp; drop confirmed for ${city.name}</span>
+          </div>
+          <span class="autocomplete-tag" style="background:#FEF3C7;color:#B45309">Custom Address</span>
+        </div>
+      `;
+    }
+
+    if (!html) {
+      html = `<div class="autocomplete-item" style="color:var(--text-3);cursor:default"><span>Type flat, building, society, or landmark in ${city.name}...</span></div>`;
+    }
+
+    dropdown.innerHTML = html;
+    dropdown.classList.add("is-open");
+  }
+
+  function validateAndCommit(addr, subText) {
+    input.value = addr;
+    dropdown.classList.remove("is-open");
+    const city = getCityContext();
+    if (statusEl) {
+      statusEl.hidden = false;
+      const displayDetail = subText || `Exact doorstep address in ${city.name}`;
+      statusEl.innerHTML = `<span class="addr-valid-icon">✓</span> <span><b>Validated Address:</b> ${addr} <small style="opacity:.85">(${displayDetail})</small></span>`;
+    }
+    onSelect(addr);
+  }
+
+  input.addEventListener("focus", () => {
+    renderDropdown(input.value);
+  });
+
+  input.addEventListener("input", () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      renderDropdown(input.value);
+    }, 200);
+  });
+
+  dropdown.addEventListener("click", e => {
+    const item = e.target.closest(".autocomplete-item");
+    if (!item || !item.dataset.name) return;
+    validateAndCommit(item.dataset.name, item.dataset.sub);
+  });
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const val = input.value.trim();
+      if (val) validateAndCommit(val);
+    }
+  });
+
+  input.addEventListener("change", () => {
+    const val = input.value.trim();
+    if (val) validateAndCommit(val);
+  });
+
+  const clearBtn = input.parentElement ? input.parentElement.querySelector(".autocomplete-clear") : null;
+  if (clearBtn) {
+    const updateClear = () => { clearBtn.hidden = !input.value.trim(); };
+    input.addEventListener("input", updateClear);
+    updateClear();
+    clearBtn.addEventListener("click", () => {
+      input.value = "";
+      updateClear();
+      if (statusEl) { statusEl.hidden = true; statusEl.innerHTML = ""; }
+      onSelect("");
+      input.focus();
+      renderDropdown("");
+    });
+  }
+
+  document.addEventListener("click", e => {
+    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove("is-open");
+    }
+  });
+}
+
 /* --- TABS SWITCHER --- */
 function initTabs() {
   const tabs = $$(".booktab");
@@ -482,6 +806,23 @@ function openFleetModal() {
   });
 
   updateModalPayment(getSelectedTotalFare());
+
+  const mPickup = $("#mCustAddress");
+  const mDrop = $("#mCustDropAddress");
+  if (mPickup) {
+    if (bookState.pickupAddress) {
+      mPickup.value = bookState.pickupAddress;
+    } else if (!mPickup.value || mPickup.value.includes("Doorstep Pickup")) {
+      mPickup.value = `${fromTitle} Doorstep Pickup`;
+    }
+  }
+  if (mDrop) {
+    if (bookState.dropAddress) {
+      mDrop.value = bookState.dropAddress;
+    } else if (!mDrop.value || mDrop.value.includes("Drop Point")) {
+      mDrop.value = `${toTitle} Drop Point`;
+    }
+  }
 
   modal.hidden = false;
   modal.classList.add("is-open");
@@ -543,7 +884,8 @@ function formatBookingWhatsAppMessage() {
 
   const name = ($("#mCustName") && $("#mCustName").value.trim()) || "Customer";
   const phone = ($("#mCustPhone") && $("#mCustPhone").value.trim()) || "Not provided";
-  const address = ($("#mCustAddress") && $("#mCustAddress").value.trim()) || "Doorstep Pickup";
+  const pickupAddr = ($("#mCustAddress") && $("#mCustAddress").value.trim()) || bookState.pickupAddress || `${from} Doorstep Pickup`;
+  const dropAddr = ($("#mCustDropAddress") && $("#mCustDropAddress").value.trim()) || bookState.dropAddress || `${to} Drop Point`;
 
   let advanceAmt = 500, balanceAmt = total - 500;
   if (bookState.paymentMode === "full") { advanceAmt = total; balanceAmt = 0; }
@@ -563,7 +905,8 @@ function formatBookingWhatsAppMessage() {
     `──────────────────────────`,
     `👤 *Passenger Name:* ${name}`,
     `📱 *Contact Phone:* ${phone}`,
-    `🏠 *Pickup Address:* ${address}`,
+    `🏠 *Exact Pickup Address:* ${pickupAddr}`,
+    `🎯 *Exact Drop Address:* ${dropAddr}`,
     `──────────────────────────`,
     `Please confirm the booking and dispatch driver details.`
   ].join("\n");
@@ -910,6 +1253,99 @@ function initBooking() {
     renderFare(true);
   });
 
+  // Personal Doorstep Address toggle
+  const addrCheck = $("#addPersonalAddressCheck");
+  const addrWrap = $("#personalAddressWrap");
+  if (addrCheck && addrWrap) {
+    addrCheck.addEventListener("change", () => {
+      bookState.hasPersonalAddress = addrCheck.checked;
+      addrWrap.hidden = !addrCheck.checked;
+      if (addrCheck.checked) {
+        const pIn = $("#pickupAddressInput");
+        if (pIn && !pIn.value) {
+          setTimeout(() => pIn.focus(), 150);
+        }
+      }
+    });
+  }
+
+  // Setup Address Autocomplete & Validation
+  setupAddressAutocomplete(
+    "#pickupAddressInput",
+    "#pickupAddressDropdown",
+    "#pickupAddressStatus",
+    () => ({ key: bookState.from, name: bookState.fromName || "Pickup City" }),
+    (addr) => { bookState.pickupAddress = addr; }
+  );
+
+  setupAddressAutocomplete(
+    "#dropAddressInput",
+    "#dropAddressDropdown",
+    "#dropAddressStatus",
+    () => ({ key: bookState.to, name: bookState.toName || "Drop City" }),
+    (addr) => { bookState.dropAddress = addr; }
+  );
+
+  // Address Quick Tags (Home / Office / Landmark)
+  $$(".address-quick-tags").forEach(tagRow => {
+    const targetId = tagRow.dataset.target;
+    const targetInput = $("#" + targetId);
+    if (!targetInput) return;
+
+    tagRow.querySelectorAll(".addr-tag[data-type]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const type = btn.dataset.type;
+        const currentVal = targetInput.value.replace(/^(Home|Office|Landmark):\s*/i, "").trim();
+        targetInput.value = `${type}: ${currentVal}`;
+        if (targetId === "pickupAddressInput") bookState.pickupAddress = targetInput.value;
+        else if (targetId === "dropAddressInput") bookState.dropAddress = targetInput.value;
+
+        tagRow.querySelectorAll(".addr-tag[data-type]").forEach(b => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        targetInput.focus();
+      });
+    });
+  });
+
+  // GPS Current Location Detector
+  const btnGps = $("#btnPickupGps");
+  if (btnGps && navigator.geolocation) {
+    btnGps.addEventListener("click", () => {
+      btnGps.textContent = "⏳ Locating...";
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const lat = pos.coords.latitude, lon = pos.coords.longitude;
+          const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.features && data.features.length) {
+              const p = data.features[0].properties || {};
+              const parts = [p.name, p.street, p.locality || p.district, p.city || p.county].filter(Boolean);
+              const addr = parts.join(", ") || `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+              const pIn = $("#pickupAddressInput");
+              if (pIn) {
+                pIn.value = addr;
+                bookState.pickupAddress = addr;
+                const pStatus = $("#pickupAddressStatus");
+                if (pStatus) {
+                  pStatus.hidden = false;
+                  pStatus.innerHTML = `<span class="addr-valid-icon">✓</span> <span><b>GPS Location Detected:</b> ${addr} · Pinpoint Doorstep Pickup</span>`;
+                }
+              }
+            }
+          }
+        } catch {
+          // ignore
+        } finally {
+          btnGps.textContent = "🎯 GPS";
+        }
+      }, () => {
+        btnGps.textContent = "🎯 GPS";
+        alert("Please enable location permissions in your browser to auto-detect your address.");
+      }, { timeout: 6000 });
+    });
+  }
+
   // Swap button
   const swapBtn = $("#swap");
   if (swapBtn) {
@@ -929,6 +1365,16 @@ function initBooking() {
       const fromSel = $("#from"), toSel = $("#to");
       if (fromSel) fromSel.value = bookState.from;
       if (toSel) toSel.value = bookState.to;
+
+      // Swap personal addresses if present
+      if (bookState.pickupAddress || bookState.dropAddress) {
+        const prevPAddr = bookState.pickupAddress, prevDAddr = bookState.dropAddress;
+        bookState.pickupAddress = prevDAddr;
+        bookState.dropAddress = prevPAddr;
+        const pAddrIn = $("#pickupAddressInput"), dAddrIn = $("#dropAddressInput");
+        if (pAddrIn) pAddrIn.value = bookState.pickupAddress;
+        if (dAddrIn) dAddrIn.value = bookState.dropAddress;
+      }
 
       renderFare(true);
     });

@@ -316,6 +316,64 @@
               </div>
             </div>
 
+            <!-- PERSONAL DOORSTEP ADDRESS TOGGLE & FIELDS -->
+            <div class="address-toggle-row">
+              <label class="address-toggle-label" for="addPersonalAddressCheck">
+                <input type="checkbox" id="addPersonalAddressCheck" />
+                <span class="address-toggle-switch"></span>
+                <span class="address-toggle-copy">
+                  <span class="address-toggle-title">
+                    <svg class="ic" aria-hidden="true"><use href="#i-home"/></svg>
+                    <span>Add Personal Doorstep Address</span>
+                    <span class="address-toggle-badge">Optional</span>
+                  </span>
+                  <span class="address-toggle-sub">Exact pickup from your home/office &amp; drop to destination building</span>
+                </span>
+              </label>
+            </div>
+
+            <!-- EXPANDABLE PERSONAL ADDRESS CONTAINER -->
+            <div class="personal-address-wrap" id="personalAddressWrap" hidden>
+              <!-- PICKUP ADDRESS -->
+              <div class="field address-field">
+                <div class="address-field__hdr">
+                  <label for="pickupAddressInput">PICKUP DOORSTEP ADDRESS</label>
+                  <div class="address-quick-tags" data-target="pickupAddressInput">
+                    <button type="button" class="addr-tag" data-type="Home">🏠 Home</button>
+                    <button type="button" class="addr-tag" data-type="Office">🏢 Office</button>
+                    <button type="button" class="addr-tag" data-type="Landmark">📍 Landmark</button>
+                    <button type="button" class="addr-tag addr-tag--gps" id="btnPickupGps" title="Detect current GPS location">🎯 GPS</button>
+                  </div>
+                </div>
+                <div class="select autocomplete-wrap">
+                  <svg class="ic" aria-hidden="true"><use href="#i-home"/></svg>
+                  <input id="pickupAddressInput" type="text" placeholder="House/Flat No., Society, Landmark or Area..." autocomplete="street-address" spellcheck="false" />
+                  <button type="button" class="autocomplete-clear" id="pickupAddressClear" aria-label="Clear pickup address" hidden>&times;</button>
+                  <div class="autocomplete-dropdown address-suggestions" id="pickupAddressDropdown" role="listbox"></div>
+                </div>
+                <div class="address-status" id="pickupAddressStatus" hidden></div>
+              </div>
+
+              <!-- DROP ADDRESS -->
+              <div class="field address-field">
+                <div class="address-field__hdr">
+                  <label for="dropAddressInput">DROP DOORSTEP ADDRESS</label>
+                  <div class="address-quick-tags" data-target="dropAddressInput">
+                    <button type="button" class="addr-tag" data-type="Home">🏠 Home</button>
+                    <button type="button" class="addr-tag" data-type="Office">🏢 Office</button>
+                    <button type="button" class="addr-tag" data-type="Landmark">📍 Landmark</button>
+                  </div>
+                </div>
+                <div class="select autocomplete-wrap">
+                  <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
+                  <input id="dropAddressInput" type="text" placeholder="Office/House No., Building, Area or Landmark..." autocomplete="street-address" spellcheck="false" />
+                  <button type="button" class="autocomplete-clear" id="dropAddressClear" aria-label="Clear drop address" hidden>&times;</button>
+                  <div class="autocomplete-dropdown address-suggestions" id="dropAddressDropdown" role="listbox"></div>
+                </div>
+                <div class="address-status" id="dropAddressStatus" hidden></div>
+              </div>
+            </div>
+
             <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:10px">
               <div class="field">
                 <label for="date">PICKUP DATE</label>
@@ -1175,6 +1233,12 @@
           <label for="mCustAddress">Exact Pickup Address / Landmark</label>
           <div class="select">
             <input id="mCustAddress" type="text" placeholder="e.g. Flat 402, Rohan Heights, Wakad, Pune" required />
+          </div>
+        </div>
+        <div class="field" style="margin-top:10px">
+          <label for="mCustDropAddress">Exact Drop Address / Destination Building</label>
+          <div class="select">
+            <input id="mCustDropAddress" type="text" placeholder="e.g. Building 4, Mindspace, Malad West, Mumbai" />
           </div>
         </div>
       </div>
