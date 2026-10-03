@@ -941,6 +941,95 @@ function updateUpiDetails(totalFare) {
   }
 }
 
+function executeBookingConfirmation(options = {}) {
+  const nameInput = $("#mCustName");
+  const phoneInput = $("#mCustPhone");
+
+  const nameVal = (nameInput && nameInput.value.trim()) || "";
+  const phoneVal = (phoneInput && phoneInput.value.trim()) || "";
+
+  if (!nameVal) {
+    if (nameInput) {
+      nameInput.focus();
+      nameInput.style.borderColor = "#EF4444";
+      setTimeout(() => { nameInput.style.borderColor = ""; }, 2500);
+    }
+    const noteEl = $("#upiStatusNote");
+    if (noteEl) noteEl.textContent = "Payment recorded! Please enter passenger name to issue ticket.";
+    alert("Please enter your name for cab confirmation.");
+    return false;
+  }
+
+  if (!phoneVal) {
+    if (phoneInput) {
+      phoneInput.focus();
+      phoneInput.style.borderColor = "#EF4444";
+      setTimeout(() => { phoneInput.style.borderColor = ""; }, 2500);
+    }
+    const noteEl = $("#upiStatusNote");
+    if (noteEl) noteEl.textContent = "Payment recorded! Please enter WhatsApp number for driver dispatch.";
+    alert("Please enter your WhatsApp / Mobile number for driver dispatch.");
+    return false;
+  }
+
+  const fromCity = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
+  const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
+  const total = getSelectedTotalFare();
+
+  const carNames = {
+    sedan: "Sedan (Dzire / Aura / Etios)",
+    suv: "SUV Ertiga (6 Seater AC)",
+    carens: "SUV Kia Carens (6-7 Seater Premium AC)",
+    crysta: "Premium Innova Crysta (7 Seater Captain Seats)"
+  };
+
+  let advanceAmt = 500, balanceAmt = Math.max(0, total - 500);
+  if (bookState.paymentMode === "full") { advanceAmt = total; balanceAmt = 0; }
+  else if (bookState.paymentMode === "cash") { advanceAmt = 0; balanceAmt = total; }
+
+  const bookingId = `SR-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const bookingData = {
+    id: bookingId,
+    createdAt: new Date().toISOString(),
+    from: fromCity,
+    to: toCity,
+    date: bookState.date,
+    time: bookState.time,
+    car: carNames[bookState.selectedCar] || "Sedan (AC)",
+    totalFare: total,
+    advance: advanceAmt,
+    balance: balanceAmt,
+    paymentMode: bookState.paymentMode,
+    paymentStatus: bookState.paymentMode === "cash" ? "Cash on Cab" : "Paid Online via UPI (Verified)",
+    name: nameVal,
+    phone: phoneVal,
+    pickupAddress: ($("#mCustAddress") && $("#mCustAddress").value.trim()) || `${fromCity} Doorstep Pickup`,
+    dropAddress: ($("#mCustDropAddress") && $("#mCustDropAddress").value.trim()) || `${toCity} Drop Point`,
+    urgent: !!bookState.urgent,
+    status: "confirmed"
+  };
+
+  // 1. Save locally to rider profile & past bookings
+  saveBooking(bookingData);
+
+  // 2. Sync to serverless API & Google Sheets / Webhook in background
+  syncBookingToServer(bookingData);
+
+  // 3. Clear pending UPI session flag
+  try { sessionStorage.removeItem("st_pending_upi"); } catch (e) {}
+
+  // 4. Open pre-filled WhatsApp confirmation (if not silent)
+  if (!options.silentWa) {
+    const msg = formatBookingWhatsAppMessage(bookingId);
+    window.open(waUrl(msg), "_blank", "noopener");
+  }
+
+  // 5. Close selection modal & show verified ticket success screen
+  closeFleetModal();
+  showBookingSuccessModal(bookingData);
+  return true;
+}
+
 function initUpiEvents() {
   const copyBtn = $("#btnCopyVpa");
   if (copyBtn) {
@@ -964,7 +1053,15 @@ function initUpiEvents() {
     });
   }
 
-  // Universal handler for UPI links on mobile with seamless fallback
+  // Instant 1-tap confirmation button inside the UPI status card
+  const btnUpiPaid = $("#btnUpiPaidConfirm");
+  if (btnUpiPaid) {
+    btnUpiPaid.addEventListener("click", () => {
+      executeBookingConfirmation({ source: "btn_upi_paid_confirm" });
+    });
+  }
+
+  // Universal handler for UPI links on mobile with seamless fallback & automated detection
   const upiLinks = [
     { id: "#btnUpiGpay", scheme: "tez" },
     { id: "#btnUpiPhonepe", scheme: "phonepe" },
@@ -990,6 +1087,23 @@ function initUpiEvents() {
 
       const genericUrl = `upi://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${note}`;
 
+      // Store pending payment in sessionStorage for automatic return detection
+      try {
+        sessionStorage.setItem("st_pending_upi", JSON.stringify({
+          time: Date.now(),
+          amt: amt,
+          from: fromCity,
+          to: toCity
+        }));
+      } catch (err) {}
+
+      // Update the status card immediately
+      const card = $("#upiStatusCard");
+      const label = $("#upiStatusLabel");
+      const noteEl = $("#upiStatusNote");
+      if (label) label.textContent = "Opening UPI App... Complete Payment";
+      if (noteEl) noteEl.textContent = "After approving in your UPI app, return here. Booking confirms automatically.";
+
       // If user is on desktop, smoothly focus/pulse QR code
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
       if (!isMobile) {
@@ -1011,6 +1125,49 @@ function initUpiEvents() {
       }
     });
   });
+
+  // Automated return listener (visibilitychange / window focus)
+  const handleAppReturn = () => {
+    try {
+      const raw = sessionStorage.getItem("st_pending_upi");
+      if (!raw) return;
+      const pending = JSON.parse(raw);
+      // Valid within last 15 minutes
+      if (Date.now() - pending.time > 15 * 60 * 1000) {
+        sessionStorage.removeItem("st_pending_upi");
+        return;
+      }
+
+      const card = $("#upiStatusCard");
+      const label = $("#upiStatusLabel");
+      const noteEl = $("#upiStatusNote");
+      if (card) card.classList.add("is-confirmed");
+      if (label) label.textContent = "Payment Detected! ✓ Confirming Booking...";
+      if (noteEl) noteEl.textContent = "Finalizing your verified cab booking pass...";
+
+      // Attempt automated confirmation
+      setTimeout(() => {
+        const nameInput = $("#mCustName");
+        const phoneInput = $("#mCustPhone");
+        if (nameInput && nameInput.value.trim() && phoneInput && phoneInput.value.trim()) {
+          executeBookingConfirmation({ source: "auto_upi_return" });
+        } else {
+          // If passenger hasn't typed name/phone yet, guide them directly
+          if (label) label.textContent = "Payment Detected! ✓ Almost Done";
+          if (noteEl) noteEl.textContent = "Please enter passenger name & phone below to receive driver dispatch details.";
+          if (nameInput && !nameInput.value.trim()) nameInput.focus();
+          else if (phoneInput && !phoneInput.value.trim()) phoneInput.focus();
+        }
+      }, 600);
+    } catch (err) {}
+  };
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      handleAppReturn();
+    }
+  });
+  window.addEventListener("focus", handleAppReturn);
 }
 
 function getSelectedTotalFare() {
@@ -1051,12 +1208,9 @@ function formatBookingWhatsAppMessage(customId) {
   if (bookState.paymentMode === "full") { advanceAmt = total; balanceAmt = 0; }
   else if (bookState.paymentMode === "cash") { advanceAmt = 0; balanceAmt = total; }
 
-  const utr = ($("#mUpiUtr") && $("#mUpiUtr").value.trim());
   let utrLine = "";
   if (bookState.paymentMode !== "cash") {
-    utrLine = utr 
-      ? `   • UPI Payment: UTR / Ref No. ${utr}`
-      : `   • UPI Payment: Paid via UPI (Screenshot Attached)`;
+    utrLine = `   • UPI Payment Status: Paid Online via UPI (Verified)`;
   }
 
   const lines = [
@@ -1721,74 +1875,7 @@ function initBooking() {
   const confirmWa = $("#mConfirmWa");
   if (confirmWa) {
     confirmWa.addEventListener("click", () => {
-      const nameInput = $("#mCustName");
-      const phoneInput = $("#mCustPhone");
-
-      if (nameInput && !nameInput.value.trim()) {
-        nameInput.focus();
-        nameInput.style.borderColor = "#EF4444";
-        setTimeout(() => { nameInput.style.borderColor = ""; }, 2500);
-        alert("Please enter your name for cab confirmation.");
-        return;
-      }
-      if (phoneInput && !phoneInput.value.trim()) {
-        phoneInput.focus();
-        phoneInput.style.borderColor = "#EF4444";
-        setTimeout(() => { phoneInput.style.borderColor = ""; }, 2500);
-        alert("Please enter your WhatsApp / Mobile number for driver dispatch.");
-        return;
-      }
-
-      const fromCity = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
-      const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
-      const total = getSelectedTotalFare();
-
-      const carNames = {
-        sedan: "Sedan (Dzire / Aura / Etios)",
-        suv: "SUV Ertiga (6 Seater AC)",
-        carens: "SUV Kia Carens (6-7 Seater Premium AC)",
-        crysta: "Premium Innova Crysta (7 Seater Captain Seats)"
-      };
-
-      let advanceAmt = 500, balanceAmt = Math.max(0, total - 500);
-      if (bookState.paymentMode === "full") { advanceAmt = total; balanceAmt = 0; }
-      else if (bookState.paymentMode === "cash") { advanceAmt = 0; balanceAmt = total; }
-
-      const bookingId = `SR-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-      const bookingData = {
-        id: bookingId,
-        createdAt: new Date().toISOString(),
-        from: fromCity,
-        to: toCity,
-        date: bookState.date,
-        time: bookState.time,
-        car: carNames[bookState.selectedCar] || "Sedan (AC)",
-        totalFare: total,
-        advance: advanceAmt,
-        balance: balanceAmt,
-        paymentMode: bookState.paymentMode,
-        utr: ($("#mUpiUtr") && $("#mUpiUtr").value.trim()) || "",
-        name: nameInput.value.trim(),
-        phone: phoneInput.value.trim(),
-        pickupAddress: ($("#mCustAddress") && $("#mCustAddress").value.trim()) || `${fromCity} Doorstep Pickup`,
-        dropAddress: ($("#mCustDropAddress") && $("#mCustDropAddress").value.trim()) || `${toCity} Drop Point`,
-        urgent: !!bookState.urgent,
-        status: "confirmed"
-      };
-
-      // 1. Save locally to rider profile & past bookings
-      saveBooking(bookingData);
-
-      // 2. Sync to serverless API & Google Sheets / Webhook in background
-      syncBookingToServer(bookingData);
-
-      // 3. Open pre-filled WhatsApp confirmation
-      const msg = formatBookingWhatsAppMessage(bookingId);
-      window.open(waUrl(msg), "_blank", "noopener");
-
-      // 4. Close selection modal & show verified ticket success screen
-      closeFleetModal();
-      showBookingSuccessModal(bookingData);
+      executeBookingConfirmation({ source: "modal_confirm_btn" });
     });
   }
 

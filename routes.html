@@ -692,9 +692,16 @@
                 <span>Copy</span>
               </button>
             </div>
-            <div class="upi-verify-step">
-              <label for="mUpiUtr">Transaction / UTR No. (Optional after paying):</label>
-              <input type="text" id="mUpiUtr" placeholder="Enter 12-digit UPI Ref / UTR No." maxlength="16" autocomplete="off" />
+            <div class="upi-status-card" id="upiStatusCard">
+              <div class="upi-status-indicator">
+                <span class="upi-status-pulse" id="upiStatusPulse" aria-hidden="true"></span>
+                <span class="upi-status-label" id="upiStatusLabel">Awaiting UPI Payment...</span>
+              </div>
+              <p class="upi-status-note" id="upiStatusNote">Pay via GPay, PhonePe, Paytm or scan QR code. Booking confirms automatically.</p>
+              <button type="button" class="btn-upi-paid-confirm" id="btnUpiPaidConfirm">
+                <svg class="ic" aria-hidden="true" style="width:15px;height:15px"><use href="#i-check"/></svg>
+                <span>I've Completed Payment &mdash; Confirm Cab</span>
+              </button>
             </div>
           </div>
         </div>
