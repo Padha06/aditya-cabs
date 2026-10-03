@@ -128,6 +128,13 @@ const bookState = {
   sharingSeats: 1
 };
 
+// --- UPI PAYMENT CONFIGURATION ---
+const UPI_CONFIG = {
+  vpa: "8605953737@upi", // Can be updated anytime to client's exact UPI ID (GPay / PhonePe / Paytm)
+  name: "Shivrudra Taxi",
+  merchantCode: "4722" // Taxi / Transportation MCC code
+};
+
 // 100+ Maharashtra Locations with Hub / Airport Tags & Alias Matching
 const MH_LOCATIONS = [
   // --- PRIMARY TRANSIT HUBS & AIRPORTS ---
@@ -867,6 +874,143 @@ function updateModalPayment(totalFare) {
   }
   advEl.textContent = inr(advance);
   balEl.textContent = inr(balance);
+
+  updateUpiDetails(totalFare);
+}
+
+function updateUpiDetails(totalFare) {
+  const mode = bookState.paymentMode;
+  const amt = (mode === "full") ? totalFare : 500;
+  const upiSec = $("#fmodalUpiSection");
+  const cashNotice = $("#fmodalCashNotice");
+  const upiAmtEl = $("#mUpiAmount");
+  const qrImg = $("#mUpiQrImg");
+  const vpaText = $("#mUpiVpaText");
+
+  if (vpaText) vpaText.textContent = UPI_CONFIG.vpa;
+
+  if (mode === "cash") {
+    if (upiSec) upiSec.hidden = true;
+    if (cashNotice) cashNotice.hidden = false;
+  } else {
+    if (upiSec) upiSec.hidden = false;
+    if (cashNotice) cashNotice.hidden = true;
+    if (upiAmtEl) upiAmtEl.textContent = inr(amt);
+
+    const fromCity = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
+    const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
+    const note = `Cab ${fromCity} to ${toCity}`;
+
+    const vpa = UPI_CONFIG.vpa;
+    const name = encodeURIComponent(UPI_CONFIG.name);
+    const cleanNote = encodeURIComponent(note);
+    const genericUpi = `upi://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${cleanNote}`;
+
+    // Update dynamic QR Code
+    if (qrImg) {
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(genericUpi)}`;
+    }
+
+    // Set app-specific deep links with fallback to generic upi://
+    const gpayLink = $("#btnUpiGpay");
+    if (gpayLink) gpayLink.href = `tez://upi/pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${cleanNote}`;
+
+    const phonepeLink = $("#btnUpiPhonepe");
+    if (phonepeLink) phonepeLink.href = `phonepe://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${cleanNote}`;
+
+    const paytmLink = $("#btnUpiPaytm");
+    if (paytmLink) paytmLink.href = `paytmmp://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${cleanNote}`;
+
+    const anyUpiLink = $("#btnUpiGeneric");
+    if (anyUpiLink) anyUpiLink.href = genericUpi;
+  }
+
+  // Update Confirm WhatsApp button label
+  const confirmBtn = $("#mConfirmWa");
+  if (confirmBtn) {
+    const span = confirmBtn.querySelector("span");
+    if (span) {
+      if (mode === "cash") {
+        span.textContent = "Confirm Booking on WhatsApp (Cash on Cab)";
+      } else if (mode === "full") {
+        span.textContent = `Full ${inr(amt)} Paid — Confirm on WhatsApp`;
+      } else {
+        span.textContent = `${inr(amt)} Advance Paid — Confirm on WhatsApp`;
+      }
+    }
+  }
+}
+
+function initUpiEvents() {
+  const copyBtn = $("#btnCopyVpa");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", () => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(UPI_CONFIG.vpa).then(() => {
+          const span = copyBtn.querySelector("span") || copyBtn;
+          const old = span.textContent;
+          span.textContent = "Copied! ✓";
+          copyBtn.classList.add("is-copied");
+          setTimeout(() => {
+            span.textContent = old;
+            copyBtn.classList.remove("is-copied");
+          }, 2000);
+        }).catch(() => {
+          prompt("Copy UPI ID:", UPI_CONFIG.vpa);
+        });
+      } else {
+        prompt("Copy UPI ID:", UPI_CONFIG.vpa);
+      }
+    });
+  }
+
+  // Universal handler for UPI links on mobile with seamless fallback
+  const upiLinks = [
+    { id: "#btnUpiGpay", scheme: "tez" },
+    { id: "#btnUpiPhonepe", scheme: "phonepe" },
+    { id: "#btnUpiPaytm", scheme: "paytmmp" },
+    { id: "#btnUpiGeneric", scheme: "upi" }
+  ];
+
+  upiLinks.forEach(({ id, scheme }) => {
+    const el = $(id);
+    if (!el) return;
+    el.addEventListener("click", (e) => {
+      const mode = bookState.paymentMode;
+      const amt = (mode === "full") ? getSelectedTotalFare() : 500;
+      const fromCity = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
+      const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
+      const note = encodeURIComponent(`Cab ${fromCity} to ${toCity}`);
+      const vpa = UPI_CONFIG.vpa;
+      const name = encodeURIComponent(UPI_CONFIG.name);
+
+      const targetUrl = (scheme === "upi")
+        ? `upi://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${note}`
+        : `${scheme}://upi/pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${note}`;
+
+      const genericUrl = `upi://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${note}`;
+
+      // If user is on desktop, smoothly focus/pulse QR code
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (!isMobile) {
+        e.preventDefault();
+        const qrEl = $("#mUpiQrImg");
+        if (qrEl) {
+          qrEl.scrollIntoView({ behavior: "smooth", block: "center" });
+          qrEl.style.boxShadow = "0 0 0 4px #0284C7";
+          setTimeout(() => { qrEl.style.boxShadow = ""; }, 1500);
+        }
+        return;
+      }
+
+      // On mobile, launch the intent with automatic fallback
+      if (scheme !== "upi") {
+        setTimeout(() => {
+          window.location.href = genericUrl;
+        }, 600);
+      }
+    });
+  });
 }
 
 function getSelectedTotalFare() {
@@ -906,7 +1050,15 @@ function formatBookingWhatsAppMessage() {
   if (bookState.paymentMode === "full") { advanceAmt = total; balanceAmt = 0; }
   else if (bookState.paymentMode === "cash") { advanceAmt = 0; balanceAmt = total; }
 
-  return [
+  const utr = ($("#mUpiUtr") && $("#mUpiUtr").value.trim());
+  let utrLine = "";
+  if (bookState.paymentMode !== "cash") {
+    utrLine = utr 
+      ? `   • UPI Payment: UTR / Ref No. ${utr}`
+      : `   • UPI Payment: Paid via UPI (Screenshot Attached)`;
+  }
+
+  const lines = [
     `*NEW CAB BOOKING REQUEST - SHIVRUDRA TAXI*`,
     `──────────────────────────`,
     `📍 *Route:* ${from} ➔ ${to}`,
@@ -916,7 +1068,12 @@ function formatBookingWhatsAppMessage() {
     `💰 *Total Fare:* ₹${Number(total).toLocaleString("en-IN")} (All Tolls & Taxes Included)`,
     `💳 *Payment Option:* ${payModes[bookState.paymentMode]}`,
     `   • Advance Payable: ₹${Number(advanceAmt).toLocaleString("en-IN")}`,
-    `   • Balance on Drop: ₹${Number(balanceAmt).toLocaleString("en-IN")}`,
+    `   • Balance on Drop: ₹${Number(balanceAmt).toLocaleString("en-IN")}`
+  ];
+
+  if (utrLine) lines.push(utrLine);
+
+  lines.push(
     `──────────────────────────`,
     `👤 *Passenger Name:* ${name}`,
     `📱 *Contact Phone:* ${phone}`,
@@ -924,7 +1081,9 @@ function formatBookingWhatsAppMessage() {
     `🎯 *Exact Drop Address:* ${dropAddr}`,
     `──────────────────────────`,
     `Please confirm the booking and dispatch driver details.`
-  ].join("\n");
+  );
+
+  return lines.join("\n");
 }
 
 /* --- LOCAL PACKAGES LOGIC --- */
@@ -1447,15 +1606,36 @@ function initBooking() {
     });
   });
 
-  // Modal WhatsApp Booking Confirmation
+  // Modal WhatsApp Booking Confirmation with Validation
   const confirmWa = $("#mConfirmWa");
   if (confirmWa) {
     confirmWa.addEventListener("click", () => {
+      const nameInput = $("#mCustName");
+      const phoneInput = $("#mCustPhone");
+
+      if (nameInput && !nameInput.value.trim()) {
+        nameInput.focus();
+        nameInput.style.borderColor = "#EF4444";
+        setTimeout(() => { nameInput.style.borderColor = ""; }, 2500);
+        alert("Please enter your name for cab confirmation.");
+        return;
+      }
+      if (phoneInput && !phoneInput.value.trim()) {
+        phoneInput.focus();
+        phoneInput.style.borderColor = "#EF4444";
+        setTimeout(() => { phoneInput.style.borderColor = ""; }, 2500);
+        alert("Please enter your WhatsApp / Mobile number for driver dispatch.");
+        return;
+      }
+
       const msg = formatBookingWhatsAppMessage();
       window.open(waUrl(msg), "_blank", "noopener");
       closeFleetModal();
     });
   }
+
+  // Initialize UPI Payment Events (Copy VPA & 1-tap App deep-links)
+  initUpiEvents();
 
   // Initialize other tabs
   initLocalPackage();

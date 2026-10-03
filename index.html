@@ -1488,9 +1488,96 @@
         </div>
       </div>
 
-      <!-- 3. PASSENGER DETAILS FORM (Requirement #12) -->
+      <!-- 3. INSTANT UPI PAYMENT INTEGRATION (GPay, PhonePe, Paytm & Dynamic QR) -->
+      <div class="fmodal-upi" id="fmodalUpiSection">
+        <div class="fmodal-upi__header">
+          <div class="fmodal-upi__title-wrap">
+            <span class="fmodal-upi__tag">⚡ Instant UPI Checkout</span>
+            <h3 class="fmodal-upi__h3">Pay <span id="mUpiAmount">₹500</span> via Any UPI App</h3>
+          </div>
+          <div class="fmodal-upi__badge">Zero Gateway Charges</div>
+        </div>
+        <p class="fmodal-upi__desc">Tap your preferred UPI app below to open directly on your phone, or scan the QR code to pay instantly.</p>
+
+        <!-- Mobile 1-Tap App Triggers (for Android & iOS) -->
+        <div class="upi-app-grid" id="upiAppGrid">
+          <a href="#" class="upi-app-btn upi-app-btn--gpay" id="btnUpiGpay" target="_blank" rel="noopener">
+            <div class="upi-app-btn__icon">
+              <svg viewBox="0 0 24 24" class="ic-upi-logo"><path fill="#4285F4" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3.1l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z"/><path fill="#FBBC05" d="M5.6 13c-.2-.7-.4-1.4-.4-2.2 0-.8.2-1.5.4-2.2L1.9 5.7C.7 8.1 0 10.7 0 13.5s.7 5.4 1.9 7.8l3.7-2.9z"/><path fill="#EA4335" d="M23.5 13.5c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.3 3.6l3.7 2.9c2.2-2 3.6-5 3.6-8.7z"/></svg>
+            </div>
+            <div class="upi-app-btn__label">
+              <b>Google Pay</b>
+              <span>Tap to Pay</span>
+            </div>
+          </a>
+
+          <a href="#" class="upi-app-btn upi-app-btn--phonepe" id="btnUpiPhonepe" target="_blank" rel="noopener">
+            <div class="upi-app-btn__icon">
+              <svg viewBox="0 0 24 24" class="ic-upi-logo"><circle cx="12" cy="12" r="11" fill="#5F259F"/><path fill="#FFF" d="M14.5 7.5h-3.8c-.4 0-.8.3-.8.8v8.4c0 .4.3.7.7.7h1.4c.4 0 .7-.3.7-.7v-3.1h1.8c2.1 0 3.7-1.3 3.7-3.1 0-1.8-1.6-3-3.7-3zm-.1 3.9h-1.8V9.3h1.8c.8 0 1.5.4 1.5 1.1s-.7 1-1.5 1z"/></svg>
+            </div>
+            <div class="upi-app-btn__label">
+              <b>PhonePe</b>
+              <span>Tap to Pay</span>
+            </div>
+          </a>
+
+          <a href="#" class="upi-app-btn upi-app-btn--paytm" id="btnUpiPaytm" target="_blank" rel="noopener">
+            <div class="upi-app-btn__icon">
+              <svg viewBox="0 0 24 24" class="ic-upi-logo"><rect width="22" height="22" x="1" y="1" rx="4" fill="#002E6E"/><path fill="#00BAF2" d="M7 6h3v12H7zm5 0h3v12h-3zm5 0h3v12h-3z"/></svg>
+            </div>
+            <div class="upi-app-btn__label">
+              <b>Paytm UPI</b>
+              <span>Tap to Pay</span>
+            </div>
+          </a>
+
+          <a href="#" class="upi-app-btn upi-app-btn--generic" id="btnUpiGeneric" target="_blank" rel="noopener">
+            <div class="upi-app-btn__icon">
+              <svg viewBox="0 0 24 24" class="ic-upi-logo"><path fill="#F37021" d="M12 2L2 7l10 5 10-5-10-5z"/><path fill="#00843D" d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <div class="upi-app-btn__label">
+              <b>Any UPI App</b>
+              <span>BHIM, Cred, etc.</span>
+            </div>
+          </a>
+        </div>
+
+        <!-- Dynamic QR Code & Manual VPA Details -->
+        <div class="upi-qr-box">
+          <div class="upi-qr-box__code">
+            <img id="mUpiQrImg" src="" alt="Scan UPI QR Code to Pay" width="120" height="120" loading="lazy" />
+            <span class="upi-qr-box__scan-hint">Scan with GPay / PhonePe / Paytm</span>
+          </div>
+          <div class="upi-qr-box__info">
+            <div class="upi-vpa-pill">
+              <span class="upi-vpa-label">Merchant UPI ID:</span>
+              <code id="mUpiVpaText">8605953737@upi</code>
+              <button type="button" class="btn--copy-vpa" id="btnCopyVpa" title="Copy UPI ID">
+                <span>Copy</span>
+              </button>
+            </div>
+            <div class="upi-verify-step">
+              <label for="mUpiUtr">Transaction / UTR No. (Optional after paying):</label>
+              <input type="text" id="mUpiUtr" placeholder="Enter 12-digit UPI Ref / UTR No." maxlength="16" autocomplete="off" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cash on Cab notice (shown when Cash on Cab is selected) -->
+      <div class="fmodal-cash-notice" id="fmodalCashNotice" hidden>
+        <div class="fmodal-cash-notice__icon">
+          <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
+        </div>
+        <div class="fmodal-cash-notice__text">
+          <h4>Zero Advance Payment Required</h4>
+          <p>Your cab booking is reserved instantly. Pay the full fare directly to your driver after reaching your destination via Cash or UPI.</p>
+        </div>
+      </div>
+
+      <!-- 4. PASSENGER DETAILS FORM (Requirement #12) -->
       <div>
-        <label style="font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);display:block;margin-bottom:8px">3. PASSENGER DETAILS</label>
+        <label style="font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);display:block;margin-bottom:8px">4. PASSENGER DETAILS</label>
         <div class="fmodal-fields">
           <div class="field">
             <label for="mCustName">Your Full Name</label>
