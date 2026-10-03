@@ -344,10 +344,14 @@
         <div class="bookpanel" id="panel-local" role="tabpanel" aria-labelledby="tab-local">
           <form class="bookform" id="localForm" novalidate onsubmit="return false;">
             <div class="field">
-              <label for="localCity">SELECT CITY IN MAHARASHTRA</label>
-              <div class="select">
+              <label for="localCityInput">LOCALITY / CITY IN MAHARASHTRA</label>
+              <div class="select autocomplete-wrap">
                 <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
-                <select id="localCity">
+                <input id="localCityInput" type="text" placeholder="Search City, Local Area, or Town (e.g. Hinjawadi, CIDCO, Dadar, Pune)" autocomplete="off" spellcheck="false" required value="Pune (Pimpri-Chinchwad, Hinjawadi)" />
+                <button type="button" class="autocomplete-clear" id="localCityClear" aria-label="Clear location" hidden>&times;</button>
+                <div class="autocomplete-dropdown" id="localCityDropdown" role="listbox"></div>
+              </div>
+              <select id="localCity" hidden>
                   <optgroup label="Primary Transit Hubs">
                     <option value="pune" selected>Pune (Pimpri-Chinchwad, Hinjawadi)</option>
                     <option value="mumbai">Mumbai (MMR, Thane, Navi Mumbai)</option>
@@ -862,7 +866,7 @@
             <button class="chip" data-filter="pune" aria-pressed="false">From Pune</button>
             <button class="chip" data-filter="mumbai" aria-pressed="false">From Mumbai</button>
             <button class="chip" data-filter="nashik" aria-pressed="false">From Nashik</button>
-            <button class="chip" data-filter="sambhajinagar" aria-pressed="false">From Sambhajinagar</button>
+            <button class="chip" data-filter="sambhajinagar" aria-pressed="false">From Aurangabad</button>
             <button class="chip" data-filter="ahilyanagar" aria-pressed="false">From Ahilyanagar</button>
           </div>
           <div class="rcards" id="routeCards"></div>
@@ -888,7 +892,7 @@
       <div class="fleet__grid">
         <article class="fcard" data-reveal>
           <div class="fcard__media">
-            <img src="sedan.webp" alt="Sedan used for one-way intercity taxi trips" loading="lazy" decoding="async" width="1000" height="667" />
+            <img src="sedan.webp" alt="Sedan Dzire Aura" loading="lazy" decoding="async" width="1000" height="667" />
             <span class="fcard__pill">Sedan</span>
           </div>
           <div class="fcard__body">
@@ -905,18 +909,52 @@
 
         <article class="fcard fcard--suv" data-reveal>
           <div class="fcard__media">
-            <img src="suv.webp" alt="SUV used for one-way intercity taxi trips" loading="lazy" decoding="async" width="1000" height="667" />
-            <span class="fcard__pill">SUV</span>
+            <img src="ertiga.webp" alt="SUV Maruti Ertiga" loading="lazy" decoding="async" width="800" height="537" />
+            <span class="fcard__pill">SUV Ertiga</span>
           </div>
           <div class="fcard__body">
-            <h3>SUV (AC)</h3>
-            <p class="fcard__models">Maruti Ertiga · Kia Carens · Innova Crysta / Hycross</p>
+            <h3>SUV Ertiga (AC)</h3>
+            <p class="fcard__models">Maruti Ertiga · 6 Seater Spacious</p>
             <ul class="fcard__specs">
-              <li><svg class="ic" aria-hidden="true"><use href="#i-bag"/></svg>4 large bags</li>
-              <li><svg class="ic" aria-hidden="true"><use href="#i-car"/></svg>6 to 7 passengers</li>
-              <li><svg class="ic" aria-hidden="true"><use href="#i-snow"/></svg>Rear AC vents</li>
+              <li><svg class="ic" aria-hidden="true"><use href="#i-bag"/></svg>3 large bags</li>
+              <li><svg class="ic" aria-hidden="true"><use href="#i-car"/></svg>6 passengers</li>
+              <li><svg class="ic" aria-hidden="true"><use href="#i-snow"/></svg>Rear AC</li>
             </ul>
             <p class="fcard__from">From <b>₹1,999</b> <span>one way</span></p>
+          </div>
+        </article>
+
+        <article class="fcard fcard--suv" data-reveal>
+          <div class="fcard__media">
+            <img src="carens.webp" alt="SUV Kia Carens" loading="lazy" decoding="async" width="800" height="533" />
+            <span class="fcard__pill" style="background:#0284C7;color:#FFF">Kia Carens</span>
+          </div>
+          <div class="fcard__body">
+            <h3>SUV Kia Carens (AC)</h3>
+            <p class="fcard__models">Kia Carens · 6-7 Seater Executive Luxury</p>
+            <ul class="fcard__specs">
+              <li><svg class="ic" aria-hidden="true"><use href="#i-bag"/></svg>4 bags</li>
+              <li><svg class="ic" aria-hidden="true"><use href="#i-car"/></svg>6-7 passengers</li>
+              <li><svg class="ic" aria-hidden="true"><use href="#i-snow"/></svg>Dual AC</li>
+            </ul>
+            <p class="fcard__from">From <b>₹2,499</b> <span>one way</span></p>
+          </div>
+        </article>
+
+        <article class="fcard fcard--suv" data-reveal>
+          <div class="fcard__media">
+            <img src="suv.webp" alt="Premium Innova Crysta" loading="lazy" decoding="async" width="1000" height="667" />
+            <span class="fcard__pill" style="background:#D97706;color:#FFF">VIP Crysta</span>
+          </div>
+          <div class="fcard__body">
+            <h3>Innova Crysta (AC)</h3>
+            <p class="fcard__models">Toyota Innova Crysta / Hycross · Captain Seats</p>
+            <ul class="fcard__specs">
+              <li><svg class="ic" aria-hidden="true"><use href="#i-bag"/></svg>5 large bags</li>
+              <li><svg class="ic" aria-hidden="true"><use href="#i-car"/></svg>7 passengers</li>
+              <li><svg class="ic" aria-hidden="true"><use href="#i-snow"/></svg>Climate AC</li>
+            </ul>
+            <p class="fcard__from">From <b>₹2,999</b> <span>one way</span></p>
           </div>
         </article>
       </div>
@@ -1270,7 +1308,7 @@
           <!-- SUV Ertiga -->
           <div class="fmodal-car" data-car="suv">
             <div class="fmodal-car__top">
-              <img class="fmodal-car__img" src="suv.webp" alt="SUV Ertiga" />
+              <img class="fmodal-car__img fmodal-car__img--photo" src="ertiga.webp" alt="SUV Ertiga" />
               <span class="fmodal-car__check" aria-hidden="true">
                 <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
               </span>
@@ -1294,7 +1332,34 @@
             </div>
           </div>
 
-          <!-- Premium Innova Crysta / Carens -->
+          <!-- SUV Kia Carens -->
+          <div class="fmodal-car" data-car="carens">
+            <div class="fmodal-car__top">
+              <img class="fmodal-car__img fmodal-car__img--photo" src="carens.webp" alt="SUV Kia Carens" />
+              <span class="fmodal-car__check" aria-hidden="true">
+                <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
+              </span>
+            </div>
+            <div class="fmodal-car__body">
+              <div class="fmodal-car__header">
+                <div>
+                  <h4>SUV Kia Carens (AC)</h4>
+                  <p class="fmodal-car__models">Kia Carens · 6-7 Seater Executive Luxury</p>
+                </div>
+                <div class="fmodal-car__price">
+                  <div class="fmodal-car__amount" id="mPriceCarens">₹3,899</div>
+                  <div class="fmodal-car__taxnote">Tolls & Taxes Included</div>
+                </div>
+              </div>
+              <div class="fmodal-car__badges">
+                <span class="fmodal-car__badge">6-7 Seats</span>
+                <span class="fmodal-car__badge">3 Bags</span>
+                <span class="fmodal-car__badge">Captain Luxury</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Premium Innova Crysta -->
           <div class="fmodal-car" data-car="crysta">
             <div class="fmodal-car__top">
               <img class="fmodal-car__img" src="suv.webp" alt="Innova Crysta" />
@@ -1305,18 +1370,18 @@
             <div class="fmodal-car__body">
               <div class="fmodal-car__header">
                 <div>
-                  <h4>Premium SUV (Innova / Carens)</h4>
-                  <p class="fmodal-car__models">Toyota Innova Crysta · Kia Carens · Hycross</p>
+                  <h4>Innova Crysta (AC)</h4>
+                  <p class="fmodal-car__models">Toyota Innova Crysta / Hycross · VIP Travel</p>
                 </div>
                 <div class="fmodal-car__price">
-                  <div class="fmodal-car__amount" id="mPriceCrysta">₹4,299</div>
+                  <div class="fmodal-car__amount" id="mPriceCrysta">₹4,399</div>
                   <div class="fmodal-car__taxnote">Tolls & Taxes Included</div>
                 </div>
               </div>
               <div class="fmodal-car__badges">
-                <span class="fmodal-car__badge">6-7 Seats</span>
+                <span class="fmodal-car__badge">7 Seats</span>
                 <span class="fmodal-car__badge">4 Large Bags</span>
-                <span class="fmodal-car__badge">Captain Seats</span>
+                <span class="fmodal-car__badge">VIP Comfort</span>
               </div>
             </div>
           </div>

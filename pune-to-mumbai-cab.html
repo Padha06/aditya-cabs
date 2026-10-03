@@ -382,10 +382,14 @@
         <div class="bookpanel" id="panel-local" role="tabpanel" aria-labelledby="tab-local">
           <form class="bookform" id="localForm" novalidate onsubmit="return false;">
             <div class="field">
-              <label for="localCity">SELECT CITY IN MAHARASHTRA</label>
-              <div class="select">
+              <label for="localCityInput">LOCALITY / CITY IN MAHARASHTRA</label>
+              <div class="select autocomplete-wrap">
                 <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
-                <select id="localCity">
+                <input id="localCityInput" type="text" placeholder="Search City, Local Area, or Town (e.g. Hinjawadi, CIDCO, Dadar, Pune)" autocomplete="off" spellcheck="false" required value="Pune (Pimpri-Chinchwad, Hinjawadi)" />
+                <button type="button" class="autocomplete-clear" id="localCityClear" aria-label="Clear location" hidden>&times;</button>
+                <div class="autocomplete-dropdown" id="localCityDropdown" role="listbox"></div>
+              </div>
+              <select id="localCity" hidden>
                   <optgroup label="Primary Transit Hubs">
                     <option value="pune" selected>Pune (Pimpri-Chinchwad, Hinjawadi)</option>
                     <option value="mumbai">Mumbai (MMR, Thane, Navi Mumbai)</option>
@@ -1029,7 +1033,7 @@
           <!-- SUV Ertiga -->
           <div class="fmodal-car" data-car="suv">
             <div class="fmodal-car__top">
-              <img class="fmodal-car__img" src="suv.webp" alt="SUV Ertiga" />
+              <img class="fmodal-car__img fmodal-car__img--photo" src="ertiga.webp" alt="SUV Ertiga" />
               <span class="fmodal-car__check" aria-hidden="true">
                 <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
               </span>
@@ -1053,7 +1057,34 @@
             </div>
           </div>
 
-          <!-- Premium Innova Crysta / Carens -->
+          <!-- SUV Kia Carens -->
+          <div class="fmodal-car" data-car="carens">
+            <div class="fmodal-car__top">
+              <img class="fmodal-car__img fmodal-car__img--photo" src="carens.webp" alt="SUV Kia Carens" />
+              <span class="fmodal-car__check" aria-hidden="true">
+                <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
+              </span>
+            </div>
+            <div class="fmodal-car__body">
+              <div class="fmodal-car__header">
+                <div>
+                  <h4>SUV Kia Carens (AC)</h4>
+                  <p class="fmodal-car__models">Kia Carens · 6-7 Seater Executive Luxury</p>
+                </div>
+                <div class="fmodal-car__price">
+                  <div class="fmodal-car__amount" id="mPriceCarens">₹3,899</div>
+                  <div class="fmodal-car__taxnote">Tolls & Taxes Included</div>
+                </div>
+              </div>
+              <div class="fmodal-car__badges">
+                <span class="fmodal-car__badge">6-7 Seats</span>
+                <span class="fmodal-car__badge">3 Bags</span>
+                <span class="fmodal-car__badge">Captain Luxury</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Premium Innova Crysta -->
           <div class="fmodal-car" data-car="crysta">
             <div class="fmodal-car__top">
               <img class="fmodal-car__img" src="suv.webp" alt="Innova Crysta" />
@@ -1064,18 +1095,18 @@
             <div class="fmodal-car__body">
               <div class="fmodal-car__header">
                 <div>
-                  <h4>Premium SUV (Innova / Carens)</h4>
-                  <p class="fmodal-car__models">Toyota Innova Crysta · Kia Carens · Hycross</p>
+                  <h4>Innova Crysta (AC)</h4>
+                  <p class="fmodal-car__models">Toyota Innova Crysta / Hycross · VIP Travel</p>
                 </div>
                 <div class="fmodal-car__price">
-                  <div class="fmodal-car__amount" id="mPriceCrysta">₹4,299</div>
+                  <div class="fmodal-car__amount" id="mPriceCrysta">₹4,399</div>
                   <div class="fmodal-car__taxnote">Tolls & Taxes Included</div>
                 </div>
               </div>
               <div class="fmodal-car__badges">
-                <span class="fmodal-car__badge">6-7 Seats</span>
+                <span class="fmodal-car__badge">7 Seats</span>
                 <span class="fmodal-car__badge">4 Large Bags</span>
-                <span class="fmodal-car__badge">Captain Seats</span>
+                <span class="fmodal-car__badge">VIP Comfort</span>
               </div>
             </div>
           </div>
