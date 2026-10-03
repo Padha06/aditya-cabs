@@ -67,6 +67,7 @@ module.exports = async (req, res) => {
         amount: amountInPaise,
         currency: currency,
         receipt: receipt.slice(0, 40),
+        payment_capture: 1,
         notes: {
           brand: 'Shivrudra Taxi',
           customerName: (notes.name || '').slice(0, 50),

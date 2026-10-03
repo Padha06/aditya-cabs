@@ -1149,6 +1149,11 @@ function initPaymentEvents() {
           return;
         }
 
+        const cleanPhone = phone.replace(/\D/g, "").slice(-10);
+        const userEmail = (window.FirebaseService && window.FirebaseService.currentUser && window.FirebaseService.currentUser.email)
+          ? window.FirebaseService.currentUser.email
+          : "customer@shivrudrataxi.com";
+
         const rzpOptions = {
           key: orderData.keyId,
           amount: orderData.amount,
@@ -1159,11 +1164,54 @@ function initPaymentEvents() {
           order_id: orderData.orderId,
           prefill: {
             name: name,
-            contact: `+91${phone}`,
-            email: (window.FirebaseService && window.FirebaseService.currentUser) ? window.FirebaseService.currentUser.email : ""
+            contact: `+91${cleanPhone}`,
+            email: userEmail,
+            method: "upi" // Instructs Razorpay to open UPI & QR by default
+          },
+          config: {
+            display: {
+              blocks: {
+                upi: {
+                  name: "Pay via UPI / QR Code",
+                  instruments: [
+                    {
+                      method: "upi"
+                    }
+                  ]
+                },
+                other: {
+                  name: "Cards, NetBanking & Wallets",
+                  instruments: [
+                    {
+                      method: "card"
+                    },
+                    {
+                      method: "netbanking"
+                    },
+                    {
+                      method: "wallet"
+                    }
+                  ]
+                }
+              },
+              sequence: ["block.upi", "block.other"],
+              preferences: {
+                show_default_blocks: true
+              }
+            }
           },
           theme: {
             color: "#0284C7"
+          },
+          modal: {
+            backdropclose: false,
+            escape: true,
+            handleback: true,
+            confirm_close: true,
+            ondismiss: function () {
+              btnRazorpay.disabled = false;
+              btnRazorpay.style.opacity = "";
+            }
           },
           handler: async function (response) {
             // Cryptographic server-side verification
