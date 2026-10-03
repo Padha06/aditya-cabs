@@ -7,9 +7,9 @@
 
 const CONFIG = {
   brand: "Shivrudra Taxi",
-  phoneDisplay: "+91 86059 53737",
-  phoneTel: "+918605953737",
-  whatsapp: "918605953737",          // country code + number, digits only
+  phoneDisplay: "+91 60057 91807",
+  phoneTel: "+916005791807",
+  whatsapp: "916005791807",          // country code + number, digits only
   defaultMessage: "Hi Shivrudra Taxi, I would like to book a one-way cab. Please share availability and the fixed fare."
 };
 
@@ -114,6 +114,7 @@ const bookState = {
   urgent: false,
   selectedCar: "sedan",
   paymentMode: "advance", // 'advance' (₹500), 'full', 'cash'
+  isPaymentDone: false, // Locked until payment verified for advance/full
   hasPersonalAddress: false,
   pickupAddress: "",
   dropAddress: "",
@@ -130,7 +131,7 @@ const bookState = {
 
 // --- UPI PAYMENT CONFIGURATION ---
 const UPI_CONFIG = {
-  vpa: "8605953737@upi", // Can be updated anytime to client's exact UPI ID (GPay / PhonePe / Paytm)
+  vpa: "6005791807@upi", // Testing UPI ID
   name: "Shivrudra Taxi",
   merchantCode: "4722" // Taxi / Transportation MCC code
 };
@@ -827,6 +828,7 @@ function openFleetModal() {
     c.classList.toggle("is-selected", c.dataset.car === bookState.selectedCar);
   });
 
+  bookState.isPaymentDone = (bookState.paymentMode === "cash");
   updateModalPayment(getSelectedTotalFare());
 
   const mPickup = $("#mCustAddress");
@@ -857,6 +859,7 @@ function closeFleetModal() {
   modal.classList.remove("is-open");
   modal.hidden = true;
   document.body.style.overflow = "";
+  bookState.isPaymentDone = false;
 }
 
 function updateModalPayment(totalFare) {
@@ -890,6 +893,7 @@ function updateUpiDetails(totalFare) {
   if (vpaText) vpaText.textContent = UPI_CONFIG.vpa;
 
   if (mode === "cash") {
+    bookState.isPaymentDone = true;
     if (upiSec) upiSec.hidden = true;
     if (cashNotice) cashNotice.hidden = false;
   } else {
@@ -925,23 +929,53 @@ function updateUpiDetails(totalFare) {
     if (anyUpiLink) anyUpiLink.href = genericUpi;
   }
 
-  // Update Confirm WhatsApp button label
+  // Update Confirm WhatsApp button label & lock status
   const confirmBtn = $("#mConfirmWa");
   if (confirmBtn) {
     const span = confirmBtn.querySelector("span");
-    if (span) {
-      if (mode === "cash") {
-        span.textContent = "Confirm Booking on WhatsApp (Cash on Cab)";
-      } else if (mode === "full") {
-        span.textContent = `Full ${inr(amt)} Paid — Confirm on WhatsApp`;
+    if (mode === "cash") {
+      confirmBtn.classList.remove("btn--locked");
+      if (span) span.textContent = "Confirm Booking on WhatsApp (Cash on Cab)";
+    } else {
+      if (bookState.isPaymentDone) {
+        confirmBtn.classList.remove("btn--locked");
+        if (span) {
+          span.textContent = (mode === "full")
+            ? `✓ Full ${inr(amt)} Paid — Confirm on WhatsApp`
+            : `✓ ${inr(amt)} Advance Paid — Confirm on WhatsApp`;
+        }
       } else {
-        span.textContent = `${inr(amt)} Advance Paid — Confirm on WhatsApp`;
+        confirmBtn.classList.add("btn--locked");
+        if (span) {
+          span.textContent = (mode === "full")
+            ? `🔒 Complete Full ${inr(amt)} Payment Above to Confirm`
+            : `🔒 Pay ${inr(amt)} Advance Above to Confirm on WhatsApp`;
+        }
       }
     }
   }
 }
 
 function executeBookingConfirmation(options = {}) {
+  // 1. Payment Verification Check: If Advance or Full selected, prevent confirmation until payment is made
+  if (bookState.paymentMode !== "cash" && !bookState.isPaymentDone) {
+    if (options.source === "btn_upi_paid_confirm") {
+      bookState.isPaymentDone = true;
+    } else {
+      const mode = bookState.paymentMode;
+      const total = getSelectedTotalFare();
+      const amt = (mode === "full") ? total : 500;
+      const upiSec = $("#fmodalUpiSection");
+      if (upiSec) {
+        upiSec.scrollIntoView({ behavior: "smooth", block: "center" });
+        upiSec.classList.add("pulse-highlight");
+        setTimeout(() => { upiSec.classList.remove("pulse-highlight"); }, 2000);
+      }
+      alert(`⚠️ Advance Payment Required:\nPlease complete your ${mode === "full" ? "full payment (" + inr(amt) + ")" : "₹500 advance"} via Google Pay, PhonePe, Paytm or scan QR code above before confirming on WhatsApp.`);
+      return false;
+    }
+  }
+
   const nameInput = $("#mCustName");
   const phoneInput = $("#mCustPhone");
 
@@ -1057,6 +1091,14 @@ function initUpiEvents() {
   const btnUpiPaid = $("#btnUpiPaidConfirm");
   if (btnUpiPaid) {
     btnUpiPaid.addEventListener("click", () => {
+      bookState.isPaymentDone = true;
+      const card = $("#upiStatusCard");
+      const label = $("#upiStatusLabel");
+      const noteEl = $("#upiStatusNote");
+      if (card) card.classList.add("is-confirmed");
+      if (label) label.textContent = "Payment Verified! ✓ Confirming Booking...";
+      if (noteEl) noteEl.textContent = "Proceeding with WhatsApp confirmation & ticket generation...";
+      updateUpiDetails(getSelectedTotalFare());
       executeBookingConfirmation({ source: "btn_upi_paid_confirm" });
     });
   }
@@ -1138,12 +1180,14 @@ function initUpiEvents() {
         return;
       }
 
+      bookState.isPaymentDone = true;
       const card = $("#upiStatusCard");
       const label = $("#upiStatusLabel");
       const noteEl = $("#upiStatusNote");
       if (card) card.classList.add("is-confirmed");
       if (label) label.textContent = "Payment Detected! ✓ Confirming Booking...";
       if (noteEl) noteEl.textContent = "Finalizing your verified cab booking pass...";
+      updateUpiDetails(getSelectedTotalFare());
 
       // Attempt automated confirmation
       setTimeout(() => {
@@ -1193,53 +1237,92 @@ function formatBookingWhatsAppMessage(customId) {
     carens: "SUV Kia Carens (6-7 Seater Premium AC)",
     crysta: "Premium Innova Crysta (7 Seater Captain Seats)"
   };
-  const payModes = {
-    advance: "Pay ₹500 Advance & Rest to Driver at Drop",
-    full: "Pay Full Online (100%)",
-    cash: "Pay Full Cash/UPI to Driver After Drop"
-  };
 
   const name = ($("#mCustName") && $("#mCustName").value.trim()) || "Customer";
   const phone = ($("#mCustPhone") && $("#mCustPhone").value.trim()) || "Not provided";
   const pickupAddr = ($("#mCustAddress") && $("#mCustAddress").value.trim()) || bookState.pickupAddress || `${from} Doorstep Pickup`;
   const dropAddr = ($("#mCustDropAddress") && $("#mCustDropAddress").value.trim()) || bookState.dropAddress || `${to} Drop Point`;
 
-  let advanceAmt = 500, balanceAmt = total - 500;
-  if (bookState.paymentMode === "full") { advanceAmt = total; balanceAmt = 0; }
-  else if (bookState.paymentMode === "cash") { advanceAmt = 0; balanceAmt = total; }
-
-  let utrLine = "";
-  if (bookState.paymentMode !== "cash") {
-    utrLine = `   • UPI Payment Status: Paid Online via UPI (Verified)`;
+  // CASE 1: Cash on Cab (Zero Advance Required)
+  if (bookState.paymentMode === "cash") {
+    return [
+      `🚖 *CASH ON CAB BOOKING REQUEST - SHIVRUDRA TAXI*`,
+      `──────────────────────────`,
+      `🎟️ *Booking ID:* #${bookingId}`,
+      `📍 *Route:* ${from} ➔ ${to}`,
+      `🗓️ *Date:* ${dateStr}`,
+      `⏰ *Pickup Time:* ${timeStr} ${bookState.urgent ? "(⚡ URGENT DISPATCH)" : ""}`,
+      `🚗 *Vehicle:* ${carNames[bookState.selectedCar] || "Sedan"}`,
+      `──────────────────────────`,
+      `💰 *FARE & CASH COLLECTION*`,
+      `• Total Fixed Fare: ₹${Number(total).toLocaleString("en-IN")} (All Tolls & Taxes Included)`,
+      `• Payment Mode: 💵 Cash on Drop / Driver UPI`,
+      `• Advance Paid: ₹0 (Zero Advance Required)`,
+      `• Cash Collectible by Driver: ₹${Number(total).toLocaleString("en-IN")}`,
+      `──────────────────────────`,
+      `👤 *PASSENGER DETAILS*`,
+      `• Name: ${name}`,
+      `• Mobile / WhatsApp: ${phone}`,
+      `• Pickup Address: ${pickupAddr}`,
+      `• Drop Address: ${dropAddr}`,
+      `──────────────────────────`,
+      `📌 *Booking Status:* Reserved (Cash on Cab). Pay full fare directly to driver after arrival. Please confirm dispatch.`
+    ].join("\n");
   }
 
-  const lines = [
-    `*NEW CAB BOOKING CONFIRMATION - SHIVRUDRA TAXI*`,
+  // CASE 2: ₹500 Advance Paid Online
+  if (bookState.paymentMode === "advance") {
+    const balAmt = Math.max(0, total - 500);
+    return [
+      `✅ *ADVANCE PAID CAB BOOKING - SHIVRUDRA TAXI*`,
+      `──────────────────────────`,
+      `🎟️ *Booking ID:* #${bookingId}`,
+      `📍 *Route:* ${from} ➔ ${to}`,
+      `🗓️ *Date:* ${dateStr}`,
+      `⏰ *Pickup Time:* ${timeStr} ${bookState.urgent ? "(⚡ URGENT DISPATCH)" : ""}`,
+      `🚗 *Vehicle:* ${carNames[bookState.selectedCar] || "Sedan"}`,
+      `──────────────────────────`,
+      `💳 *ADVANCE PAYMENT CONFIRMATION*`,
+      `• Status: 🟢 ₹500 Advance Paid Online via UPI`,
+      `• Total Fixed Fare: ₹${Number(total).toLocaleString("en-IN")} (All Tolls & Taxes Included)`,
+      `• Advance Received: ₹500.00`,
+      `• Balance Due on Drop: ₹${Number(balAmt).toLocaleString("en-IN")} (Pay to driver)`,
+      `• Payment Verified: Yes (UPI App / QR - ${UPI_CONFIG.vpa})`,
+      `──────────────────────────`,
+      `👤 *PASSENGER DETAILS*`,
+      `• Name: ${name}`,
+      `• Mobile / WhatsApp: ${phone}`,
+      `• Pickup Address: ${pickupAddr}`,
+      `• Drop Address: ${dropAddr}`,
+      `──────────────────────────`,
+      `📌 *Booking Status:* Confirmed with Advance. Please assign driver and share vehicle number.`
+    ].join("\n");
+  }
+
+  // CASE 3: 100% Full Payment Paid Online
+  return [
+    `🌟 *100% PREPAID CAB BOOKING - SHIVRUDRA TAXI*`,
     `──────────────────────────`,
     `🎟️ *Booking ID:* #${bookingId}`,
     `📍 *Route:* ${from} ➔ ${to}`,
     `🗓️ *Date:* ${dateStr}`,
     `⏰ *Pickup Time:* ${timeStr} ${bookState.urgent ? "(⚡ URGENT DISPATCH)" : ""}`,
     `🚗 *Vehicle:* ${carNames[bookState.selectedCar] || "Sedan"}`,
-    `💰 *Total Fare:* ₹${Number(total).toLocaleString("en-IN")} (All Tolls & Taxes Included)`,
-    `💳 *Payment Option:* ${payModes[bookState.paymentMode]}`,
-    `   • Advance Payable: ₹${Number(advanceAmt).toLocaleString("en-IN")}`,
-    `   • Balance on Drop: ₹${Number(balanceAmt).toLocaleString("en-IN")}`
-  ];
-
-  if (utrLine) lines.push(utrLine);
-
-  lines.push(
     `──────────────────────────`,
-    `👤 *Passenger Name:* ${name}`,
-    `📱 *Contact Phone:* ${phone}`,
-    `🏠 *Exact Pickup Address:* ${pickupAddr}`,
-    `🎯 *Exact Drop Address:* ${dropAddr}`,
+    `💎 *FULL ONLINE SETTLEMENT*`,
+    `• Status: 🟢 100% Fully Paid Online via UPI`,
+    `• Total Fare Paid: ₹${Number(total).toLocaleString("en-IN")} (All Tolls & Taxes Included)`,
+    `• Balance Due at Drop: ₹0 (Zero Balance - No Collection Needed)`,
+    `• Settlement: 100% Online Payment Received (${UPI_CONFIG.vpa})`,
     `──────────────────────────`,
-    `Please confirm the booking and dispatch driver details.`
-  );
-
-  return lines.join("\n");
+    `👤 *PASSENGER DETAILS*`,
+    `• Name: ${name}`,
+    `• Mobile / WhatsApp: ${phone}`,
+    `• Pickup Address: ${pickupAddr}`,
+    `• Drop Address: ${dropAddr}`,
+    `──────────────────────────`,
+    `📌 *Booking Status:* 100% Prepaid. Driver should not collect any fare. Please dispatch confirmed cab.`
+  ].join("\n");
 }
 
 /* --- BOOKING STORAGE & LIVE CONFIRMATION SYSTEM --- */
@@ -1865,6 +1948,7 @@ function initBooking() {
   $$('input[name="modalPayment"]').forEach(r => {
     r.addEventListener("change", e => {
       bookState.paymentMode = e.target.value;
+      bookState.isPaymentDone = (e.target.value === "cash");
       $$(".fmodal-pay-opt").forEach(opt => opt.classList.remove("is-selected"));
       e.target.closest(".fmodal-pay-opt").classList.add("is-selected");
       updateModalPayment(getSelectedTotalFare());

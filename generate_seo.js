@@ -340,7 +340,7 @@ ${steps}
         </ol>
         <div class="rdetail__cta">
           <a class="btn btn--wa" href="#" data-wa-link><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg><span>Book on WhatsApp</span></a>
-          <a class="btn btn--ghost" href="tel:+918605953737" data-phone-link><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span>Call 24x7</span></a>
+          <a class="btn btn--ghost" href="tel:+916005791807" data-phone-link><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span>Call 24x7</span></a>
           <a class="rdetail__rev" href="/${revSlug}" data-i18n-route="${bId}|${aId}">${B} to ${A} cab</a>
         </div>
       </div>

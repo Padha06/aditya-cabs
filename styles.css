@@ -2158,8 +2158,28 @@ body.rmodal-open{overflow:hidden}
   color:#FFF;font-size:1.02rem;font-weight:800;padding:14px 24px;border-radius:999px;
   display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;
   cursor:pointer;box-shadow:0 8px 20px rgba(22,163,74,.38);flex:1;
+  transition:all .2s ease;
 }
 .btn--book-wa:hover{background:#15803D;transform:translateY(-1px)}
+.btn--book-wa.btn--locked{
+  background:linear-gradient(135deg,#64748B 0%,#475569 100%) !important;
+  color:#F8FAFC !important;
+  box-shadow:0 4px 12px rgba(100,116,139,.25) !important;
+  cursor:pointer;
+  opacity:0.92;
+}
+.btn--book-wa.btn--locked:hover{
+  background:#475569 !important;
+  transform:none !important;
+}
+.pulse-highlight{
+  animation:border-glow 1.2s ease-in-out infinite alternate !important;
+  border-color:#0284C7 !important;
+}
+@keyframes border-glow{
+  0%{box-shadow:0 0 0 2px rgba(2,132,199,.3)}
+  100%{box-shadow:0 0 0 6px rgba(2,132,199,.65),0 4px 20px rgba(2,132,199,.2)}
+}
 
 /* ============================================================================
    EXIT INTENT / URGENT CAB LEAD POPUP (Requirement #12)
