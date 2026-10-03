@@ -804,6 +804,28 @@ function openFleetModal() {
   const modal = $("#fleetModal");
   if (!modal) return;
 
+  // REQUIREMENT: Must be signed in / create account to book cab
+  const fb = window.FirebaseService;
+  if (!fb || !fb.currentUser) {
+    window.pendingBookingAction = () => openFleetModal();
+    if (typeof window.openAuthModal === "function") {
+      window.openAuthModal("signup", "Please sign in or create an account to proceed with cab booking.");
+    } else {
+      const authM = $("#authModal");
+      if (authM) {
+        authM.hidden = false;
+        authM.classList.add("is-open");
+        const alertEl = $("#authAlert");
+        if (alertEl) {
+          alertEl.hidden = false;
+          alertEl.className = "auth-alert is-error";
+          alertEl.textContent = "Please sign in or create an account to proceed with cab booking.";
+        }
+      }
+    }
+    return;
+  }
+
   const r = findRoute(bookState.from, bookState.to);
   const fromTitle = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : bookState.from);
   const toTitle = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : bookState.to);
@@ -887,10 +909,7 @@ function updateUpiDetails(totalFare) {
   const upiSec = $("#fmodalUpiSection");
   const cashNotice = $("#fmodalCashNotice");
   const upiAmtEl = $("#mUpiAmount");
-  const qrImg = $("#mUpiQrImg");
-  const vpaText = $("#mUpiVpaText");
-
-  if (vpaText) vpaText.textContent = UPI_CONFIG.vpa;
+  const rzpAmtEl = $("#mRzpAmount");
 
   if (mode === "cash") {
     bookState.isPaymentDone = true;
@@ -900,35 +919,7 @@ function updateUpiDetails(totalFare) {
     if (upiSec) upiSec.hidden = false;
     if (cashNotice) cashNotice.hidden = true;
     if (upiAmtEl) upiAmtEl.textContent = inr(amt);
-    const rzpAmtEl = $("#mRzpAmount");
     if (rzpAmtEl) rzpAmtEl.textContent = inr(amt);
-
-    const fromCity = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
-    const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
-    const note = `Cab ${fromCity} to ${toCity}`;
-
-    const vpa = UPI_CONFIG.vpa;
-    const name = encodeURIComponent(UPI_CONFIG.name);
-    const cleanNote = encodeURIComponent(note);
-    const genericUpi = `upi://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${cleanNote}`;
-
-    // Update dynamic QR Code
-    if (qrImg) {
-      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(genericUpi)}`;
-    }
-
-    // Set app-specific deep links with fallback to generic upi://
-    const gpayLink = $("#btnUpiGpay");
-    if (gpayLink) gpayLink.href = `tez://upi/pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${cleanNote}`;
-
-    const phonepeLink = $("#btnUpiPhonepe");
-    if (phonepeLink) phonepeLink.href = `phonepe://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${cleanNote}`;
-
-    const paytmLink = $("#btnUpiPaytm");
-    if (paytmLink) paytmLink.href = `paytmmp://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${cleanNote}`;
-
-    const anyUpiLink = $("#btnUpiGeneric");
-    if (anyUpiLink) anyUpiLink.href = genericUpi;
   }
 
   // Update Razorpay verified banner if payment completed
@@ -1091,29 +1082,7 @@ function executeBookingConfirmation(options = {}) {
   return true;
 }
 
-function initUpiEvents() {
-  const copyBtn = $("#btnCopyVpa");
-  if (copyBtn) {
-    copyBtn.addEventListener("click", () => {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(UPI_CONFIG.vpa).then(() => {
-          const span = copyBtn.querySelector("span") || copyBtn;
-          const old = span.textContent;
-          span.textContent = "Copied! ✓";
-          copyBtn.classList.add("is-copied");
-          setTimeout(() => {
-            span.textContent = old;
-            copyBtn.classList.remove("is-copied");
-          }, 2000);
-        }).catch(() => {
-          prompt("Copy UPI ID:", UPI_CONFIG.vpa);
-        });
-      } else {
-        prompt("Copy UPI ID:", UPI_CONFIG.vpa);
-      }
-    });
-  }
-
+function initPaymentEvents() {
   // Razorpay 1-Click Secure Pay handler
   const btnRazorpay = $("#btnRazorpayPay");
   if (btnRazorpay) {
@@ -1163,9 +1132,9 @@ function initUpiEvents() {
 
         if (!orderRes.ok || !orderData.success) {
           if (orderData.missingKeys) {
-            alert("⚠️ Razorpay API Keys Pending Setup:\nPlease add RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET to your Vercel Project Settings ➔ Environment Variables.\n\nIn the meantime, you can pay using the Direct UPI apps or QR code below.");
+            alert("⚠️ Razorpay API Keys Pending Setup:\nPlease add RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET to your Vercel Project Settings ➔ Environment Variables.");
           } else {
-            alert("Could not initialize Razorpay: " + (orderData.error || "Please try again or use direct UPI."));
+            alert("Could not initialize Razorpay: " + (orderData.error || "Please try again."));
           }
           btnRazorpay.disabled = false;
           btnRazorpay.style.opacity = "";
@@ -1215,14 +1184,8 @@ function initUpiEvents() {
                 if (rzpBanner) rzpBanner.hidden = false;
                 if (rzpRef) rzpRef.textContent = `Razorpay Payment ID: ${response.razorpay_payment_id}`;
 
-                const card = $("#upiStatusCard");
-                const label = $("#upiStatusLabel");
-                const noteEl = $("#upiStatusNote");
-                if (card) card.classList.add("is-confirmed");
-                if (label) label.textContent = "Payment Verified! ✓";
-                if (noteEl) noteEl.textContent = `Razorpay ID: ${response.razorpay_payment_id}. Proceeding with confirmed booking...`;
-
                 updateUpiDetails(getSelectedTotalFare());
+                // Auto trigger WhatsApp confirmation & user confirmation screen!
                 executeBookingConfirmation({ source: "razorpay_verified" });
               } else {
                 alert("Payment verification warning: " + (verifyData.error || "Please contact support with payment ID " + response.razorpay_payment_id));
@@ -1252,139 +1215,13 @@ function initUpiEvents() {
         rzp.open();
       } catch (err) {
         console.error("Razorpay order catch:", err);
-        alert("Payment initialization error. You can pay via direct UPI below.");
+        alert("Payment initialization error. Please try again.");
       } finally {
         btnRazorpay.disabled = false;
         btnRazorpay.style.opacity = "";
       }
     });
   }
-
-  // Instant 1-tap confirmation button inside the UPI status card
-  const btnUpiPaid = $("#btnUpiPaidConfirm");
-  if (btnUpiPaid) {
-    btnUpiPaid.addEventListener("click", () => {
-      bookState.isPaymentDone = true;
-      const card = $("#upiStatusCard");
-      const label = $("#upiStatusLabel");
-      const noteEl = $("#upiStatusNote");
-      if (card) card.classList.add("is-confirmed");
-      if (label) label.textContent = "Payment Verified! ✓ Confirming Booking...";
-      if (noteEl) noteEl.textContent = "Proceeding with WhatsApp confirmation & ticket generation...";
-      updateUpiDetails(getSelectedTotalFare());
-      executeBookingConfirmation({ source: "btn_upi_paid_confirm" });
-    });
-  }
-
-  // Universal handler for UPI links on mobile with seamless fallback & automated detection
-  const upiLinks = [
-    { id: "#btnUpiGpay", scheme: "tez" },
-    { id: "#btnUpiPhonepe", scheme: "phonepe" },
-    { id: "#btnUpiPaytm", scheme: "paytmmp" },
-    { id: "#btnUpiGeneric", scheme: "upi" }
-  ];
-
-  upiLinks.forEach(({ id, scheme }) => {
-    const el = $(id);
-    if (!el) return;
-    el.addEventListener("click", (e) => {
-      const mode = bookState.paymentMode;
-      const amt = (mode === "full") ? getSelectedTotalFare() : 500;
-      const fromCity = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
-      const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
-      const note = encodeURIComponent(`Cab ${fromCity} to ${toCity}`);
-      const vpa = UPI_CONFIG.vpa;
-      const name = encodeURIComponent(UPI_CONFIG.name);
-
-      const targetUrl = (scheme === "upi")
-        ? `upi://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${note}`
-        : `${scheme}://upi/pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${note}`;
-
-      const genericUrl = `upi://pay?pa=${vpa}&pn=${name}&am=${amt}&cu=INR&tn=${note}`;
-
-      // Store pending payment in sessionStorage for automatic return detection
-      try {
-        sessionStorage.setItem("st_pending_upi", JSON.stringify({
-          time: Date.now(),
-          amt: amt,
-          from: fromCity,
-          to: toCity
-        }));
-      } catch (err) {}
-
-      // Update the status card immediately
-      const card = $("#upiStatusCard");
-      const label = $("#upiStatusLabel");
-      const noteEl = $("#upiStatusNote");
-      if (label) label.textContent = "Opening UPI App... Complete Payment";
-      if (noteEl) noteEl.textContent = "After approving in your UPI app, return here. Booking confirms automatically.";
-
-      // If user is on desktop, smoothly focus/pulse QR code
-      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      if (!isMobile) {
-        e.preventDefault();
-        const qrEl = $("#mUpiQrImg");
-        if (qrEl) {
-          qrEl.scrollIntoView({ behavior: "smooth", block: "center" });
-          qrEl.style.boxShadow = "0 0 0 4px #0284C7";
-          setTimeout(() => { qrEl.style.boxShadow = ""; }, 1500);
-        }
-        return;
-      }
-
-      // On mobile, launch the intent with automatic fallback
-      if (scheme !== "upi") {
-        setTimeout(() => {
-          window.location.href = genericUrl;
-        }, 600);
-      }
-    });
-  });
-
-  // Automated return listener (visibilitychange / window focus)
-  const handleAppReturn = () => {
-    try {
-      const raw = sessionStorage.getItem("st_pending_upi");
-      if (!raw) return;
-      const pending = JSON.parse(raw);
-      // Valid within last 15 minutes
-      if (Date.now() - pending.time > 15 * 60 * 1000) {
-        sessionStorage.removeItem("st_pending_upi");
-        return;
-      }
-
-      bookState.isPaymentDone = true;
-      const card = $("#upiStatusCard");
-      const label = $("#upiStatusLabel");
-      const noteEl = $("#upiStatusNote");
-      if (card) card.classList.add("is-confirmed");
-      if (label) label.textContent = "Payment Detected! ✓ Confirming Booking...";
-      if (noteEl) noteEl.textContent = "Finalizing your verified cab booking pass...";
-      updateUpiDetails(getSelectedTotalFare());
-
-      // Attempt automated confirmation
-      setTimeout(() => {
-        const nameInput = $("#mCustName");
-        const phoneInput = $("#mCustPhone");
-        if (nameInput && nameInput.value.trim() && phoneInput && phoneInput.value.trim()) {
-          executeBookingConfirmation({ source: "auto_upi_return" });
-        } else {
-          // If passenger hasn't typed name/phone yet, guide them directly
-          if (label) label.textContent = "Payment Detected! ✓ Almost Done";
-          if (noteEl) noteEl.textContent = "Please enter passenger name & phone below to receive driver dispatch details.";
-          if (nameInput && !nameInput.value.trim()) nameInput.focus();
-          else if (phoneInput && !phoneInput.value.trim()) phoneInput.focus();
-        }
-      }, 600);
-    } catch (err) {}
-  };
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-      handleAppReturn();
-    }
-  });
-  window.addEventListener("focus", handleAppReturn);
 }
 
 function getSelectedTotalFare() {
@@ -1693,6 +1530,14 @@ function initLocalPackage() {
   const bookBtn = $("#btnLocalBook");
   if (bookBtn) {
     bookBtn.addEventListener("click", () => {
+      const fb = window.FirebaseService;
+      if (!fb || !fb.currentUser) {
+        window.pendingBookingAction = () => bookBtn.click();
+        if (typeof window.openAuthModal === "function") {
+          window.openAuthModal("signup", "Please sign in or create an account to book your local package.");
+        }
+        return;
+      }
       const lInput = $("#localCityInput");
       let cityName = (lInput && lInput.value.trim()) || bookState.localCityName;
       if (!cityName) {
@@ -1803,6 +1648,14 @@ function initRoundTrip() {
   const btn = $("#btnRoundBook");
   if (btn) {
     btn.addEventListener("click", () => {
+      const fb = window.FirebaseService;
+      if (!fb || !fb.currentUser) {
+        window.pendingBookingAction = () => btn.click();
+        if (typeof window.openAuthModal === "function") {
+          window.openAuthModal("signup", "Please sign in or create an account to book your round trip.");
+        }
+        return;
+      }
       let from = fromSel ? fromSel.options[fromSel.selectedIndex].text : "Pune";
       if (fromSel && fromSel.value === "custom") {
         const inp = $("#roundFromCustom");
@@ -2136,8 +1989,8 @@ function initBooking() {
     });
   }
 
-  // Initialize UPI Payment Events (Copy VPA & 1-tap App deep-links)
-  initUpiEvents();
+  // Initialize Razorpay Payment Events
+  initPaymentEvents();
 
   // Initialize Success Modal Close & Print buttons
   initSuccessModalEvents();
@@ -3728,6 +3581,11 @@ function initFirebaseAuth() {
     document.body.style.overflow = "hidden";
   }
 
+  window.openAuthModal = function(tab = "signup", alertMsg = "") {
+    openAuth(tab);
+    if (alertMsg) showAlert(alertMsg, false);
+  };
+
   function closeAuth() {
     if (!modal) return;
     modal.classList.remove("is-open");
@@ -3981,6 +3839,14 @@ function initFirebaseAuth() {
           const phoneIn = $("#mCustPhone");
           if (nameIn && !nameIn.value) nameIn.value = displayName;
           if (phoneIn && !phoneIn.value && user.phoneNumber) phoneIn.value = user.phoneNumber.replace("+91", "");
+
+          // Seamlessly resume booking if user was in the middle of booking a cab
+          if (typeof window.pendingBookingAction === "function") {
+            const action = window.pendingBookingAction;
+            window.pendingBookingAction = null;
+            closeAuth();
+            setTimeout(() => { action(); }, 250);
+          }
         } else {
           if (label) label.textContent = "Sign In";
           if (mobileLabel) mobileLabel.textContent = "Sign In / Register";

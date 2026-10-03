@@ -1222,14 +1222,14 @@
         </div>
       </div>
 
-      <!-- 3. SECURE ONLINE PAYMENT (Razorpay Automated Gateway + Direct UPI Fallback) -->
+      <!-- 3. SECURE ONLINE PAYMENT (Official Razorpay Checkout Only) -->
       <div class="fmodal-upi" id="fmodalUpiSection">
         <div class="fmodal-upi__header">
           <div class="fmodal-upi__title-wrap">
             <span class="fmodal-upi__tag">🔒 100% Secure & Verified Payment</span>
-            <h3 class="fmodal-upi__h3">Pay <span id="mUpiAmount">₹500</span> Advance</h3>
+            <h3 class="fmodal-upi__h3">Pay <span id="mUpiAmount">₹500</span> via Razorpay</h3>
           </div>
-          <div class="fmodal-upi__badge">Razorpay Auto-Verified</div>
+          <div class="fmodal-upi__badge">Instant Auto-Verification</div>
         </div>
 
         <!-- Official Razorpay 1-Click Secure Pay Card -->
@@ -1241,7 +1241,7 @@
                 <svg class="ic-rzp-lock" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
                 Pay <span id="mRzpAmount">₹500</span> via Razorpay
               </span>
-              <span class="btn-razorpay-pay__sub">UPI (GPay / PhonePe / Paytm), Debit/Credit Cards & NetBanking</span>
+              <span class="btn-razorpay-pay__sub">UPI (Google Pay, PhonePe, Paytm, CRED), Cards & NetBanking</span>
             </div>
             <div class="btn-razorpay-pay__right">
               <span class="btn-razorpay-pay__action">Pay Now ➔</span>
@@ -1254,82 +1254,6 @@
             <div class="rzp-verified-banner__info">
               <b>Payment Authenticated & Verified by Razorpay!</b>
               <span id="rzpPaymentRef">Payment ID: —</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="upi-or-divider">
-          <span>OR PAY MANUALLY VIA DIRECT UPI APP / QR CODE</span>
-        </div>
-        <p class="fmodal-upi__desc">Tap your preferred UPI app below to open directly on your phone, or scan the QR code to pay instantly.</p>
-
-        <!-- Mobile 1-Tap App Triggers (for Android & iOS) -->
-        <div class="upi-app-grid" id="upiAppGrid">
-          <a href="#" class="upi-app-btn upi-app-btn--gpay" id="btnUpiGpay" target="_blank" rel="noopener">
-            <div class="upi-app-btn__icon">
-              <svg viewBox="0 0 24 24" class="ic-upi-logo"><path fill="#4285F4" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3.1l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z"/><path fill="#FBBC05" d="M5.6 13c-.2-.7-.4-1.4-.4-2.2 0-.8.2-1.5.4-2.2L1.9 5.7C.7 8.1 0 10.7 0 13.5s.7 5.4 1.9 7.8l3.7-2.9z"/><path fill="#EA4335" d="M23.5 13.5c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.3 3.6l3.7 2.9c2.2-2 3.6-5 3.6-8.7z"/></svg>
-            </div>
-            <div class="upi-app-btn__label">
-              <b>Google Pay</b>
-              <span>Tap to Pay</span>
-            </div>
-          </a>
-
-          <a href="#" class="upi-app-btn upi-app-btn--phonepe" id="btnUpiPhonepe" target="_blank" rel="noopener">
-            <div class="upi-app-btn__icon">
-              <svg viewBox="0 0 24 24" class="ic-upi-logo"><circle cx="12" cy="12" r="11" fill="#5F259F"/><path fill="#FFF" d="M14.5 7.5h-3.8c-.4 0-.8.3-.8.8v8.4c0 .4.3.7.7.7h1.4c.4 0 .7-.3.7-.7v-3.1h1.8c2.1 0 3.7-1.3 3.7-3.1 0-1.8-1.6-3-3.7-3zm-.1 3.9h-1.8V9.3h1.8c.8 0 1.5.4 1.5 1.1s-.7 1-1.5 1z"/></svg>
-            </div>
-            <div class="upi-app-btn__label">
-              <b>PhonePe</b>
-              <span>Tap to Pay</span>
-            </div>
-          </a>
-
-          <a href="#" class="upi-app-btn upi-app-btn--paytm" id="btnUpiPaytm" target="_blank" rel="noopener">
-            <div class="upi-app-btn__icon">
-              <svg viewBox="0 0 24 24" class="ic-upi-logo"><rect width="22" height="22" x="1" y="1" rx="4" fill="#002E6E"/><path fill="#00BAF2" d="M7 6h3v12H7zm5 0h3v12h-3zm5 0h3v12h-3z"/></svg>
-            </div>
-            <div class="upi-app-btn__label">
-              <b>Paytm UPI</b>
-              <span>Tap to Pay</span>
-            </div>
-          </a>
-
-          <a href="#" class="upi-app-btn upi-app-btn--generic" id="btnUpiGeneric" target="_blank" rel="noopener">
-            <div class="upi-app-btn__icon">
-              <svg viewBox="0 0 24 24" class="ic-upi-logo"><path fill="#F37021" d="M12 2L2 7l10 5 10-5-10-5z"/><path fill="#00843D" d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            </div>
-            <div class="upi-app-btn__label">
-              <b>Any UPI App</b>
-              <span>BHIM, Cred, etc.</span>
-            </div>
-          </a>
-        </div>
-
-        <!-- Dynamic QR Code & Manual VPA Details -->
-        <div class="upi-qr-box">
-          <div class="upi-qr-box__code">
-            <img id="mUpiQrImg" src="" alt="Scan UPI QR Code to Pay" width="120" height="120" loading="lazy" />
-            <span class="upi-qr-box__scan-hint">Scan with GPay / PhonePe / Paytm</span>
-          </div>
-          <div class="upi-qr-box__info">
-            <div class="upi-vpa-pill">
-              <span class="upi-vpa-label">Merchant UPI ID:</span>
-              <code id="mUpiVpaText">6005791807@upi</code>
-              <button type="button" class="btn--copy-vpa" id="btnCopyVpa" title="Copy UPI ID">
-                <span>Copy</span>
-              </button>
-            </div>
-            <div class="upi-status-card" id="upiStatusCard">
-              <div class="upi-status-indicator">
-                <span class="upi-status-pulse" id="upiStatusPulse" aria-hidden="true"></span>
-                <span class="upi-status-label" id="upiStatusLabel">Awaiting UPI Payment...</span>
-              </div>
-              <p class="upi-status-note" id="upiStatusNote">Pay via GPay, PhonePe, Paytm or scan QR code. Booking confirms automatically.</p>
-              <button type="button" class="btn-upi-paid-confirm" id="btnUpiPaidConfirm">
-                <svg class="ic" aria-hidden="true" style="width:15px;height:15px"><use href="#i-check"/></svg>
-                <span>I've Completed Payment &mdash; Confirm Cab</span>
-              </button>
             </div>
           </div>
         </div>

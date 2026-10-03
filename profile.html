@@ -230,8 +230,21 @@
             <span class="bookings-count-pill" id="bCountPill">0 Bookings</span>
           </div>
 
-          <div class="bookings-list" id="bookingsList">
-            <!-- Dynamic cards rendered via JS -->
+          <!-- Highlighted Upcoming Booking -->
+          <div class="upcoming-booking-section" id="upcomingBookingSection" hidden>
+            <div class="upcoming-badge-title">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="#0284C7"><circle cx="12" cy="12" r="10"/></svg>
+              <span>Upcoming Booking</span>
+            </div>
+            <div id="upcomingBookingCard"></div>
+          </div>
+
+          <!-- Last 5 Bookings Section -->
+          <div id="pastBookingsSection">
+            <h3 class="recent-trips-subhead" id="recentTripsSubhead" hidden>Last 5 Bookings</h3>
+            <div class="bookings-list" id="bookingsList">
+              <!-- Dynamic cards rendered via JS -->
+            </div>
           </div>
 
           <!-- Empty State -->
@@ -240,7 +253,7 @@
               <svg class="ic" style="width:28px;height:28px" aria-hidden="true"><use href="#i-car"/></svg>
             </div>
             <h3>No Bookings Yet</h3>
-            <p>You haven't booked any cab rides on this device yet. Check fares and book with ₹500 advance or Cash on Cab!</p>
+            <p>You haven't booked any cab rides yet. Book with 100% verified Razorpay or Cash on Cab!</p>
             <a class="btn btn--accent" href="/#booking" style="margin-top:6px">
               <svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>
               <span>Book a Cab Now</span>
@@ -404,50 +417,108 @@
   tripsEl.textContent = bookings.length;
   bCountPill.textContent = bookings.length + " Bookings";
 
+  var upcomingSec = document.getElementById("upcomingBookingSection");
+  var upcomingCard = document.getElementById("upcomingBookingCard");
+  var pastSec = document.getElementById("pastBookingsSection");
+  var recentSubhead = document.getElementById("recentTripsSubhead");
+
   function renderBookingCards(list) {
     tripsEl.textContent = list.length;
     bCountPill.textContent = list.length + " Bookings";
     if (list.length > 0) {
       bEmpty.hidden = true;
-      bList.innerHTML = "";
-      list.forEach(function (b) {
-        var item = document.createElement("div");
-        item.className = "booking-item";
-        var isCash = b.paymentMode === "cash";
-        var isFull = b.paymentMode === "full";
-        var badgeClass = isCash ? "booking-item__badge--cash" : "booking-item__badge--paid";
-        var badgeText = isCash ? "Pay on Cab" : (isFull ? "✓ Full Paid Online" : "✓ Advance ₹500 Paid");
-        var dateStr = b.date || "Scheduled";
+      if (pastSec) pastSec.hidden = false;
 
-        item.innerHTML = `
-          <div class="booking-item__top">
-            <span class="booking-item__id">#${b.id}</span>
-            <span class="booking-item__badge ${badgeClass}">${badgeText}</span>
-          </div>
-          <div class="booking-item__route">
-            <span>${b.from}</span>
-            <svg viewBox="0 0 24 24" style="width:16px;height:16px;color:#0284C7;fill:none;stroke:currentColor;stroke-width:2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            <span>${b.to}</span>
-          </div>
-          <div class="booking-item__meta">
-            <span>🗓️ ${dateStr} · ${b.time || "08:00 AM"}</span>
-            <span>🚗 ${b.car || "Sedan"}</span>
-          </div>
-          <div style="font-size:.76rem;color:var(--text-3);line-height:1.4">
-            <div>📍 <b>Pickup:</b> ${b.pickupAddress || b.from}</div>
-            <div>🎯 <b>Drop:</b> ${b.dropAddress || b.to}</div>
-          </div>
-          <div class="booking-item__bottom">
-            <div class="booking-item__fare">Total Fare: <b>₹${Number(b.totalFare || 0).toLocaleString("en-IN")}</b></div>
-            <div class="booking-item__actions">
-              <a class="btn btn--wa btn--sm" href="https://wa.me/916005791807?text=Hi%20Shivrudra%20Taxi%2C%20regarding%20my%20booking%20%23${b.id}%20from%20${encodeURIComponent(b.from)}%20to%20${encodeURIComponent(b.to)}." target="_blank" rel="noopener">WhatsApp Support</a>
+      // 1. Highlight the latest / upcoming booking
+      var upcoming = list[0];
+      if (upcomingSec && upcomingCard) {
+        upcomingSec.hidden = false;
+        var uCash = upcoming.paymentMode === "cash";
+        var uRzp = !!upcoming.razorpayPaymentId;
+        var uBadgeClass = uRzp ? "booking-item__badge--razorpay" : (uCash ? "booking-item__badge--cash" : "booking-item__badge--paid");
+        var uBadgeText = uRzp 
+          ? ("✓ Razorpay Verified (" + upcoming.razorpayPaymentId.slice(-8) + ")") 
+          : (uCash ? "Pay on Cab" : (upcoming.paymentMode === "full" ? "✓ Full Paid Online" : "✓ Advance ₹500 Paid"));
+
+        upcomingCard.innerHTML = `
+          <div class="booking-item booking-item--upcoming">
+            <div class="booking-item__top">
+              <span class="booking-item__id">#${upcoming.id}</span>
+              <span class="booking-item__badge ${uBadgeClass}">${uBadgeText}</span>
+            </div>
+            <div class="booking-item__route">
+              <span>${upcoming.from}</span>
+              <svg viewBox="0 0 24 24" style="width:16px;height:16px;color:#0284C7;fill:none;stroke:currentColor;stroke-width:2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              <span>${upcoming.to}</span>
+            </div>
+            <div class="booking-item__meta">
+              <span>🗓️ ${upcoming.date || "Scheduled"} · ${upcoming.time || "08:00 AM"}</span>
+              <span>🚗 ${upcoming.car || "Sedan"}</span>
+            </div>
+            <div style="font-size:.76rem;color:var(--text-3);line-height:1.4">
+              <div>📍 <b>Pickup:</b> ${upcoming.pickupAddress || upcoming.from}</div>
+              <div>🎯 <b>Drop:</b> ${upcoming.dropAddress || upcoming.to}</div>
+            </div>
+            <div class="booking-item__bottom">
+              <div class="booking-item__fare">Total Fare: <b>₹${Number(upcoming.totalFare || 0).toLocaleString("en-IN")}</b></div>
+              <div class="booking-item__actions">
+                <a class="btn btn--wa btn--sm" href="https://wa.me/916005791807?text=Hi%20Shivrudra%20Taxi%2C%20regarding%20my%20upcoming%20booking%20%23${upcoming.id}%20from%20${encodeURIComponent(upcoming.from)}%20to%20${encodeURIComponent(upcoming.to)}." target="_blank" rel="noopener">WhatsApp Support</a>
+              </div>
             </div>
           </div>
         `;
-        bList.appendChild(item);
-      });
+      }
+
+      // 2. Render up to the last 5 bookings
+      var lastFive = list.slice(1, 6);
+      bList.innerHTML = "";
+
+      if (lastFive.length > 0) {
+        if (recentSubhead) recentSubhead.hidden = false;
+        lastFive.forEach(function (b) {
+          var item = document.createElement("div");
+          item.className = "booking-item";
+          var isCash = b.paymentMode === "cash";
+          var isRzp = !!b.razorpayPaymentId;
+          var badgeClass = isRzp ? "booking-item__badge--razorpay" : (isCash ? "booking-item__badge--cash" : "booking-item__badge--paid");
+          var badgeText = isRzp 
+            ? ("✓ Razorpay Verified (" + b.razorpayPaymentId.slice(-8) + ")") 
+            : (isCash ? "Pay on Cab" : (b.paymentMode === "full" ? "✓ Full Paid Online" : "✓ Advance ₹500 Paid"));
+
+          item.innerHTML = `
+            <div class="booking-item__top">
+              <span class="booking-item__id">#${b.id}</span>
+              <span class="booking-item__badge ${badgeClass}">${badgeText}</span>
+            </div>
+            <div class="booking-item__route">
+              <span>${b.from}</span>
+              <svg viewBox="0 0 24 24" style="width:16px;height:16px;color:#0284C7;fill:none;stroke:currentColor;stroke-width:2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              <span>${b.to}</span>
+            </div>
+            <div class="booking-item__meta">
+              <span>🗓️ ${b.date || "Scheduled"} · ${b.time || "08:00 AM"}</span>
+              <span>🚗 ${b.car || "Sedan"}</span>
+            </div>
+            <div style="font-size:.76rem;color:var(--text-3);line-height:1.4">
+              <div>📍 <b>Pickup:</b> ${b.pickupAddress || b.from}</div>
+              <div>🎯 <b>Drop:</b> ${b.dropAddress || b.to}</div>
+            </div>
+            <div class="booking-item__bottom">
+              <div class="booking-item__fare">Total Fare: <b>₹${Number(b.totalFare || 0).toLocaleString("en-IN")}</b></div>
+              <div class="booking-item__actions">
+                <a class="btn btn--wa btn--sm" href="https://wa.me/916005791807?text=Hi%20Shivrudra%20Taxi%2C%20regarding%20my%20booking%20%23${b.id}%20from%20${encodeURIComponent(b.from)}%20to%20${encodeURIComponent(b.to)}." target="_blank" rel="noopener">WhatsApp Support</a>
+              </div>
+            </div>
+          `;
+          bList.appendChild(item);
+        });
+      } else {
+        if (recentSubhead) recentSubhead.hidden = true;
+      }
     } else {
       bEmpty.hidden = false;
+      if (upcomingSec) upcomingSec.hidden = true;
+      if (recentSubhead) recentSubhead.hidden = true;
       bList.innerHTML = "";
     }
   }
