@@ -1022,12 +1022,13 @@ function getSelectedTotalFare() {
   return r ? r.sedan : 2799;
 }
 
-function formatBookingWhatsAppMessage() {
+function formatBookingWhatsAppMessage(customId) {
   const from = bookState.fromName || i18nCity(bookState.from);
   const to = bookState.toName || i18nCity(bookState.to);
   const total = getSelectedTotalFare();
   const dateStr = bookState.date ? new Date(bookState.date + "T00:00:00").toLocaleDateString(i18nLocale(), { day: "numeric", month: "short", year: "numeric" }) : "Today / Asap";
   const timeStr = bookState.time || "08:00 AM";
+  const bookingId = customId || `SR-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
   const carNames = {
     sedan: "Sedan (Dzire / Aura / Etios)",
@@ -1059,8 +1060,9 @@ function formatBookingWhatsAppMessage() {
   }
 
   const lines = [
-    `*NEW CAB BOOKING REQUEST - SHIVRUDRA TAXI*`,
+    `*NEW CAB BOOKING CONFIRMATION - SHIVRUDRA TAXI*`,
     `──────────────────────────`,
+    `🎟️ *Booking ID:* #${bookingId}`,
     `📍 *Route:* ${from} ➔ ${to}`,
     `🗓️ *Date:* ${dateStr}`,
     `⏰ *Pickup Time:* ${timeStr} ${bookState.urgent ? "(⚡ URGENT DISPATCH)" : ""}`,
@@ -1084,6 +1086,115 @@ function formatBookingWhatsAppMessage() {
   );
 
   return lines.join("\n");
+}
+
+/* --- BOOKING STORAGE & LIVE CONFIRMATION SYSTEM --- */
+function saveBooking(b) {
+  try {
+    const raw = localStorage.getItem("st_bookings");
+    const list = raw ? JSON.parse(raw) : [];
+    list.unshift(b);
+    localStorage.setItem("st_bookings", JSON.stringify(list.slice(0, 50)));
+
+    // Update user profile in localStorage
+    const profRaw = localStorage.getItem("st_profile");
+    const prof = profRaw ? JSON.parse(profRaw) : {};
+    prof.name = b.name;
+    prof.phone = b.phone;
+    if (b.pickupAddress && !prof.homeAddress) prof.homeAddress = b.pickupAddress;
+    prof.tripsCount = (prof.tripsCount || 0) + 1;
+    prof.lastBookingId = b.id;
+    localStorage.setItem("st_profile", JSON.stringify(prof));
+  } catch (e) {
+    console.error("Storage error:", e);
+  }
+}
+
+function syncBookingToServer(b) {
+  try {
+    fetch("/api/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(b)
+    }).catch(err => console.log("Background API sync:", err));
+  } catch (e) {
+    // Non-blocking
+  }
+}
+
+function showBookingSuccessModal(b) {
+  const modal = $("#bookingSuccessModal");
+  if (!modal) return;
+
+  const idEl = $("#sBookingId");
+  const payBadge = $("#sPayBadge"), paySub = $("#sPaySub");
+  const fromEl = $("#sFromCity"), toEl = $("#sToCity");
+  const pAddr = $("#sPickupAddr"), dAddr = $("#sDropAddr");
+  const dtEl = $("#sDateTime"), vehEl = $("#sVehicle");
+  const passEl = $("#sPassenger"), fareEl = $("#sTotalFare");
+  const waBtn = $("#sBtnWaReceipt");
+
+  if (idEl) idEl.textContent = `#${b.id}`;
+  if (fromEl) fromEl.textContent = b.from;
+  if (toEl) toEl.textContent = b.to;
+  if (pAddr) pAddr.textContent = b.pickupAddress || `${b.from} Doorstep`;
+  if (dAddr) dAddr.textContent = b.dropAddress || `${b.to} Drop Point`;
+  
+  const dateFormatted = b.date ? new Date(b.date + "T00:00:00").toLocaleDateString(i18nLocale(), { day: "numeric", month: "short", year: "numeric" }) : "Today / Scheduled";
+  if (dtEl) dtEl.textContent = `${dateFormatted} · ${b.time || "08:00 AM"}`;
+  if (vehEl) vehEl.textContent = b.car;
+  if (passEl) passEl.textContent = `${b.name} (${b.phone})`;
+  if (fareEl) fareEl.textContent = inr(b.totalFare);
+
+  if (b.paymentMode === "cash") {
+    if (payBadge) {
+      payBadge.textContent = "✓ Pay on Cab / Cash on Drop";
+      payBadge.style.color = "#D97706";
+    }
+    if (paySub) paySub.textContent = `Pay full fare ${inr(b.totalFare)} directly to driver after arrival.`;
+  } else if (b.paymentMode === "full") {
+    if (payBadge) {
+      payBadge.textContent = `✓ Full Payment ${inr(b.totalFare)} Paid via UPI`;
+      payBadge.style.color = "#16A34A";
+    }
+    if (paySub) paySub.textContent = "100% fare settled online. Zero extra payment required on drop.";
+  } else {
+    if (payBadge) {
+      payBadge.textContent = `✓ Advance ${inr(b.advance)} Paid via UPI`;
+      payBadge.style.color = "#16A34A";
+    }
+    if (paySub) paySub.textContent = `Balance ${inr(b.balance)} payable directly to driver upon reaching destination.`;
+  }
+
+  if (waBtn) {
+    const shareMsg = formatBookingWhatsAppMessage(b.id);
+    waBtn.href = waUrl(shareMsg);
+  }
+
+  modal.hidden = false;
+  modal.classList.add("is-open");
+  document.body.style.overflow = "hidden";
+}
+
+function initSuccessModalEvents() {
+  const closeBtn = $("#successClose");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      const modal = $("#bookingSuccessModal");
+      if (modal) {
+        modal.classList.remove("is-open");
+        modal.hidden = true;
+        document.body.style.overflow = "";
+      }
+    });
+  }
+
+  const printBtn = $("#sBtnPrint");
+  if (printBtn) {
+    printBtn.addEventListener("click", () => {
+      window.print();
+    });
+  }
 }
 
 /* --- LOCAL PACKAGES LOGIC --- */
@@ -1606,7 +1717,7 @@ function initBooking() {
     });
   });
 
-  // Modal WhatsApp Booking Confirmation with Validation
+  // Modal WhatsApp Booking Confirmation with Validation, Persistence & Success Screen
   const confirmWa = $("#mConfirmWa");
   if (confirmWa) {
     confirmWa.addEventListener("click", () => {
@@ -1628,14 +1739,64 @@ function initBooking() {
         return;
       }
 
-      const msg = formatBookingWhatsAppMessage();
+      const fromCity = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
+      const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
+      const total = getSelectedTotalFare();
+
+      const carNames = {
+        sedan: "Sedan (Dzire / Aura / Etios)",
+        suv: "SUV Ertiga (6 Seater AC)",
+        carens: "SUV Kia Carens (6-7 Seater Premium AC)",
+        crysta: "Premium Innova Crysta (7 Seater Captain Seats)"
+      };
+
+      let advanceAmt = 500, balanceAmt = Math.max(0, total - 500);
+      if (bookState.paymentMode === "full") { advanceAmt = total; balanceAmt = 0; }
+      else if (bookState.paymentMode === "cash") { advanceAmt = 0; balanceAmt = total; }
+
+      const bookingId = `SR-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const bookingData = {
+        id: bookingId,
+        createdAt: new Date().toISOString(),
+        from: fromCity,
+        to: toCity,
+        date: bookState.date,
+        time: bookState.time,
+        car: carNames[bookState.selectedCar] || "Sedan (AC)",
+        totalFare: total,
+        advance: advanceAmt,
+        balance: balanceAmt,
+        paymentMode: bookState.paymentMode,
+        utr: ($("#mUpiUtr") && $("#mUpiUtr").value.trim()) || "",
+        name: nameInput.value.trim(),
+        phone: phoneInput.value.trim(),
+        pickupAddress: ($("#mCustAddress") && $("#mCustAddress").value.trim()) || `${fromCity} Doorstep Pickup`,
+        dropAddress: ($("#mCustDropAddress") && $("#mCustDropAddress").value.trim()) || `${toCity} Drop Point`,
+        urgent: !!bookState.urgent,
+        status: "confirmed"
+      };
+
+      // 1. Save locally to rider profile & past bookings
+      saveBooking(bookingData);
+
+      // 2. Sync to serverless API & Google Sheets / Webhook in background
+      syncBookingToServer(bookingData);
+
+      // 3. Open pre-filled WhatsApp confirmation
+      const msg = formatBookingWhatsAppMessage(bookingId);
       window.open(waUrl(msg), "_blank", "noopener");
+
+      // 4. Close selection modal & show verified ticket success screen
       closeFleetModal();
+      showBookingSuccessModal(bookingData);
     });
   }
 
   // Initialize UPI Payment Events (Copy VPA & 1-tap App deep-links)
   initUpiEvents();
+
+  // Initialize Success Modal Close & Print buttons
+  initSuccessModalEvents();
 
   // Initialize other tabs
   initLocalPackage();
@@ -2975,11 +3136,31 @@ function initMobilebar() {
 function prefillProfile() {
   let prof = null;
   try { prof = JSON.parse(localStorage.getItem("st_profile") || "null"); } catch (e) { /* private mode */ }
-  if (!prof || !prof.name) return;
+  if (!prof) return;
   const pn = $("#pname");
-  if (pn && !pn.value) pn.value = prof.name;
+  if (pn && !pn.value && prof.name) pn.value = prof.name;
   const rn = $("#revName");
-  if (rn && !rn.value) rn.value = prof.name;
+  if (rn && !rn.value && prof.name) rn.value = prof.name;
+
+  // Pre-fill checkout modal passenger details
+  const mName = $("#mCustName");
+  if (mName && !mName.value && prof.name) mName.value = prof.name;
+  const mPhone = $("#mCustPhone");
+  if (mPhone && !mPhone.value && prof.phone) mPhone.value = prof.phone;
+
+  // Pre-fill doorstep pickup address
+  const pInput = $("#pickupAddressInput");
+  if (pInput && !pInput.value && prof.homeAddress) {
+    pInput.value = prof.homeAddress;
+    const addCheck = $("#addPersonalAddressCheck");
+    const wrap = $("#personalAddressWrap");
+    if (addCheck && !addCheck.checked) {
+      addCheck.checked = true;
+      if (wrap) wrap.hidden = false;
+      bookState.hasPersonalAddress = true;
+      bookState.pickupAddress = prof.homeAddress;
+    }
+  }
 }
 
 function initBarAutoHide() {

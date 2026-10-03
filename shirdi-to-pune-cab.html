@@ -1341,6 +1341,101 @@
   </div>
 </div>
 
+<!-- ============ BOOKING CONFIRMATION & TICKET SUCCESS MODAL ============ -->
+<div class="fmodal success-modal" id="bookingSuccessModal" role="dialog" aria-modal="true" aria-labelledby="successTitle" hidden>
+  <div class="fmodal__panel success-card">
+    <div class="success-header">
+      <div class="success-icon-wrap">
+        <svg class="ic-success-check" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" fill="#16A34A" />
+          <path d="m8.5 12.5 2.5 2.5 4.5-5" fill="none" stroke="#FFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+      <h2 id="successTitle">Cab Booking Confirmed!</h2>
+      <p class="success-booking-id">Booking ID: <b id="sBookingId">#SR-2026-0000</b></p>
+      <button type="button" class="fmodal__close success-close" id="successClose" aria-label="Close">&times;</button>
+    </div>
+
+    <div class="success-body">
+      <!-- Live Payment Status Badge -->
+      <div class="success-pay-status" id="sPayStatusBox">
+        <div class="success-pay-status__badge" id="sPayBadge">✓ Advance ₹500 Paid via UPI</div>
+        <div class="success-pay-status__sub" id="sPaySub">Balance payable directly to driver upon reaching destination.</div>
+      </div>
+
+      <!-- Ticket Details Card -->
+      <div class="ticket-card" id="printableTicket">
+        <div class="ticket-card__header">
+          <div class="ticket-brand">
+            <img src="logo.png" alt="Shivrudra Taxi" width="100" height="42" />
+            <span>Verified Intercity Pass</span>
+          </div>
+          <span class="ticket-status-pill">CONFIRMED</span>
+        </div>
+
+        <div class="ticket-route-row">
+          <div class="ticket-point">
+            <span class="ticket-point__label">PICKUP CITY</span>
+            <b id="sFromCity">Pune</b>
+            <span class="ticket-point__addr" id="sPickupAddr">Doorstep Pickup</span>
+          </div>
+          <div class="ticket-arrow">
+            <svg viewBox="0 0 24 24" class="ic"><path d="M5 12h14M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span id="sTripType">One-Way</span>
+          </div>
+          <div class="ticket-point ticket-point--dest">
+            <span class="ticket-point__label">DESTINATION</span>
+            <b id="sToCity">Mumbai</b>
+            <span class="ticket-point__addr" id="sDropAddr">Destination Drop</span>
+          </div>
+        </div>
+
+        <div class="ticket-grid">
+          <div>
+            <span>PICKUP SCHEDULE</span>
+            <b id="sDateTime">04 Oct 2026 · 08:00 AM</b>
+          </div>
+          <div>
+            <span>VEHICLE CLASS</span>
+            <b id="sVehicle">Sedan (AC)</b>
+          </div>
+          <div>
+            <span>PASSENGER</span>
+            <b id="sPassenger">Customer Name</b>
+          </div>
+          <div>
+            <span>TOTAL FARE</span>
+            <b id="sTotalFare">₹2,799</b>
+          </div>
+        </div>
+
+        <div class="ticket-dispatch-note">
+          <svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>
+          <p>Driver contact and vehicle license plate number will be dispatched to your WhatsApp 30–60 minutes prior to departure.</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="success-actions">
+        <a class="btn btn--wa btn--block" id="sBtnWaReceipt" href="#" target="_blank" rel="noopener">
+          <svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>
+          <span>Share / Save on WhatsApp</span>
+        </a>
+        <div class="success-btn-row">
+          <button type="button" class="btn btn--ghost" id="sBtnPrint">
+            <svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>
+            <span>Print Receipt</span>
+          </button>
+          <a class="btn btn--accent" href="/profile" id="sBtnProfile">
+            <svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>
+            <span>View in My Bookings</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============ EXIT INTENT / URGENT CAB LEAD MODAL (Requirement #12) ============ -->
 <div class="urgent-exit" id="urgentModal" role="dialog" aria-modal="true" aria-labelledby="urgentTitle" hidden>
   <div class="urgent-exit__card">

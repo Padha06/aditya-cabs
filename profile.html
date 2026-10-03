@@ -144,37 +144,98 @@
 </header>
 
 <main id="profileMain">
-  <!-- ============ PROFILE ============ -->
+  <!-- ============ PROFILE & MY BOOKINGS ============ -->
   <section class="profile">
     <div class="wrap">
-      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span aria-current="page">Profile</span></nav>
-      <h1>Your profile</h1>
-      <p class="profile__sub">Save your details once. We use them to pre-fill bookings and trip posts, so you never type your name twice.</p>
-      <div class="profile__card">
-        <form id="profileForm" novalidate>
-          <div class="field">
-            <label for="pfName">Full name</label>
-            <div class="select">
-              <svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>
-              <input id="pfName" type="text" placeholder="First and last name" autocomplete="name" />
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span aria-current="page">Profile & Bookings</span></nav>
+      <h1>Rider Profile & My Bookings</h1>
+      <p class="profile__sub">Manage your personal details, saved pickup addresses, and view your verified cab bookings across Maharashtra.</p>
+      
+      <div class="profile-grid">
+        <!-- LEFT: RIDER DETAILS & SAVED ADDRESSES -->
+        <div class="profile-card--user">
+          <div class="profile-card__head">
+            <div class="profile-avatar" id="pfAvatar">U</div>
+            <div class="profile-user-info">
+              <h3 id="pfDisplayName">Valued Rider</h3>
+              <p id="pfDisplayPhone">+91-XXXXXXXXXX</p>
             </div>
           </div>
-          <div class="field">
-            <label for="pfPhone">Mobile number</label>
-            <div class="select">
-              <svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>
-              <input id="pfPhone" type="tel" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel" />
+
+          <div class="profile-stats">
+            <div>
+              <span>Trips Booked</span>
+              <b id="pfTripsCount">0</b>
+            </div>
+            <div>
+              <span>Rider Status</span>
+              <b style="color:#16A34A">Active ✓</b>
             </div>
           </div>
-          <p class="poolform__err" id="pfErr" hidden role="alert"></p>
-          <button class="btn btn--accent btn--block" type="submit">
-            <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
-            <span>Save profile</span>
-          </button>
-          <p class="profile__saved" id="pfSaved" hidden><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Saved on this device.</span></p>
-        </form>
+
+          <form id="profileForm" novalidate>
+            <div class="field">
+              <label for="pfName">Full Name</label>
+              <div class="select">
+                <svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>
+                <input id="pfName" type="text" placeholder="First and last name" autocomplete="name" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="pfPhone">Mobile Number (WhatsApp)</label>
+              <div class="select">
+                <svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>
+                <input id="pfPhone" type="tel" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="pfHomeAddr">Default Home / Pickup Address</label>
+              <div class="select">
+                <svg class="ic" aria-hidden="true"><use href="#i-home"/></svg>
+                <input id="pfHomeAddr" type="text" placeholder="House/Flat No, Society, Area, City" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="pfWorkAddr">Default Office / Destination Address</label>
+              <div class="select">
+                <svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>
+                <input id="pfWorkAddr" type="text" placeholder="Office Building, Tech Park, City" />
+              </div>
+            </div>
+            <p class="poolform__err" id="pfErr" hidden role="alert"></p>
+            <button class="btn btn--accent btn--block" type="submit">
+              <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
+              <span>Save Details</span>
+            </button>
+            <p class="profile__saved" id="pfSaved" hidden><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Profile & Addresses Saved.</span></p>
+          </form>
+        </div>
+
+        <!-- RIGHT: MY BOOKINGS & PASS LIST -->
+        <div class="bookings-section">
+          <div class="bookings-header">
+            <h2>My Cab Bookings</h2>
+            <span class="bookings-count-pill" id="bCountPill">0 Bookings</span>
+          </div>
+
+          <div class="bookings-list" id="bookingsList">
+            <!-- Dynamic cards rendered via JS -->
+          </div>
+
+          <!-- Empty State -->
+          <div class="bookings-empty" id="bookingsEmpty">
+            <div class="bookings-empty__icon">
+              <svg class="ic" style="width:28px;height:28px" aria-hidden="true"><use href="#i-car"/></svg>
+            </div>
+            <h3>No Bookings Yet</h3>
+            <p>You haven't booked any cab rides on this device yet. Check fares and book with ₹500 advance or Cash on Cab!</p>
+            <a class="btn btn--accent" href="/#booking" style="margin-top:6px">
+              <svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>
+              <span>Book a Cab Now</span>
+            </a>
+          </div>
+        </div>
       </div>
-      <p class="profile__note">Rider accounts with login and ₹500 advance payment are coming soon. For now your details stay in this browser only.</p>
     </div>
   </section>
 </main>
@@ -300,15 +361,81 @@
     window.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true }); // taste-ok: passive rAF-throttled class toggle only
   }
   var KEY = "st_profile";
+  var BOOKINGS_KEY = "st_bookings";
+
   var nameEl = document.getElementById("pfName"), phoneEl = document.getElementById("pfPhone");
+  var homeEl = document.getElementById("pfHomeAddr"), workEl = document.getElementById("pfWorkAddr");
   var err = document.getElementById("pfErr"), savedLine = document.getElementById("pfSaved");
-  function read() { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } }
-  var cur = read();
-  if (cur) {
-    if (cur.name) nameEl.value = cur.name;
-    if (cur.phone) phoneEl.value = cur.phone;
-    if (cur.name || cur.phone) savedLine.hidden = false;
+  var dispName = document.getElementById("pfDisplayName"), dispPhone = document.getElementById("pfDisplayPhone");
+  var avatar = document.getElementById("pfAvatar"), tripsEl = document.getElementById("pfTripsCount");
+  var bList = document.getElementById("bookingsList"), bEmpty = document.getElementById("bookingsEmpty");
+  var bCountPill = document.getElementById("bCountPill");
+
+  function readProfile() { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { return {}; } }
+  function readBookings() { try { return JSON.parse(localStorage.getItem(BOOKINGS_KEY) || "[]"); } catch (e) { return []; } }
+
+  var cur = readProfile();
+  if (cur.name) {
+    nameEl.value = cur.name;
+    dispName.textContent = cur.name;
+    avatar.textContent = cur.name.charAt(0).toUpperCase();
   }
+  if (cur.phone) {
+    phoneEl.value = cur.phone;
+    dispPhone.textContent = cur.phone;
+  }
+  if (cur.homeAddress) homeEl.value = cur.homeAddress;
+  if (cur.workAddress) workEl.value = cur.workAddress;
+
+  var bookings = readBookings();
+  tripsEl.textContent = bookings.length;
+  bCountPill.textContent = bookings.length + " Bookings";
+
+  if (bookings.length > 0) {
+    bEmpty.hidden = true;
+    bList.innerHTML = "";
+    bookings.forEach(function (b) {
+      var item = document.createElement("div");
+      item.className = "booking-item";
+      
+      var isCash = b.paymentMode === "cash";
+      var isFull = b.paymentMode === "full";
+      var badgeClass = isCash ? "booking-item__badge--cash" : "booking-item__badge--paid";
+      var badgeText = isCash ? "Pay on Cab" : (isFull ? "✓ Full Paid Online" : "✓ Advance ₹500 Paid");
+
+      var dateStr = b.date || "Scheduled";
+
+      item.innerHTML = `
+        <div class="booking-item__top">
+          <span class="booking-item__id">#${b.id}</span>
+          <span class="booking-item__badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div class="booking-item__route">
+          <span>${b.from}</span>
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;color:#0284C7;fill:none;stroke:currentColor;stroke-width:2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          <span>${b.to}</span>
+        </div>
+        <div class="booking-item__meta">
+          <span>🗓️ ${dateStr} · ${b.time || "08:00 AM"}</span>
+          <span>🚗 ${b.car || "Sedan"}</span>
+        </div>
+        <div style="font-size:.76rem;color:var(--text-3);line-height:1.4">
+          <div>📍 <b>Pickup:</b> ${b.pickupAddress || b.from}</div>
+          <div>🎯 <b>Drop:</b> ${b.dropAddress || b.to}</div>
+        </div>
+        <div class="booking-item__bottom">
+          <div class="booking-item__fare">Total Fare: <b>₹${Number(b.totalFare || 0).toLocaleString("en-IN")}</b></div>
+          <div class="booking-item__actions">
+            <a class="btn btn--wa btn--sm" href="https://wa.me/918605953737?text=Hi%20Shivrudra%20Taxi%2C%20regarding%20my%20booking%20%23${b.id}%20from%20${encodeURIComponent(b.from)}%20to%20${encodeURIComponent(b.to)}." target="_blank" rel="noopener">WhatsApp Support</a>
+          </div>
+        </div>
+      `;
+      bList.appendChild(item);
+    });
+  } else {
+    bEmpty.hidden = false;
+  }
+
   phoneEl.addEventListener("input", function () {
     var d = phoneEl.value.replace(/\D/g, "").slice(0, 10);
     if (phoneEl.value !== d) phoneEl.value = d;
@@ -317,27 +444,34 @@
   nameEl.addEventListener("input", function () {
     nameEl.closest(".select").classList.remove("is-ok");
   });
-  function blurCheck(el, valid) {
-    err.hidden = true;
-    el.closest(".select").classList.toggle("is-ok", !!valid);
-    if (!valid && el.value.trim() !== "") {
-      err.hidden = false;
-      err.textContent = i18nT(el === nameEl ? "Add your name so bookings can use it." : "Enter a valid 10-digit mobile number.");
-    }
-  }
-  nameEl.addEventListener("blur", function () { blurCheck(nameEl, nameEl.value.trim() !== ""); });
-  phoneEl.addEventListener("blur", function () { blurCheck(phoneEl, /^[6-9]\d{9}$/.test(phoneEl.value.replace(/\D/g, ""))); });
+
   document.getElementById("profileForm").addEventListener("submit", function (e) {
     e.preventDefault();
     var name = nameEl.value.trim();
     var phone = phoneEl.value.replace(/\D/g, "").replace(/^91(?=\d{10}$)/, "");
+    var homeAddr = homeEl.value.trim();
+    var workAddr = workEl.value.trim();
+
     err.hidden = true;
     if (!name) { err.hidden = false; err.textContent = i18nT("Add your name so bookings can use it."); nameEl.focus(); return; }
     if (!/^[6-9]\d{9}$/.test(phone)) { err.hidden = false; err.textContent = i18nT("Enter a valid 10-digit mobile number."); phoneEl.focus(); return; }
-    try { localStorage.setItem(KEY, JSON.stringify({ name: name, phone: phone })); } catch (e) { /* private mode */ }
+
+    var updated = readProfile();
+    updated.name = name;
+    updated.phone = phone;
+    updated.homeAddress = homeAddr;
+    updated.workAddress = workAddr;
+
+    try { localStorage.setItem(KEY, JSON.stringify(updated)); } catch (e) { /* private mode */ }
+
+    dispName.textContent = name;
+    dispPhone.textContent = phone;
+    avatar.textContent = name.charAt(0).toUpperCase();
+
     nameEl.closest(".select").classList.add("is-ok");
     phoneEl.closest(".select").classList.add("is-ok");
     savedLine.hidden = false;
+    setTimeout(function() { savedLine.hidden = true; }, 3000);
   });
 })();
 </script>
