@@ -1,5 +1,5 @@
 /* Strict hidden rule to prevent class display overrides */
-[hidden], .field[hidden], .field--custom[hidden], div[hidden] {
+[hidden], .field[hidden], .field--custom[hidden], div[hidden], .bookpanel[hidden] {
   display: none !important;
 }
 
@@ -1555,8 +1555,8 @@ body.rmodal-open{overflow:hidden}
 }
 
 /* --- TAB CONTENT PANELS --- */
-.bookpanel{display:none;animation:fadeIn .25s var(--ease)}
-.bookpanel.is-active{display:grid;gap:13px}
+.bookpanel{display:none !important;animation:fadeIn .25s var(--ease)}
+.bookpanel.is-active{display:grid !important;gap:13px}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
 /* --- AUTOCOMPLETE INPUTS --- */

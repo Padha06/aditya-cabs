@@ -758,20 +758,35 @@ function initTabs() {
   const panels = $$(".bookpanel");
   if (!tabs.length) return;
 
+  // Ensure non-active panels are strictly hidden on load
+  panels.forEach(p => {
+    if (!p.classList.contains("is-active")) {
+      p.hidden = true;
+    } else {
+      p.hidden = false;
+    }
+  });
+
   tabs.forEach(tab => {
     tab.addEventListener("click", () => {
       tabs.forEach(t => {
         t.classList.remove("is-active");
         t.setAttribute("aria-selected", "false");
       });
-      panels.forEach(p => p.classList.remove("is-active"));
+      panels.forEach(p => {
+        p.classList.remove("is-active");
+        p.hidden = true;
+      });
 
       tab.classList.add("is-active");
       tab.setAttribute("aria-selected", "true");
 
       const targetId = tab.getAttribute("aria-controls");
       const targetPanel = $("#" + targetId);
-      if (targetPanel) targetPanel.classList.add("is-active");
+      if (targetPanel) {
+        targetPanel.classList.add("is-active");
+        targetPanel.hidden = false;
+      }
     });
   });
 }
