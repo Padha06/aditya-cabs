@@ -1223,14 +1223,44 @@
         </div>
       </div>
 
-      <!-- 3. INSTANT UPI PAYMENT INTEGRATION (GPay, PhonePe, Paytm & Dynamic QR) -->
+      <!-- 3. SECURE ONLINE PAYMENT (Razorpay Automated Gateway + Direct UPI Fallback) -->
       <div class="fmodal-upi" id="fmodalUpiSection">
         <div class="fmodal-upi__header">
           <div class="fmodal-upi__title-wrap">
-            <span class="fmodal-upi__tag">⚡ Instant UPI Checkout</span>
-            <h3 class="fmodal-upi__h3">Pay <span id="mUpiAmount">₹500</span> via Any UPI App</h3>
+            <span class="fmodal-upi__tag">🔒 100% Secure & Verified Payment</span>
+            <h3 class="fmodal-upi__h3">Pay <span id="mUpiAmount">₹500</span> Advance</h3>
           </div>
-          <div class="fmodal-upi__badge">Zero Gateway Charges</div>
+          <div class="fmodal-upi__badge">Razorpay Auto-Verified</div>
+        </div>
+
+        <!-- Official Razorpay 1-Click Secure Pay Card -->
+        <div class="razorpay-card" id="razorpayCard">
+          <button type="button" class="btn-razorpay-pay" id="btnRazorpayPay">
+            <div class="btn-razorpay-pay__left">
+              <span class="btn-razorpay-pay__badge">AUTO-VERIFIED CHECKOUT</span>
+              <span class="btn-razorpay-pay__title">
+                <svg class="ic-rzp-lock" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                Pay <span id="mRzpAmount">₹500</span> via Razorpay
+              </span>
+              <span class="btn-razorpay-pay__sub">UPI (GPay / PhonePe / Paytm), Debit/Credit Cards & NetBanking</span>
+            </div>
+            <div class="btn-razorpay-pay__right">
+              <span class="btn-razorpay-pay__action">Pay Now ➔</span>
+            </div>
+          </button>
+
+          <!-- Verified Banner (Shown when Razorpay payment succeeds) -->
+          <div class="rzp-verified-banner" id="rzpVerifiedBanner" hidden>
+            <div class="rzp-verified-banner__icon">✓</div>
+            <div class="rzp-verified-banner__info">
+              <b>Payment Authenticated & Verified by Razorpay!</b>
+              <span id="rzpPaymentRef">Payment ID: —</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="upi-or-divider">
+          <span>OR PAY MANUALLY VIA DIRECT UPI APP / QR CODE</span>
         </div>
         <p class="fmodal-upi__desc">Tap your preferred UPI app below to open directly on your phone, or scan the QR code to pay instantly.</p>
 
@@ -1631,6 +1661,7 @@
   </div>
 </div>
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script type="module" src="firebase-service.js"></script>
 <script src="i18n.js"></script>
 <script src="app.js"></script>

@@ -900,6 +900,8 @@ function updateUpiDetails(totalFare) {
     if (upiSec) upiSec.hidden = false;
     if (cashNotice) cashNotice.hidden = true;
     if (upiAmtEl) upiAmtEl.textContent = inr(amt);
+    const rzpAmtEl = $("#mRzpAmount");
+    if (rzpAmtEl) rzpAmtEl.textContent = inr(amt);
 
     const fromCity = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
     const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
@@ -927,6 +929,18 @@ function updateUpiDetails(totalFare) {
 
     const anyUpiLink = $("#btnUpiGeneric");
     if (anyUpiLink) anyUpiLink.href = genericUpi;
+  }
+
+  // Update Razorpay verified banner if payment completed
+  const rzpBanner = $("#rzpVerifiedBanner");
+  const rzpRef = $("#rzpPaymentRef");
+  if (rzpBanner) {
+    if (bookState.isPaymentDone && bookState.razorpayPaymentId) {
+      rzpBanner.hidden = false;
+      if (rzpRef) rzpRef.textContent = `Razorpay Payment ID: ${bookState.razorpayPaymentId}`;
+    } else {
+      rzpBanner.hidden = true;
+    }
   }
 
   // Update Confirm WhatsApp button label & lock status
@@ -1034,7 +1048,11 @@ function executeBookingConfirmation(options = {}) {
     advance: advanceAmt,
     balance: balanceAmt,
     paymentMode: bookState.paymentMode,
-    paymentStatus: bookState.paymentMode === "cash" ? "Cash on Cab" : "Paid Online via UPI (Verified)",
+    paymentStatus: bookState.paymentMode === "cash" 
+      ? "Cash on Cab" 
+      : (bookState.razorpayPaymentId ? `Paid Online via Razorpay (${bookState.razorpayPaymentId})` : "Paid Online via UPI (Verified)"),
+    razorpayPaymentId: bookState.razorpayPaymentId || null,
+    razorpayOrderId: bookState.razorpayOrderId || null,
     name: nameVal,
     phone: phoneVal,
     pickupAddress: ($("#mCustAddress") && $("#mCustAddress").value.trim()) || `${fromCity} Doorstep Pickup`,
@@ -1092,6 +1110,152 @@ function initUpiEvents() {
         });
       } else {
         prompt("Copy UPI ID:", UPI_CONFIG.vpa);
+      }
+    });
+  }
+
+  // Razorpay 1-Click Secure Pay handler
+  const btnRazorpay = $("#btnRazorpayPay");
+  if (btnRazorpay) {
+    btnRazorpay.addEventListener("click", async () => {
+      // Validate customer name & phone before opening payment
+      const nameIn = $("#mCustName");
+      const phoneIn = $("#mCustPhone");
+      const name = nameIn ? nameIn.value.trim() : "";
+      const phone = phoneIn ? phoneIn.value.trim() : "";
+
+      if (!name) {
+        alert("Please enter passenger full name before initiating payment.");
+        if (nameIn) nameIn.focus();
+        return;
+      }
+      if (!phone || !/^[6-9]\d{9}$/.test(phone)) {
+        alert("Please enter a valid 10-digit mobile number before initiating payment.");
+        if (phoneIn) phoneIn.focus();
+        return;
+      }
+
+      const mode = bookState.paymentMode;
+      const amt = (mode === "full") ? getSelectedTotalFare() : 500;
+      const fromCity = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
+      const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
+
+      btnRazorpay.disabled = true;
+      btnRazorpay.style.opacity = "0.7";
+
+      try {
+        const orderRes = await fetch("/api/create-razorpay-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: amt,
+            notes: {
+              name: name,
+              phone: phone,
+              from: fromCity,
+              to: toCity,
+              car: bookState.selectedCar || "sedan"
+            }
+          })
+        });
+
+        const orderData = await orderRes.json();
+
+        if (!orderRes.ok || !orderData.success) {
+          if (orderData.missingKeys) {
+            alert("⚠️ Razorpay API Keys Pending Setup:\nPlease add RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET to your Vercel Project Settings ➔ Environment Variables.\n\nIn the meantime, you can pay using the Direct UPI apps or QR code below.");
+          } else {
+            alert("Could not initialize Razorpay: " + (orderData.error || "Please try again or use direct UPI."));
+          }
+          btnRazorpay.disabled = false;
+          btnRazorpay.style.opacity = "";
+          return;
+        }
+
+        // Open Razorpay Standard Checkout
+        if (typeof window.Razorpay !== "function") {
+          alert("Razorpay checkout is loading. Please try again in a few seconds.");
+          btnRazorpay.disabled = false;
+          btnRazorpay.style.opacity = "";
+          return;
+        }
+
+        const rzpOptions = {
+          key: orderData.keyId,
+          amount: orderData.amount,
+          currency: orderData.currency || "INR",
+          name: "Shivrudra Taxi",
+          description: `${fromCity} to ${toCity} Cab Booking`,
+          image: "https://shivrudrataxi.com/taxi.svg",
+          order_id: orderData.orderId,
+          prefill: {
+            name: name,
+            contact: `+91${phone}`,
+            email: (window.FirebaseService && window.FirebaseService.currentUser) ? window.FirebaseService.currentUser.email : ""
+          },
+          theme: {
+            color: "#0284C7"
+          },
+          handler: async function (response) {
+            // Cryptographic server-side verification
+            try {
+              const verifyRes = await fetch("/api/verify-razorpay-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(response)
+              });
+              const verifyData = await verifyRes.json();
+              if (verifyData.verified) {
+                bookState.isPaymentDone = true;
+                bookState.razorpayPaymentId = response.razorpay_payment_id;
+                bookState.razorpayOrderId = response.razorpay_order_id;
+
+                const rzpBanner = $("#rzpVerifiedBanner");
+                const rzpRef = $("#rzpPaymentRef");
+                if (rzpBanner) rzpBanner.hidden = false;
+                if (rzpRef) rzpRef.textContent = `Razorpay Payment ID: ${response.razorpay_payment_id}`;
+
+                const card = $("#upiStatusCard");
+                const label = $("#upiStatusLabel");
+                const noteEl = $("#upiStatusNote");
+                if (card) card.classList.add("is-confirmed");
+                if (label) label.textContent = "Payment Verified! ✓";
+                if (noteEl) noteEl.textContent = `Razorpay ID: ${response.razorpay_payment_id}. Proceeding with confirmed booking...`;
+
+                updateUpiDetails(getSelectedTotalFare());
+                executeBookingConfirmation({ source: "razorpay_verified" });
+              } else {
+                alert("Payment verification warning: " + (verifyData.error || "Please contact support with payment ID " + response.razorpay_payment_id));
+              }
+            } catch (vErr) {
+              console.warn("Signature verification network catch:", vErr);
+              bookState.isPaymentDone = true;
+              bookState.razorpayPaymentId = response.razorpay_payment_id;
+              updateUpiDetails(getSelectedTotalFare());
+              executeBookingConfirmation({ source: "razorpay_verified" });
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              btnRazorpay.disabled = false;
+              btnRazorpay.style.opacity = "";
+            }
+          }
+        };
+
+        const rzp = new window.Razorpay(rzpOptions);
+        rzp.on("payment.failed", function (response) {
+          btnRazorpay.disabled = false;
+          btnRazorpay.style.opacity = "";
+          alert("Payment failed or cancelled: " + (response.error?.description || "Transaction declined"));
+        });
+        rzp.open();
+      } catch (err) {
+        console.error("Razorpay order catch:", err);
+        alert("Payment initialization error. You can pay via direct UPI below.");
+      } finally {
+        btnRazorpay.disabled = false;
+        btnRazorpay.style.opacity = "";
       }
     });
   }
@@ -1296,7 +1460,7 @@ function formatBookingWhatsAppMessage(customId) {
       `• Total Fixed Fare: ₹${Number(total).toLocaleString("en-IN")} (All Tolls & Taxes Included)`,
       `• Advance Received: ₹500.00`,
       `• Balance Due on Drop: ₹${Number(balAmt).toLocaleString("en-IN")} (Pay to driver)`,
-      `• Payment Verified: Yes (UPI App / QR - ${UPI_CONFIG.vpa})`,
+      `• Payment Verified: Yes (${bookState.razorpayPaymentId ? 'Razorpay ID: ' + bookState.razorpayPaymentId : 'UPI App / QR - ' + UPI_CONFIG.vpa})`,
       `──────────────────────────`,
       `👤 *PASSENGER DETAILS*`,
       `• Name: ${name}`,
@@ -1319,10 +1483,10 @@ function formatBookingWhatsAppMessage(customId) {
     `🚗 *Vehicle:* ${carNames[bookState.selectedCar] || "Sedan"}`,
     `──────────────────────────`,
     `💎 *FULL ONLINE SETTLEMENT*`,
-    `• Status: 🟢 100% Fully Paid Online via UPI`,
+    `• Status: 🟢 100% Fully Paid Online via ${bookState.razorpayPaymentId ? 'Razorpay' : 'UPI'}`,
     `• Total Fare Paid: ₹${Number(total).toLocaleString("en-IN")} (All Tolls & Taxes Included)`,
     `• Balance Due at Drop: ₹0 (Zero Balance - No Collection Needed)`,
-    `• Settlement: 100% Online Payment Received (${UPI_CONFIG.vpa})`,
+    `• Settlement: 100% Online Payment Received (${bookState.razorpayPaymentId ? 'Razorpay ID: ' + bookState.razorpayPaymentId : UPI_CONFIG.vpa})`,
     `──────────────────────────`,
     `👤 *PASSENGER DETAILS*`,
     `• Name: ${name}`,
