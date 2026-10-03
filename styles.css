@@ -2358,11 +2358,13 @@ body.rmodal-open{overflow:hidden}
 .auth-form{display:grid;gap:12px}
 .auth-form .form-group{display:grid;gap:5px;text-align:left}
 .auth-form label{font-size:.76rem;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.03em}
-.auth-form input{
+.auth-form input,
+.auth-form select{
   width:100%;padding:10px 14px;background:var(--surface);border:1px solid var(--line-2);
   border-radius:8px;font-size:.88rem;color:var(--text);font-family:inherit;
 }
-.auth-form input:focus{outline:0;border-color:#0284C7;box-shadow:0 0 0 2px rgba(2,132,199,.2)}
+.auth-form input:focus,
+.auth-form select:focus{outline:0;border-color:#0284C7;box-shadow:0 0 0 2px rgba(2,132,199,.2)}
 .auth-alert{
   padding:10px 14px;border-radius:8px;font-size:.80rem;margin-bottom:12px;text-align:left;line-height:1.4;
 }
@@ -2377,3 +2379,39 @@ body.rmodal-open{overflow:hidden}
 .profile-sync-info{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--text-2)}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#F59E0B;flex-shrink:0}
 .sync-dot.is-live{background:#10B981;box-shadow:0 0 0 3px rgba(16,185,129,.25)}
+
+/* Role Selector (Rider vs Driver Partner) */
+.auth-role-tabs{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  background:var(--surface-2);padding:5px;border-radius:12px;
+  margin-bottom:16px;border:1px solid var(--line-2);
+}
+.auth-role-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:9px 12px;border-radius:8px;font-size:.82rem;font-weight:700;
+  color:var(--text-3);background:none;border:0;cursor:pointer;transition:all .2s ease;
+}
+.auth-role-btn.is-active{
+  background:var(--surface);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.15);
+  border:1px solid var(--line-2);
+}
+.driver-partner-banner{
+  background:linear-gradient(135deg,rgba(2,132,199,.12) 0%,rgba(14,165,233,.06) 100%);
+  border:1px solid rgba(2,132,199,.3);border-radius:10px;padding:10px 14px;
+  margin-bottom:14px;text-align:left;
+}
+.driver-banner-tag{
+  font-size:.74rem;font-weight:800;color:#0284C7;text-transform:uppercase;letter-spacing:.04em;
+  margin-bottom:3px;
+}
+.driver-partner-banner p{
+  font-size:.74rem;color:var(--text-2);margin:0;line-height:1.35;
+}
+.auth-role-toggle-footer{
+  margin-top:16px;padding-top:14px;border-top:1px solid var(--line-2);text-align:center;
+}
+.btn-role-switch{
+  background:none;border:0;color:#0284C7;font-size:.78rem;font-weight:700;
+  cursor:pointer;padding:4px 8px;transition:all .15s;
+}
+.btn-role-switch:hover{text-decoration:underline;color:#38BDF8}

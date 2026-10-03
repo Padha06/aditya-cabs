@@ -510,7 +510,11 @@
           try {
             await window.FirebaseService.loginWithGoogle();
           } catch (e) {
-            alert(e.message || "Google sign-in failed.");
+            if (e && e.code === "auth/unauthorized-domain") {
+              alert("⚠️ Domain Not Authorized: In Firebase Console ➔ Authentication ➔ Settings ➔ Authorized Domains, click 'Add domain' and add 'sahyadri-cabs.vercel.app'.");
+            } else {
+              alert(e.message || "Google sign-in failed.");
+            }
           }
         }
       }

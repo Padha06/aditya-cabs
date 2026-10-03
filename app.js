@@ -3622,6 +3622,68 @@ function initFirebaseAuth() {
     });
   }
 
+  let activeRole = "rider"; // "rider" | "driver"
+
+  const roleBtnRider = $("#roleBtnRider");
+  const roleBtnDriver = $("#roleBtnDriver");
+  const driverPartnerBanner = $("#driverPartnerBanner");
+  const driverFields = $("#driverFields");
+  const btnRoleSwitch = $("#btnRoleSwitch");
+  const btnLoginSubmitText = $("#btnLoginSubmitText");
+  const btnSignupSubmitText = $("#btnSignupSubmitText");
+  const btnGoogleAuthText = $("#btnGoogleAuthText");
+
+  function setRole(role) {
+    activeRole = role;
+    if (role === "driver") {
+      if (roleBtnDriver) roleBtnDriver.classList.add("is-active");
+      if (roleBtnRider) roleBtnRider.classList.remove("is-active");
+      if (driverPartnerBanner) driverPartnerBanner.hidden = false;
+      if (driverFields) driverFields.hidden = false;
+      if (btnLoginSubmitText) btnLoginSubmitText.textContent = "Driver Sign In";
+      if (btnSignupSubmitText) btnSignupSubmitText.textContent = "Register Driver & Attach Cab";
+      if (btnGoogleAuthText) btnGoogleAuthText.textContent = "Driver Sign-In with Google";
+      if (btnRoleSwitch) btnRoleSwitch.textContent = "Looking to book a cab as a Rider? Click here ➔";
+    } else {
+      if (roleBtnRider) roleBtnRider.classList.add("is-active");
+      if (roleBtnDriver) roleBtnDriver.classList.remove("is-active");
+      if (driverPartnerBanner) driverPartnerBanner.hidden = true;
+      if (driverFields) driverFields.hidden = true;
+      if (btnLoginSubmitText) btnLoginSubmitText.textContent = "Sign In to Account";
+      if (btnSignupSubmitText) btnSignupSubmitText.textContent = "Create Rider Account";
+      if (btnGoogleAuthText) btnGoogleAuthText.textContent = "Continue with Google";
+      if (btnRoleSwitch) btnRoleSwitch.textContent = "Are you a Driver Partner? Click here to register your cab ➔";
+    }
+  }
+
+  if (roleBtnRider) roleBtnRider.addEventListener("click", () => setRole("rider"));
+  if (roleBtnDriver) roleBtnDriver.addEventListener("click", () => setRole("driver"));
+  if (btnRoleSwitch) {
+    btnRoleSwitch.addEventListener("click", () => {
+      setRole(activeRole === "rider" ? "driver" : "rider");
+    });
+  }
+
+  function formatAuthError(err) {
+    if (!err) return "Authentication failed. Please try again.";
+    if (err.code === "auth/unauthorized-domain") {
+      return "⚠️ Domain Not Authorized: In Firebase Console ➔ Authentication ➔ Settings ➔ Authorized Domains, click 'Add domain' and add 'sahyadri-cabs.vercel.app'.";
+    }
+    if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
+      return "Invalid email or password. Please verify or create an account.";
+    }
+    if (err.code === "auth/email-already-in-use") {
+      return "This email is already registered. Please sign in instead.";
+    }
+    if (err.code === "auth/weak-password") {
+      return "Password is too weak. Please choose at least 6 characters.";
+    }
+    if (err.code === "auth/popup-closed-by-user") {
+      return "Sign-in popup closed before completion.";
+    }
+    return err.message || "Authentication error occurred.";
+  }
+
   // Google Sign-In
   if (btnGoogle) {
     btnGoogle.addEventListener("click", async () => {
@@ -3631,11 +3693,11 @@ function initFirebaseAuth() {
       try {
         btnGoogle.disabled = true;
         btnGoogle.style.opacity = "0.6";
-        await fb.loginWithGoogle();
+        await fb.loginWithGoogle(activeRole);
         closeAuth();
       } catch (err) {
         console.error("Google sign-in error:", err);
-        showAlert(err.message || "Failed to sign in with Google.");
+        showAlert(formatAuthError(err));
       } finally {
         btnGoogle.disabled = false;
         btnGoogle.style.opacity = "";
@@ -3660,9 +3722,7 @@ function initFirebaseAuth() {
         closeAuth();
       } catch (err) {
         console.error("Email login error:", err);
-        showAlert(err.code === "auth/invalid-credential" 
-          ? "Invalid email or password. Please try again." 
-          : (err.message || "Login failed."));
+        showAlert(formatAuthError(err));
       } finally {
         if (btn) btn.disabled = false;
       }
@@ -3687,15 +3747,33 @@ function initFirebaseAuth() {
         return;
       }
 
+      const profileData = {
+        name: name,
+        phone: phone,
+        role: activeRole
+      };
+
+      if (activeRole === "driver") {
+        const vModel = $("#driverVehicle") ? $("#driverVehicle").value.trim() : "";
+        const vNo = $("#driverVehicleNo") ? $("#driverVehicleNo").value.trim() : "";
+        const vCity = $("#driverCity") ? $("#driverCity").value : "Pune";
+
+        if (!vModel) {
+          showAlert("Please enter your Cab Model (e.g. Dzire, Ertiga).");
+          return;
+        }
+        profileData.city = vCity;
+        profileData.vehicle = vModel;
+        profileData.vehicleNo = vNo ? vNo.toUpperCase() : "";
+      }
+
       try {
         if (btn) btn.disabled = true;
-        await fb.signupWithEmail(email, password, name, phone);
+        await fb.signupWithEmail(email, password, profileData);
         closeAuth();
       } catch (err) {
         console.error("Signup error:", err);
-        showAlert(err.code === "auth/email-already-in-use" 
-          ? "This email is already registered. Please sign in instead." 
-          : (err.message || "Failed to create account."));
+        showAlert(formatAuthError(err));
       } finally {
         if (btn) btn.disabled = false;
       }

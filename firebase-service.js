@@ -88,34 +88,57 @@ const FirebaseService = {
     return cred.user;
   },
 
-  async signupWithEmail(email, password, name, phone) {
+  async signupWithEmail(email, password, profile = {}) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     const user = cred.user;
+    const name = profile.name || "";
+    const phone = profile.phone || "";
+    const role = profile.role || "rider"; // "rider" or "driver"
+
     if (name) {
       await updateProfile(user, { displayName: name });
     }
-    // Save to Firestore users collection
-    await setDoc(doc(db, "users", user.uid), {
+
+    const userData = {
       uid: user.uid,
-      name: name || user.displayName || "Valued Rider",
+      name: name || user.displayName || (role === "driver" ? "Driver Partner" : "Valued Rider"),
       email: email,
-      phone: phone || "",
+      phone: phone,
+      role: role,
       createdAt: serverTimestamp(),
       lastLogin: serverTimestamp()
-    }, { merge: true });
+    };
+
+    if (role === "driver") {
+      userData.city = profile.city || "";
+      userData.vehicle = profile.vehicle || "";
+      userData.vehicleNo = profile.vehicleNo || "";
+      userData.driverStatus = "active_partner";
+
+      // Also log into dedicated drivers collection for easy fleet management
+      try {
+        await setDoc(doc(db, "drivers", user.uid), userData, { merge: true });
+      } catch (e) {
+        console.warn("Drivers collection sync warning:", e);
+      }
+    }
+
+    // Save to Firestore users collection
+    await setDoc(doc(db, "users", user.uid), userData, { merge: true });
 
     return user;
   },
 
-  async loginWithGoogle() {
+  async loginWithGoogle(role = "rider") {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
     // Sync to Firestore
     await setDoc(doc(db, "users", user.uid), {
       uid: user.uid,
-      name: user.displayName || "Google Rider",
+      name: user.displayName || "Google User",
       email: user.email || "",
       phone: user.phoneNumber || "",
+      role: role,
       lastLogin: serverTimestamp()
     }, { merge: true });
     return user;

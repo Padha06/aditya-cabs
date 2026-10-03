@@ -1525,6 +1525,22 @@
     <!-- Alert / Status message -->
     <div class="auth-alert" id="authAlert" hidden></div>
 
+    <!-- Role Selector (Rider vs Driver Partner) -->
+    <div class="auth-role-tabs" id="authRoleTabs" role="tablist">
+      <button type="button" class="auth-role-btn is-active" id="roleBtnRider" data-role="rider">
+        <span>👤 Passenger / Rider</span>
+      </button>
+      <button type="button" class="auth-role-btn" id="roleBtnDriver" data-role="driver">
+        <span>🚖 Driver Partner</span>
+      </button>
+    </div>
+
+    <!-- Driver Partner Info Banner (shown when driver selected) -->
+    <div class="driver-partner-banner" id="driverPartnerBanner" hidden>
+      <div class="driver-banner-tag">🚕 Driver Partner Portal</div>
+      <p>Attach your commercial cab (Sedan / Ertiga / Crysta) & receive guaranteed outstation bookings directly.</p>
+    </div>
+
     <!-- 1-Click Google Sign-In -->
     <div class="auth-google-wrap">
       <button type="button" class="btn btn--google-auth" id="btnGoogleAuth">
@@ -1534,7 +1550,7 @@
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
         </svg>
-        <span>Continue with Google</span>
+        <span id="btnGoogleAuthText">Continue with Google</span>
       </button>
       <div class="auth-divider"><span>or with email</span></div>
     </div>
@@ -1550,7 +1566,7 @@
         <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password" />
       </div>
       <button type="submit" class="btn btn--accent btn--block" id="btnLoginSubmit">
-        <span>Sign In to Account</span>
+        <span id="btnLoginSubmitText">Sign In to Account</span>
       </button>
     </form>
 
@@ -1564,6 +1580,36 @@
         <label for="signupPhone">WhatsApp / Mobile Number</label>
         <input type="tel" id="signupPhone" placeholder="10-digit mobile number" required maxlength="10" autocomplete="tel" />
       </div>
+
+      <!-- Extra Driver Partner Fields (visible when Driver is selected) -->
+      <div id="driverFields" hidden>
+        <div class="form-group">
+          <label for="driverCity">Operating Base City</label>
+          <select id="driverCity">
+            <option value="Pune">Pune & PCMC</option>
+            <option value="Mumbai">Mumbai & MMR</option>
+            <option value="Nashik">Nashik</option>
+            <option value="Chhatrapati Sambhajinagar">Chhatrapati Sambhajinagar (Aurangabad)</option>
+            <option value="Shirdi">Shirdi</option>
+            <option value="Kolhapur">Kolhapur</option>
+            <option value="Ahilyanagar">Ahilyanagar</option>
+            <option value="Satara">Satara</option>
+            <option value="Solapur">Solapur</option>
+            <option value="Other">Other Maharashtra City</option>
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+          <div class="form-group">
+            <label for="driverVehicle">Cab Model</label>
+            <input type="text" id="driverVehicle" placeholder="Dzire / Ertiga / Innova" />
+          </div>
+          <div class="form-group">
+            <label for="driverVehicleNo">Cab Plate No</label>
+            <input type="text" id="driverVehicleNo" placeholder="MH-12-XX-0000" style="text-transform:uppercase" />
+          </div>
+        </div>
+      </div>
+
       <div class="form-group">
         <label for="signupEmail">Email Address</label>
         <input type="email" id="signupEmail" placeholder="yourname@gmail.com" required autocomplete="email" />
@@ -1573,9 +1619,16 @@
         <input type="password" id="signupPassword" placeholder="Min. 6 characters" minlength="6" required autocomplete="new-password" />
       </div>
       <button type="submit" class="btn btn--accent btn--block" id="btnSignupSubmit">
-        <span>Create Rider Account</span>
+        <span id="btnSignupSubmitText">Create Rider Account</span>
       </button>
     </form>
+
+    <!-- Role Switch Footer Button -->
+    <div class="auth-role-toggle-footer">
+      <button type="button" class="btn-role-switch" id="btnRoleSwitch">
+        Are you a Driver Partner? Click here to register your cab ➔
+      </button>
+    </div>
   </div>
 </div>
 
