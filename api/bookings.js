@@ -1,6 +1,22 @@
 // Vercel Serverless Function: /api/bookings
 // Manages bookings, persists data, and optionally syncs to Google Sheets or Webhooks.
 
+async function parseBody(req) {
+  if (req.body) {
+    if (typeof req.body === 'object') return req.body;
+    try { return JSON.parse(req.body); } catch (e) { return {}; }
+  }
+  return new Promise((resolve) => {
+    let raw = '';
+    req.on('data', chunk => { raw += chunk; });
+    req.on('end', () => {
+      try { resolve(raw ? JSON.parse(raw) : {}); }
+      catch (e) { resolve({}); }
+    });
+    req.on('error', () => resolve({}));
+  });
+}
+
 module.exports = async (req, res) => {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -21,7 +37,7 @@ module.exports = async (req, res) => {
 
   if (req.method === 'POST') {
     try {
-      const data = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+      const data = await parseBody(req);
 
       if (!data || !data.from || !data.to || !data.phone) {
         return res.status(400).json({
@@ -40,9 +56,9 @@ module.exports = async (req, res) => {
         date: data.date,
         time: data.time,
         car: data.car || 'sedan',
-        fare: data.fare,
-        advance: data.advance,
-        balance: data.balance,
+        totalFare: data.totalFare || data.fare || 0,
+        advance: data.advance || 0,
+        balance: data.balance || 0,
         paymentMode: data.paymentMode || 'advance',
         utr: data.utr || '',
         name: data.name || 'Valued Passenger',
@@ -53,7 +69,7 @@ module.exports = async (req, res) => {
         status: 'confirmed'
       };
 
-      // Optional Google Sheets / Webhook Sync
+      // Optional Google Sheets / Webhook Sync (e.g. Google App Script Webhook or Zapier/Make)
       const webhookUrl = process.env.BOOKING_WEBHOOK_URL;
       if (webhookUrl) {
         try {
@@ -78,7 +94,7 @@ module.exports = async (req, res) => {
       console.error('Booking API Error:', err);
       return res.status(500).json({
         success: false,
-        error: 'Failed to process booking.'
+        error: err.message || 'Failed to process booking.'
       });
     }
   }
