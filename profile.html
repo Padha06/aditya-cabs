@@ -151,6 +151,18 @@
       <h1>Rider Profile & My Bookings</h1>
       <p class="profile__sub">Manage your personal details, saved pickup addresses, and view your verified cab bookings across Maharashtra.</p>
       
+      <!-- Cloud Sync & Auth Banner -->
+      <div class="profile-sync-banner" id="pfSyncBanner">
+        <div class="profile-sync-info">
+          <span class="sync-dot" id="pfSyncDot"></span>
+          <span id="pfSyncStatus">🔒 Log in with Google or Email to sync trip history securely in Google Cloud Firestore</span>
+        </div>
+        <button type="button" class="btn btn--sm btn--accent" id="btnProfileAuth">
+          <svg class="ic" aria-hidden="true" style="width:14px;height:14px"><use href="#i-user"/></svg>
+          <span id="btnProfileAuthText">Sign In with Google</span>
+        </button>
+      </div>
+
       <div class="profile-grid">
         <!-- LEFT: RIDER DETAILS & SAVED ADDRESSES -->
         <div class="profile-card--user">
@@ -330,6 +342,7 @@
   </a>
 </nav>
 
+<script type="module" src="firebase-service.js"></script>
 <script src="i18n.js"></script>
 <script>
 (function () {
@@ -391,49 +404,117 @@
   tripsEl.textContent = bookings.length;
   bCountPill.textContent = bookings.length + " Bookings";
 
-  if (bookings.length > 0) {
-    bEmpty.hidden = true;
-    bList.innerHTML = "";
-    bookings.forEach(function (b) {
-      var item = document.createElement("div");
-      item.className = "booking-item";
-      
-      var isCash = b.paymentMode === "cash";
-      var isFull = b.paymentMode === "full";
-      var badgeClass = isCash ? "booking-item__badge--cash" : "booking-item__badge--paid";
-      var badgeText = isCash ? "Pay on Cab" : (isFull ? "✓ Full Paid Online" : "✓ Advance ₹500 Paid");
+  function renderBookingCards(list) {
+    tripsEl.textContent = list.length;
+    bCountPill.textContent = list.length + " Bookings";
+    if (list.length > 0) {
+      bEmpty.hidden = true;
+      bList.innerHTML = "";
+      list.forEach(function (b) {
+        var item = document.createElement("div");
+        item.className = "booking-item";
+        var isCash = b.paymentMode === "cash";
+        var isFull = b.paymentMode === "full";
+        var badgeClass = isCash ? "booking-item__badge--cash" : "booking-item__badge--paid";
+        var badgeText = isCash ? "Pay on Cab" : (isFull ? "✓ Full Paid Online" : "✓ Advance ₹500 Paid");
+        var dateStr = b.date || "Scheduled";
 
-      var dateStr = b.date || "Scheduled";
-
-      item.innerHTML = `
-        <div class="booking-item__top">
-          <span class="booking-item__id">#${b.id}</span>
-          <span class="booking-item__badge ${badgeClass}">${badgeText}</span>
-        </div>
-        <div class="booking-item__route">
-          <span>${b.from}</span>
-          <svg viewBox="0 0 24 24" style="width:16px;height:16px;color:#0284C7;fill:none;stroke:currentColor;stroke-width:2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          <span>${b.to}</span>
-        </div>
-        <div class="booking-item__meta">
-          <span>🗓️ ${dateStr} · ${b.time || "08:00 AM"}</span>
-          <span>🚗 ${b.car || "Sedan"}</span>
-        </div>
-        <div style="font-size:.76rem;color:var(--text-3);line-height:1.4">
-          <div>📍 <b>Pickup:</b> ${b.pickupAddress || b.from}</div>
-          <div>🎯 <b>Drop:</b> ${b.dropAddress || b.to}</div>
-        </div>
-        <div class="booking-item__bottom">
-          <div class="booking-item__fare">Total Fare: <b>₹${Number(b.totalFare || 0).toLocaleString("en-IN")}</b></div>
-          <div class="booking-item__actions">
-            <a class="btn btn--wa btn--sm" href="https://wa.me/916005791807?text=Hi%20Shivrudra%20Taxi%2C%20regarding%20my%20booking%20%23${b.id}%20from%20${encodeURIComponent(b.from)}%20to%20${encodeURIComponent(b.to)}." target="_blank" rel="noopener">WhatsApp Support</a>
+        item.innerHTML = `
+          <div class="booking-item__top">
+            <span class="booking-item__id">#${b.id}</span>
+            <span class="booking-item__badge ${badgeClass}">${badgeText}</span>
           </div>
-        </div>
-      `;
-      bList.appendChild(item);
+          <div class="booking-item__route">
+            <span>${b.from}</span>
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;color:#0284C7;fill:none;stroke:currentColor;stroke-width:2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            <span>${b.to}</span>
+          </div>
+          <div class="booking-item__meta">
+            <span>🗓️ ${dateStr} · ${b.time || "08:00 AM"}</span>
+            <span>🚗 ${b.car || "Sedan"}</span>
+          </div>
+          <div style="font-size:.76rem;color:var(--text-3);line-height:1.4">
+            <div>📍 <b>Pickup:</b> ${b.pickupAddress || b.from}</div>
+            <div>🎯 <b>Drop:</b> ${b.dropAddress || b.to}</div>
+          </div>
+          <div class="booking-item__bottom">
+            <div class="booking-item__fare">Total Fare: <b>₹${Number(b.totalFare || 0).toLocaleString("en-IN")}</b></div>
+            <div class="booking-item__actions">
+              <a class="btn btn--wa btn--sm" href="https://wa.me/916005791807?text=Hi%20Shivrudra%20Taxi%2C%20regarding%20my%20booking%20%23${b.id}%20from%20${encodeURIComponent(b.from)}%20to%20${encodeURIComponent(b.to)}." target="_blank" rel="noopener">WhatsApp Support</a>
+            </div>
+          </div>
+        `;
+        bList.appendChild(item);
+      });
+    } else {
+      bEmpty.hidden = false;
+      bList.innerHTML = "";
+    }
+  }
+
+  renderBookingCards(bookings);
+
+  // Cloud Sync & Auth Listener
+  var syncDot = document.getElementById("pfSyncDot");
+  var syncStatus = document.getElementById("pfSyncStatus");
+  var btnAuth = document.getElementById("btnProfileAuth");
+  var btnAuthText = document.getElementById("btnProfileAuthText");
+
+  function checkFirebase() {
+    if (window.FirebaseService) {
+      window.FirebaseService.onAuth(async function (user) {
+        if (user) {
+          if (syncDot) syncDot.classList.add("is-live");
+          if (syncStatus) syncStatus.textContent = "✓ Connected to Google Cloud Firestore (" + (user.email || user.displayName) + ")";
+          if (btnAuthText) btnAuthText.textContent = "Sign Out";
+
+          if (user.displayName && !nameEl.value) {
+            nameEl.value = user.displayName;
+            dispName.textContent = user.displayName;
+            avatar.textContent = user.displayName.charAt(0).toUpperCase();
+          }
+
+          // Fetch bookings from Cloud Firestore
+          try {
+            var cloudBookings = await window.FirebaseService.getRiderBookings(user.uid, phoneEl.value || cur.phone);
+            var local = readBookings();
+            var mergedMap = new Map();
+            local.forEach(function(b) { mergedMap.set(b.id, b); });
+            cloudBookings.forEach(function(b) { mergedMap.set(b.id, b); });
+            var all = Array.from(mergedMap.values()).sort(function(a, b) {
+              return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+            });
+            renderBookingCards(all);
+          } catch(e) {
+            console.warn("Firestore sync in profile:", e);
+          }
+        } else {
+          if (syncDot) syncDot.classList.remove("is-live");
+          if (syncStatus) syncStatus.textContent = "🔒 Sign in with Google to sync your cab trip history across all devices";
+          if (btnAuthText) btnAuthText.textContent = "Sign In with Google";
+          renderBookingCards(readBookings());
+        }
+      });
+    } else {
+      setTimeout(checkFirebase, 150);
+    }
+  }
+  checkFirebase();
+
+  if (btnAuth) {
+    btnAuth.addEventListener("click", async function () {
+      if (window.FirebaseService) {
+        if (window.FirebaseService.currentUser) {
+          await window.FirebaseService.logout();
+        } else {
+          try {
+            await window.FirebaseService.loginWithGoogle();
+          } catch (e) {
+            alert(e.message || "Google sign-in failed.");
+          }
+        }
+      }
     });
-  } else {
-    bEmpty.hidden = false;
   }
 
   phoneEl.addEventListener("input", function () {

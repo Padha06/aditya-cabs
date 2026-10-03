@@ -1049,7 +1049,16 @@ function executeBookingConfirmation(options = {}) {
   // 2. Sync to serverless API & Google Sheets / Webhook in background
   syncBookingToServer(bookingData);
 
-  // 3. Clear pending UPI session flag
+  // 3. Save to Google Cloud Firestore via Firebase Service
+  try {
+    if (window.FirebaseService && window.FirebaseService.saveBooking) {
+      window.FirebaseService.saveBooking(bookingData);
+    }
+  } catch (fbErr) {
+    console.warn("Firestore background save:", fbErr);
+  }
+
+  // 4. Clear pending UPI session flag
   try { sessionStorage.removeItem("st_pending_upi"); } catch (e) {}
 
   // 4. Open pre-filled WhatsApp confirmation (if not silent)
@@ -3371,6 +3380,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initMobilebar();
   initBarAutoHide();
   prefillProfile();
+  initFirebaseAuth();
   translateFooterLinks();
   translateRouteH1();
   translateRouteDetail();
@@ -3516,5 +3526,235 @@ function initMobileTickers() {
   });
 }
 window.addEventListener('load', initMobileTickers);
+
+/* ============================================================================
+   FIREBASE AUTHENTICATION & USER PROFILE UI
+   ========================================================================= */
+function initFirebaseAuth() {
+  const btnNav = $("#btnNavAuth");
+  const navDropdown = $("#navAuthDropdown");
+  const btnMobile = $("#btnMobileAuth");
+  const modal = $("#authModal");
+  const modalClose = $("#authModalClose");
+  const modalScrim = $("#authModalScrim");
+  const tabLogin = $("#authTabLogin");
+  const tabSignup = $("#authTabSignup");
+  const formLogin = $("#authLoginForm");
+  const formSignup = $("#authSignupForm");
+  const btnGoogle = $("#btnGoogleAuth");
+  const authAlert = $("#authAlert");
+  const btnSignOut = $("#btnNavSignOut");
+
+  function showAlert(msg, isSuccess = false) {
+    if (!authAlert) return;
+    authAlert.hidden = false;
+    authAlert.className = `auth-alert ${isSuccess ? "is-success" : "is-error"}`;
+    authAlert.textContent = msg;
+  }
+  function clearAlert() {
+    if (authAlert) { authAlert.hidden = true; authAlert.textContent = ""; }
+  }
+
+  function openAuth(tab = "login") {
+    if (!modal) return;
+    clearAlert();
+    switchTab(tab);
+    modal.hidden = false;
+    modal.classList.add("is-open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeAuth() {
+    if (!modal) return;
+    modal.classList.remove("is-open");
+    modal.hidden = true;
+    document.body.style.overflow = "";
+    clearAlert();
+  }
+
+  function switchTab(tab) {
+    if (tab === "signup") {
+      if (tabSignup) tabSignup.classList.add("is-active");
+      if (tabLogin) tabLogin.classList.remove("is-active");
+      if (formSignup) formSignup.hidden = false;
+      if (formLogin) formLogin.hidden = true;
+    } else {
+      if (tabLogin) tabLogin.classList.add("is-active");
+      if (tabSignup) tabSignup.classList.remove("is-active");
+      if (formLogin) formLogin.hidden = false;
+      if (formSignup) formSignup.hidden = true;
+    }
+  }
+
+  if (tabLogin) tabLogin.addEventListener("click", () => switchTab("login"));
+  if (tabSignup) tabSignup.addEventListener("click", () => switchTab("signup"));
+  if (modalClose) modalClose.addEventListener("click", closeAuth);
+  if (modalScrim) modalScrim.addEventListener("click", closeAuth);
+
+  // Toggle Nav dropdown or Open Modal
+  if (btnNav) {
+    btnNav.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const fb = window.FirebaseService;
+      if (fb && fb.currentUser) {
+        if (navDropdown) navDropdown.hidden = !navDropdown.hidden;
+      } else {
+        openAuth("login");
+      }
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    if (navDropdown && !navDropdown.contains(e.target) && e.target !== btnNav) {
+      navDropdown.hidden = true;
+    }
+  });
+
+  if (btnMobile) {
+    btnMobile.addEventListener("click", (e) => {
+      e.preventDefault();
+      const fb = window.FirebaseService;
+      if (fb && fb.currentUser) {
+        window.location.href = "/profile";
+      } else {
+        openAuth("login");
+      }
+    });
+  }
+
+  // Google Sign-In
+  if (btnGoogle) {
+    btnGoogle.addEventListener("click", async () => {
+      clearAlert();
+      const fb = window.FirebaseService;
+      if (!fb) return;
+      try {
+        btnGoogle.disabled = true;
+        btnGoogle.style.opacity = "0.6";
+        await fb.loginWithGoogle();
+        closeAuth();
+      } catch (err) {
+        console.error("Google sign-in error:", err);
+        showAlert(err.message || "Failed to sign in with Google.");
+      } finally {
+        btnGoogle.disabled = false;
+        btnGoogle.style.opacity = "";
+      }
+    });
+  }
+
+  // Email / Password Login
+  if (formLogin) {
+    formLogin.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearAlert();
+      const email = $("#loginEmail").value.trim();
+      const password = $("#loginPassword").value;
+      const btn = $("#btnLoginSubmit");
+      const fb = window.FirebaseService;
+      if (!fb) return;
+
+      try {
+        if (btn) btn.disabled = true;
+        await fb.loginWithEmail(email, password);
+        closeAuth();
+      } catch (err) {
+        console.error("Email login error:", err);
+        showAlert(err.code === "auth/invalid-credential" 
+          ? "Invalid email or password. Please try again." 
+          : (err.message || "Login failed."));
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
+  }
+
+  // Signup
+  if (formSignup) {
+    formSignup.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearAlert();
+      const name = $("#signupName").value.trim();
+      const phone = $("#signupPhone").value.trim();
+      const email = $("#signupEmail").value.trim();
+      const password = $("#signupPassword").value;
+      const btn = $("#btnSignupSubmit");
+      const fb = window.FirebaseService;
+      if (!fb) return;
+
+      if (!/^[6-9]\d{9}$/.test(phone)) {
+        showAlert("Please enter a valid 10-digit Indian mobile number.");
+        return;
+      }
+
+      try {
+        if (btn) btn.disabled = true;
+        await fb.signupWithEmail(email, password, name, phone);
+        closeAuth();
+      } catch (err) {
+        console.error("Signup error:", err);
+        showAlert(err.code === "auth/email-already-in-use" 
+          ? "This email is already registered. Please sign in instead." 
+          : (err.message || "Failed to create account."));
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
+  }
+
+  // Sign out
+  if (btnSignOut) {
+    btnSignOut.addEventListener("click", async () => {
+      if (window.FirebaseService) {
+        await window.FirebaseService.logout();
+        if (navDropdown) navDropdown.hidden = true;
+      }
+    });
+  }
+
+  // Sync state when Firebase auth changes
+  const checkService = () => {
+    if (window.FirebaseService) {
+      window.FirebaseService.onAuth((user) => {
+        const label = $("#navAuthLabel");
+        const mobileLabel = $("#mobileAuthLabel");
+        const btnAuth = $("#btnNavAuth");
+
+        if (user) {
+          const displayName = user.displayName || user.email.split("@")[0];
+          const initial = displayName.charAt(0).toUpperCase();
+          if (label) label.textContent = displayName;
+          if (mobileLabel) mobileLabel.textContent = `Account: ${displayName}`;
+
+          if (btnAuth && !btnAuth.querySelector(".nav-user-avatar")) {
+            const avatar = document.createElement("span");
+            avatar.className = "nav-user-avatar";
+            avatar.textContent = initial;
+            const existingSvg = btnAuth.querySelector("svg");
+            if (existingSvg) existingSvg.replaceWith(avatar);
+          }
+
+          // Pre-populate customer inputs if open
+          const nameIn = $("#mCustName");
+          const phoneIn = $("#mCustPhone");
+          if (nameIn && !nameIn.value) nameIn.value = displayName;
+          if (phoneIn && !phoneIn.value && user.phoneNumber) phoneIn.value = user.phoneNumber.replace("+91", "");
+        } else {
+          if (label) label.textContent = "Sign In";
+          if (mobileLabel) mobileLabel.textContent = "Sign In / Register";
+          if (btnAuth) {
+            const avatar = btnAuth.querySelector(".nav-user-avatar");
+            if (avatar) {
+              avatar.outerHTML = '<svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>';
+            }
+          }
+        }
+      });
+    } else {
+      setTimeout(checkService, 150);
+    }
+  };
+  checkService();
+}
 
 
