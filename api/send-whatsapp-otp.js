@@ -72,17 +72,40 @@ module.exports = async (req, res) => {
     const whatsappToken = process.env.WHATSAPP_TOKEN;
     const whatsappPhoneId = process.env.WHATSAPP_PHONE_ID;
     const templateName = process.env.WHATSAPP_OTP_TEMPLATE || 'otp_verification';
+    const templateLang = process.env.WHATSAPP_OTP_LANG || 'en_US';
+    const includeButton = (process.env.WHATSAPP_OTP_BUTTON || 'true') !== 'false';
     const fast2smsKey = process.env.FAST2SMS_API_KEY;
     const twoFactorKey = process.env.TWOFACTOR_API_KEY;
     const customOtpUrl = process.env.CUSTOM_OTP_API_URL;
+    // Renflair WhatsApp OTP gateway (https://renflair.in/wp-otp.php).
+    // Key is NEVER hardcoded — set RENFLAIR_API_KEY in Vercel env vars.
+    const renflairKey = process.env.RENFLAIR_API_KEY;
+
+    // True when at least one real delivery channel is configured. If so and every
+    // channel fails, we must NOT leak the OTP in the response (test-mode fallback).
+    const anyRealChannel = !!((whatsappToken && whatsappPhoneId) || renflairKey || fast2smsKey || twoFactorKey || customOtpUrl);
 
     let otpDispatched = false;
     let dispatchChannel = 'simulation';
+    let lastError = '';
 
-    // 1. Meta WhatsApp Cloud API
+    // 1. Meta WhatsApp Cloud API (authentication / utility OTP template)
     if (whatsappToken && whatsappPhoneId) {
       try {
         const metaUrl = `https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`;
+        const components = [
+          { type: 'body', parameters: [{ type: 'text', text: otp }] }
+        ];
+        // Authentication templates expose a "copy code" URL button that takes the OTP.
+        if (includeButton) {
+          components.push({
+            type: 'button',
+            sub_type: 'url',
+            index: '0',
+            parameters: [{ type: 'text', text: otp }]
+          });
+        }
+
         const resMeta = await fetch(metaUrl, {
           method: 'POST',
           headers: {
@@ -96,23 +119,8 @@ module.exports = async (req, res) => {
             type: 'template',
             template: {
               name: templateName,
-              language: { code: 'en' },
-              components: [
-                {
-                  type: 'body',
-                  parameters: [
-                    { type: 'text', text: otp }
-                  ]
-                },
-                {
-                  type: 'button',
-                  sub_type: 'url',
-                  index: '0',
-                  parameters: [
-                    { type: 'text', text: otp }
-                  ]
-                }
-              ]
+              language: { code: templateLang },
+              components: components
             }
           })
         });
@@ -121,14 +129,43 @@ module.exports = async (req, res) => {
           otpDispatched = true;
           dispatchChannel = 'whatsapp';
         } else {
-          console.warn('Meta WhatsApp API Error:', await resMeta.json());
+          const metaErr = await resMeta.json().catch(() => ({}));
+          lastError = (metaErr && metaErr.error && metaErr.error.message) || 'Meta WhatsApp API error';
+          console.warn('Meta WhatsApp API Error:', lastError);
         }
       } catch (metaErr) {
+        lastError = metaErr.message || 'Meta fetch failed';
         console.error('Meta fetch failed:', metaErr);
       }
     }
 
-    // 2. Fast2SMS Indian SMS Gateway
+    // 2. Renflair WhatsApp OTP Gateway (simple GET API, ~₹0.12/message).
+    // Contract: GET https://whatsapp.renflair.in/V1.php?API=KEY&COUNTRY=91&PHONE=10digit&OTP=6digit
+    // Returns JSON like {"status":"SUCCESS","message":"..."}. Fail closed on unknown shapes.
+    if (!otpDispatched && renflairKey) {
+      try {
+        const tenDigit = formattedPhone.slice(-10);
+        const renflairUrl = `https://whatsapp.renflair.in/V1.php?API=${encodeURIComponent(renflairKey)}&COUNTRY=91&PHONE=${encodeURIComponent(tenDigit)}&OTP=${encodeURIComponent(otp)}`;
+        const rRes = await fetch(renflairUrl);
+        let rData = null;
+        try { rData = await rRes.json(); } catch (parseErr) { rData = null; }
+        const rStatus = String((rData && (rData.status || rData.result || rData.success)) || '').toLowerCase();
+        const rMsg = (rData && (rData.message || rData.msg || rData.error)) || '';
+        const rOk = /^(success|successful|sent|delivered|ok|true|1|200)$/.test(rStatus);
+        if (rRes.ok && rData && rOk) {
+          otpDispatched = true;
+          dispatchChannel = 'whatsapp_renflair';
+        } else {
+          lastError = rMsg ? `Renflair: ${rMsg}` : 'Renflair gateway rejected the request';
+          console.warn('Renflair OTP failed:', rMsg || rData || rRes.status);
+        }
+      } catch (rErr) {
+        lastError = rErr.message || 'Renflair fetch failed';
+        console.error('Renflair fetch failed:', rErr);
+      }
+    }
+
+    // 3. Fast2SMS Indian SMS Gateway
     if (!otpDispatched && fast2smsKey) {
       try {
         const f2Res = await fetch(`https://www.fast2sms.com/dev/bulkV2?authorization=${fast2smsKey}&variables_values=${otp}&route=otp&numbers=${rawPhone.slice(-10)}`);
@@ -142,7 +179,7 @@ module.exports = async (req, res) => {
       }
     }
 
-    // 3. 2Factor Indian Gateway
+    // 4. 2Factor Indian Gateway
     if (!otpDispatched && twoFactorKey) {
       try {
         const tfRes = await fetch(`https://2factor.in/API/V1/${twoFactorKey}/SMS/${rawPhone.slice(-10)}/${otp}/OTP1`);
@@ -155,7 +192,7 @@ module.exports = async (req, res) => {
       }
     }
 
-    // 4. Custom Client OTP Endpoint
+    // 5. Custom Client OTP Endpoint
     if (!otpDispatched && customOtpUrl) {
       try {
         const cRes = await fetch(customOtpUrl, {
@@ -172,11 +209,22 @@ module.exports = async (req, res) => {
       }
     }
 
+    // A real channel was configured but every attempt failed: surface the error
+    // instead of falling back to test mode (which would leak the OTP).
+    if (!otpDispatched && anyRealChannel) {
+      return res.status(502).json({
+        success: false,
+        error: lastError
+          ? `Could not deliver OTP on WhatsApp: ${lastError}`
+          : 'Could not deliver the OTP right now. Please try again in a moment.'
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: otpDispatched 
         ? `OTP sent successfully to +91 ${rawPhone.slice(-10)}.` 
-        : 'OTP generated (Ready for verification).',
+        : 'OTP generated (test mode — no delivery channel configured).',
       channel: dispatchChannel,
       phone: formattedPhone,
       token: token,
