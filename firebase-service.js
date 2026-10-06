@@ -10,7 +10,8 @@ import {
   GoogleAuthProvider, 
   signOut, 
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import { 
   getFirestore, 
@@ -146,6 +147,16 @@ const FirebaseService = {
 
   async logout() {
     await signOut(auth);
+  },
+
+  // Add an email + password to the account (phone-account "Complete setup")
+  async createEmailPassword(email, password) {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    return cred.user;
+  },
+
+  async sendPasswordReset(email) {
+    return sendPasswordResetEmail(auth, email);
   },
 
   // Save Booking to Cloud Firestore

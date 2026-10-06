@@ -2937,7 +2937,7 @@ function initFirebaseAuth() {
     btnNav.addEventListener("click", (e) => {
       e.stopPropagation();
       const fb = window.FirebaseService;
-      if (fb && fb.currentUser) {
+      if ((fb && fb.currentUser) || window.__phoneUser) {
         if (navDropdown) navDropdown.hidden = !navDropdown.hidden;
       } else {
         openAuth("login");
@@ -2955,7 +2955,7 @@ function initFirebaseAuth() {
     btnMobile.addEventListener("click", (e) => {
       e.preventDefault();
       const fb = window.FirebaseService;
-      if (fb && fb.currentUser) {
+      if ((fb && fb.currentUser) || window.__phoneUser) {
         window.location.href = "/profile";
       } else {
         openAuth("login");
@@ -3121,13 +3121,120 @@ function initFirebaseAuth() {
     });
   }
 
+  // Mobile (WhatsApp OTP) sign-in / sign-up
+  const btnMobileOtp = $("#btnMobileOtp");
+  const btnMobileOtpText = $("#btnMobileOtpText");
+  const authMobilePhone = $("#authMobilePhone");
+  const authOtpStep = $("#authOtpStep");
+  const authOtp = $("#authOtp");
+  const authOtpDemo = $("#authOtpDemo");
+  const btnOtpVerify = $("#btnOtpVerify");
+  const btnOtpVerifyText = $("#btnOtpVerifyText");
+  let mobileOtpToken = null;
+  let mobilePhone = "";
+
+  if (authMobilePhone) {
+    authMobilePhone.addEventListener("input", function () {
+      const d = this.value.replace(/\D/g, "").slice(0, 10);
+      if (this.value !== d) this.value = d;
+    });
+  }
+
+  if (btnMobileOtp) {
+    btnMobileOtp.addEventListener("click", async () => {
+      clearAlert();
+      const phone = (authMobilePhone.value || "").replace(/\D/g, "").slice(-10);
+      if (!/^[6-9]\d{9}$/.test(phone)) { showAlert("Enter a valid 10-digit mobile number."); authMobilePhone.focus(); return; }
+      btnMobileOtp.disabled = true;
+      if (btnMobileOtpText) btnMobileOtpText.textContent = "Sending…";
+      try {
+        const r = await fetch("/api/send-whatsapp-otp", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: phone }) });
+        const d = await r.json();
+        if (!r.ok || !d.success) {
+          showAlert("Could not send OTP: " + (d.error || "please try again."));
+          btnMobileOtp.disabled = false; if (btnMobileOtpText) btnMobileOtpText.textContent = "Continue with WhatsApp OTP";
+          return;
+        }
+        mobileOtpToken = d.token; mobilePhone = phone;
+        if (authOtpStep) authOtpStep.hidden = false;
+        if (d.isTestMode && d.testOtp) {
+          if (authOtpDemo) { authOtpDemo.hidden = false; authOtpDemo.className = "auth-alert is-success"; authOtpDemo.textContent = "Demo OTP: " + d.testOtp; }
+          if (authOtp) authOtp.value = d.testOtp;
+        } else if (authOtpDemo) { authOtpDemo.hidden = true; }
+        if (authOtp) authOtp.focus();
+        if (btnMobileOtpText) btnMobileOtpText.textContent = "Code sent";
+      } catch (err) {
+        showAlert("Network error sending OTP. Please check your connection.");
+        btnMobileOtp.disabled = false; if (btnMobileOtpText) btnMobileOtpText.textContent = "Continue with WhatsApp OTP";
+      }
+    });
+  }
+
+  if (btnOtpVerify) {
+    btnOtpVerify.addEventListener("click", async () => {
+      clearAlert();
+      const otp = (authOtp.value || "").replace(/\D/g, "");
+      if (otp.length !== 6) { showAlert("Enter the 6-digit code sent on WhatsApp."); return; }
+      btnOtpVerify.disabled = true;
+      if (btnOtpVerifyText) btnOtpVerifyText.textContent = "Verifying…";
+      try {
+        const r = await fetch("/api/verify-whatsapp-otp", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: mobilePhone, otp: otp, token: mobileOtpToken }) });
+        const d = await r.json();
+        if (!r.ok || !d.verified) {
+          showAlert(d.error || "Incorrect code. Please try again.");
+          btnOtpVerify.disabled = false; if (btnOtpVerifyText) btnOtpVerifyText.textContent = "Verify & Continue";
+          return;
+        }
+        closeAuth();
+        applyPhoneUser(d.user);
+      } catch (err) {
+        showAlert("Network error verifying OTP.");
+        btnOtpVerify.disabled = false; if (btnOtpVerifyText) btnOtpVerifyText.textContent = "Verify & Continue";
+      }
+    });
+  }
+
+  function applyPhoneUser(user) {
+    window.__phoneUser = user || { name: "My Account" };
+    const label = $("#navAuthLabel");
+    const mobileLabel = $("#mobileAuthLabel");
+    const btnAuth = $("#btnNavAuth");
+    const name = (user && user.name) || "My Account";
+    if (label) label.textContent = (user && user.phone) ? ("+91 " + String(user.phone).slice(-10)) : name;
+    if (mobileLabel) mobileLabel.textContent = name + " · My Bookings";
+    if (btnAuth && !btnAuth.querySelector(".nav-user-avatar")) {
+      const avatar = document.createElement("span");
+      avatar.className = "nav-user-avatar";
+      avatar.textContent = String(name).charAt(0).toUpperCase();
+      const svg = btnAuth.querySelector("svg");
+      if (svg) svg.replaceWith(avatar);
+    }
+    const nameIn = $("#mCustName");
+    const phoneIn = $("#mCustPhone");
+    if (nameIn && user && user.name && !nameIn.value) nameIn.value = user.name;
+    if (phoneIn && user && user.phone && !phoneIn.value) phoneIn.value = String(user.phone).slice(-10);
+  }
+
+  // Reflect an existing phone session in the nav on load
+  fetch("/api/me").then((r) => r.json()).then((d) => { if (d && d.authenticated && d.user) applyPhoneUser(d.user); }).catch(() => {});
+
   // Sign out
   if (btnSignOut) {
     btnSignOut.addEventListener("click", async () => {
-      if (window.FirebaseService) {
-        await window.FirebaseService.logout();
-        if (navDropdown) navDropdown.hidden = true;
+      if (window.__phoneUser) {
+        try { await fetch("/api/logout", { method: "POST" }); } catch (e) {}
+        window.__phoneUser = null;
+        const label = $("#navAuthLabel");
+        const mobileLabel = $("#mobileAuthLabel");
+        const btnAuth = $("#btnNavAuth");
+        if (label) label.textContent = "Sign In";
+        if (mobileLabel) mobileLabel.textContent = "Sign In / Register";
+        if (btnAuth) { const a = btnAuth.querySelector(".nav-user-avatar"); if (a) a.outerHTML = '<svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>'; }
       }
+      if (window.FirebaseService && window.FirebaseService.currentUser) {
+        await window.FirebaseService.logout();
+      }
+      if (navDropdown) navDropdown.hidden = true;
     });
   }
 

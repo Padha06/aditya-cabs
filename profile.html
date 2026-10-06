@@ -273,6 +273,26 @@
           </div>
         </div>
       </div>
+
+      <!-- Complete your account setup (phone accounts) -->
+      <div class="profile-card--user" id="accountSetup" hidden style="margin-top:20px">
+        <h2 style="font-size:1.15rem;margin:0 0 4px">Complete your setup</h2>
+        <p style="font-size:.85rem;color:var(--text-3);margin:0 0 14px">Add your details and a password so you can also sign in by email.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="field"><label for="asName">Full name</label><div class="select"><input id="asName" type="text" placeholder="Your full name" autocomplete="name" /></div></div>
+          <div class="field"><label for="asEmail">Email address</label><div class="select"><input id="asEmail" type="email" placeholder="you@example.com" autocomplete="email" /></div></div>
+          <div class="field"><label for="asAltPhone">Alternate mobile (optional)</label><div class="select"><input id="asAltPhone" type="tel" maxlength="10" inputmode="numeric" placeholder="10-digit number" /></div></div>
+          <div class="field"><label for="asPassword">Password</label><div class="select"><input id="asPassword" type="password" minlength="6" placeholder="Min. 6 characters" autocomplete="new-password" /></div></div>
+          <div class="field"><label for="asHome">Home / pickup address</label><div class="select"><input id="asHome" type="text" placeholder="House, society, area, city" /></div></div>
+          <div class="field"><label for="asWork">Office / drop address</label><div class="select"><input id="asWork" type="text" placeholder="Office, area, city" /></div></div>
+        </div>
+        <p class="poolform__err" id="asMsg" hidden role="alert"></p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+          <button type="button" class="btn btn--accent" id="asSave"><span id="asSaveText">Save details</span></button>
+          <button type="button" class="btn btn--ghost" id="asSetPassword"><span id="asPwText">Set password</span></button>
+          <button type="button" class="btn btn--ghost" id="asForgot">Forgot password?</button>
+        </div>
+      </div>
     </div>
   </section>
 </main>
@@ -661,6 +681,68 @@
       if (btnText) btnText.textContent = "Sign out";
       if (ph && !phoneEl.value) { phoneEl.value = ph; dispPhone.textContent = ph; }
       if (user.name && !nameEl.value) { nameEl.value = user.name; dispName.textContent = user.name; avatar.textContent = user.name.charAt(0).toUpperCase(); }
+      wireSetup(user);
+    }
+
+    var asWired = false;
+    function wireSetup(user) {
+      var box = document.getElementById("accountSetup");
+      if (!box) return;
+      box.hidden = false;
+      var n = document.getElementById("asName"), em = document.getElementById("asEmail");
+      var alt = document.getElementById("asAltPhone"), pw = document.getElementById("asPassword");
+      var hm = document.getElementById("asHome"), wk = document.getElementById("asWork");
+      var msg = document.getElementById("asMsg");
+      if (!asWired) {
+        if (user.name && n && !n.value) n.value = user.name;
+        if (user.email && em && !em.value) em.value = user.email;
+        if (user.altPhone && alt) alt.value = String(user.altPhone).slice(-10);
+        if (user.homeAddress && hm) hm.value = user.homeAddress;
+        if (user.workAddress && wk) wk.value = user.workAddress;
+      }
+      function note(text, ok) { if (msg) { msg.hidden = false; msg.textContent = text; msg.style.color = ok ? "#16A34A" : "#DC2626"; } }
+      if (asWired) return;
+      asWired = true;
+
+      var saveBtn = document.getElementById("asSave");
+      if (saveBtn) saveBtn.addEventListener("click", function () {
+        var payload = {
+          name: n.value.trim(), email: em.value.trim(),
+          altPhone: (alt.value || "").replace(/\D/g, "").slice(0, 10),
+          homeAddress: hm.value.trim(), workAddress: wk.value.trim()
+        };
+        fetch("/api/update-profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d && d.success) {
+              note("Details saved.", true);
+              if (payload.name) { dispName.textContent = payload.name; nameEl.value = payload.name; avatar.textContent = payload.name.charAt(0).toUpperCase(); }
+            } else { note((d && d.error) || "Could not save.", false); }
+          }).catch(function () { note("Network error saving.", false); });
+      });
+
+      var pwBtn = document.getElementById("asSetPassword");
+      if (pwBtn) pwBtn.addEventListener("click", function () {
+        var email = em.value.trim(), password = pw.value;
+        if (!/^\S+@\S+\.\S+$/.test(email)) { note("Enter a valid email address first.", false); return; }
+        if (!password || password.length < 6) { note("Password must be at least 6 characters.", false); return; }
+        if (!window.FirebaseService || !window.FirebaseService.createEmailPassword) { note("Password setup is unavailable right now.", false); return; }
+        pwBtn.disabled = true;
+        window.FirebaseService.createEmailPassword(email, password).then(function (u) {
+          return fetch("/api/update-profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email, firebaseUid: u.uid }) });
+        }).then(function () { note("Password set — you can now sign in with email too.", true); pw.value = ""; })
+          .catch(function (e) { note((e && e.message) || "Could not set password.", false); })
+          .then(function () { pwBtn.disabled = false; });
+      });
+
+      var fg = document.getElementById("asForgot");
+      if (fg) fg.addEventListener("click", function () {
+        var email = em.value.trim();
+        if (!/^\S+@\S+\.\S+$/.test(email)) { note("Enter your email first, then tap Forgot password.", false); return; }
+        if (!window.FirebaseService || !window.FirebaseService.sendPasswordReset) { note("Unavailable right now.", false); return; }
+        window.FirebaseService.sendPasswordReset(email).then(function () { note("Password reset link sent to " + email + ".", true); })
+          .catch(function (e) { note((e && e.message) || "Could not send reset email.", false); });
+      });
     }
 
     if (btn) btn.addEventListener("click", function () {

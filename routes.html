@@ -699,6 +699,24 @@
     </form>
 
     <!-- Role Switch Footer Button -->
+    <!-- Mobile (WhatsApp OTP) sign-in / sign-up -->
+    <div class="auth-divider"><span>or with mobile OTP</span></div>
+    <div class="auth-form" id="authMobileBlock">
+      <div class="form-group">
+        <label for="authMobilePhone">WhatsApp / Mobile Number</label>
+        <input type="tel" id="authMobilePhone" placeholder="10-digit mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" />
+      </div>
+      <button type="button" class="btn btn--accent btn--block" id="btnMobileOtp"><span id="btnMobileOtpText">Continue with WhatsApp OTP</span></button>
+      <div id="authOtpStep" hidden>
+        <div class="form-group" style="margin-top:10px">
+          <label for="authOtp">Enter the 6-digit code sent on WhatsApp</label>
+          <input type="text" id="authOtp" placeholder="&#9679; &#9679; &#9679; &#9679; &#9679; &#9679;" maxlength="6" inputmode="numeric" autocomplete="one-time-code" />
+        </div>
+        <div class="auth-alert" id="authOtpDemo" hidden></div>
+        <button type="button" class="btn btn--accent btn--block" id="btnOtpVerify" style="margin-top:8px"><span id="btnOtpVerifyText">Verify &amp; Continue</span></button>
+      </div>
+    </div>
+
     <div class="auth-role-toggle-footer">
       <button type="button" class="btn-role-switch" id="btnRoleSwitch">
         Are you a Driver Partner? Click here to register your cab ➔
