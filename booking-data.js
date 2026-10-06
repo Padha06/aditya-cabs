@@ -54,11 +54,11 @@
   ];
 
   const ONEWAY_CARS = {
-    hatchback: { key: "hatchback", name: "HATCHBACK", models: "WagonR, i20, Celerio, Swift, etc.", specs: "1 bag | 4 seats", seats: 4, bags: 1, fuel: "CNG", image: "sedan-thumb.webp", popular: false },
-    sedan:     { key: "sedan",     name: "SEDAN",     models: "Maruti Dzire, Hyundai Aura, Toyota Etios", specs: "2 bags | 4 seats", seats: 4, bags: 2, fuel: "CNG / PETROL", image: "sedan-thumb.webp", popular: true },
-    sedan_xl:  { key: "sedan_xl",  name: "SEDAN XL",  models: "Diesel Only - Swift Dzire, Etios, Honda Amaze", specs: "2 bags | 4 seats", seats: 4, bags: 2, fuel: "DIESEL", image: "sedan-thumb.webp", popular: false },
-    suv:       { key: "suv",       name: "SUV",       models: "Maruti Ertiga, Kia Carens, Mahindra Marazzo", specs: "4 bags | 6 seats", seats: 6, bags: 4, fuel: "CNG / DIESEL", image: "ertiga-thumb.webp", popular: false },
-    crysta:    { key: "crysta",    name: "INNOVA CRYSTA (VIP)", models: "Toyota Innova Crysta / Hycross - Captain Seats", specs: "4 large bags | 7 seats", seats: 7, bags: 4, fuel: "DIESEL", image: "suv-thumb.webp", popular: false }
+    hatchback: { key: "hatchback", name: "HATCHBACK", models: "WagonR, i20, Celerio, Swift, etc.", specs: "1 bag | 4 seats", seats: 4, bags: 1, fuel: "CNG", image: "sedan-thumb.webp", popular: false, base: "sedan", factor: 0.88 },
+    sedan:     { key: "sedan",     name: "SEDAN",     models: "Maruti Dzire, Hyundai Aura, Toyota Etios", specs: "2 bags | 4 seats", seats: 4, bags: 2, fuel: "CNG / PETROL", image: "sedan-thumb.webp", popular: true, base: "sedan", factor: 1 },
+    sedan_xl:  { key: "sedan_xl",  name: "SEDAN XL",  models: "Diesel Only - Swift Dzire, Etios, Honda Amaze", specs: "2 bags | 4 seats", seats: 4, bags: 2, fuel: "DIESEL", image: "sedan-thumb.webp", popular: false, base: "sedan", factor: 1.07 },
+    suv:       { key: "suv",       name: "SUV",       models: "Maruti Ertiga, Kia Carens, Mahindra Marazzo", specs: "4 bags | 6 seats", seats: 6, bags: 4, fuel: "CNG / DIESEL", image: "ertiga-thumb.webp", popular: false, base: "suv", factor: 1 },
+    crysta:    { key: "crysta",    name: "INNOVA CRYSTA (VIP)", models: "Toyota Innova Crysta / Hycross - Captain Seats", specs: "4 large bags | 7 seats", seats: 7, bags: 4, fuel: "DIESEL", image: "suv-thumb.webp", popular: false, base: "suv", factor: 1.25 }
   };
 
   const CAR_ORDER = ["hatchback", "sedan", "sedan_xl", "suv", "crysta"];
@@ -109,14 +109,12 @@
 
   function getCarFare(carKey, from, to) {
     const r = findRoute(from, to);
-    const baseSedan = r ? r.sedan : 2799;
-    const baseSuv = r ? r.suv : 3499;
-    if (carKey === "hatchback") return Math.round((baseSedan * 0.88) / 50) * 50;
-    if (carKey === "sedan") return baseSedan;
-    if (carKey === "sedan_xl") return Math.round((baseSedan * 1.07) / 50) * 50;
-    if (carKey === "suv") return baseSuv;
-    if (carKey === "crysta") return Math.round((baseSuv * 1.25) / 50) * 50;
-    return baseSedan;
+    const baseOf = (c) => (c && c.base === "suv") ? (r ? r.suv : 3499) : (r ? r.sedan : 2799);
+    const car = ONEWAY_CARS[carKey];
+    if (!car) return baseOf(null);
+    const factor = (typeof car.factor === "number") ? car.factor : 1;
+    const base = baseOf(car);
+    return factor === 1 ? base : Math.round((base * factor) / 50) * 50;
   }
 
   function planFare(flow) {
@@ -342,11 +340,14 @@
   // Load admin-edited config (public, best-effort). Pages can await ST.ready.
   const ready = (async () => {
     try {
-      const r = await fetch("/api/config", { headers: { Accept: "application/json" } });
+      const ctrl = (typeof AbortController !== "undefined") ? new AbortController() : null;
+      const timer = ctrl ? setTimeout(() => ctrl.abort(), 3000) : null;
+      const r = await fetch("/api/config", { headers: { Accept: "application/json" }, signal: ctrl ? ctrl.signal : undefined });
+      if (timer) clearTimeout(timer);
       if (!r.ok) return;
       const d = await r.json();
       if (d && d.config) applyConfig(d.config);
-    } catch (e) { /* offline: use built-in defaults */ }
+    } catch (e) { /* offline / too slow: use built-in defaults */ }
   })();
 
   window.STBooking = {
