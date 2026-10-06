@@ -339,6 +339,18 @@ function goToCabsFlow(from, to) {
 }
 window._goToCabs = goToCabsFlow;
 
+// Launch the dedicated funnel for any trip type (round / local / share).
+function goToFunnel(type, params) {
+  const p = new URLSearchParams();
+  p.set("type", type);
+  Object.keys(params || {}).forEach((k) => {
+    const v = params[k];
+    if (v != null && v !== "") p.set(k, v);
+  });
+  window.location.href = "/cabs?" + p.toString();
+}
+window._goToFunnel = goToFunnel;
+
 /* --- AUTOCOMPLETE COMPONENT --- */
 function setupAutocomplete(inputId, dropdownId, onSelect) {
   const input = $(inputId);
@@ -921,7 +933,15 @@ function initLocalPackage() {
         `Please confirm cab availability and driver details.`
       ].join("\n");
 
-      window.open(waUrl(msg), "_blank", "noopener");
+      // Open the dedicated funnel (Step 1: select package & car)
+      goToFunnel("local", {
+        city: cityName,
+        pkg: bookState.localPkg,
+        car: bookState.localCls,
+        date: ($("#localDate") && $("#localDate").value) || bookState.date,
+        time: ($("#localTime") && $("#localTime").value) || bookState.time
+      });
+      void msg;
     });
   }
 }
@@ -1018,18 +1038,21 @@ function initRoundTrip() {
       const d2 = ($("#roundReturn") && $("#roundReturn").value) || "Return Date";
       const fare = ($("#roundFareNum") && $("#roundFareNum").textContent) || "6,000";
 
-      const msg = [
-        `*ROUND TRIP CAB ENQUIRY - SHIVRUDRA TAXI*`,
-        `──────────────────────────`,
-        `📍 *Round Route:* ${from} ⇄ ${to}`,
-        `🗓️ *Dates:* ${d1} to ${d2}`,
-        `🚗 *Selected Vehicle:* ${currentCarName} (@ ₹${currentRate}/km)`,
-        `💰 *Estimated Fare:* ₹${fare} (Min 250 km/day)`,
-        `──────────────────────────`,
-        `Please confirm vehicle availability and driver allowance.`
-      ].join("\n");
-
-      window.open(waUrl(msg), "_blank", "noopener");
+      // Open the dedicated funnel (Step 1: select car & rate)
+      let rf = fromSel ? fromSel.value : bookState.from;
+      if (rf === "custom") rf = ($("#roundFromCustom") && $("#roundFromCustom").value.trim()) || "Custom Pickup";
+      let rt = toSel ? toSel.value : bookState.to;
+      if (rt === "custom") rt = ($("#roundToCustom") && $("#roundToCustom").value.trim()) || "Custom Destination";
+      const rc = document.querySelector('input[name="roundCls"]:checked');
+      goToFunnel("round", {
+        from: rf,
+        to: rt,
+        car: rc ? rc.value : "sedan",
+        rdate: ($("#roundReturn") && $("#roundReturn").value) || "",
+        date: ($("#roundStart") && $("#roundStart").value) || bookState.date,
+        time: bookState.time || "08:00"
+      });
+      void d1; void d2; void fare; void currentCarName; void currentRate;
     });
   }
 }
@@ -1087,18 +1110,15 @@ function initCarSharing() {
       const total = ($("#sharingTotalFare") && $("#sharingTotalFare").textContent) || "1,000";
       const dateVal = ($("#sharingDate") && $("#sharingDate").value) || "Tomorrow";
 
-      const msg = [
-        `*CAR SHARING BOOKING REQUEST - SHIVRUDRA TAXI*`,
-        `──────────────────────────`,
-        `📍 *Route:* ${routeText}`,
-        `👥 *Passengers / Seats:* ${seats} Seat(s) (Max 3 co-passengers in AC Sedan)`,
-        `💰 *Total Sharing Fare:* ₹${total}`,
-        `🗓️ *Date:* ${dateVal}`,
-        `──────────────────────────`,
-        `Please confirm shared cab seat availability and pickup point.`
-      ].join("\n");
-
-      window.open(waUrl(msg), "_blank", "noopener");
+      const isCustom = routeSel.value === "custom";
+      // Open the dedicated funnel (Step 1: pick route & seats)
+      goToFunnel("share", {
+        route: isCustom ? "" : routeSel.value,
+        seats: seatsSel ? seatsSel.value : "1",
+        date: ($("#sharingDate") && $("#sharingDate").value) || bookState.date,
+        time: bookState.time || "08:00"
+      });
+      void routeText; void total; void dateVal;
     });
   }
 }

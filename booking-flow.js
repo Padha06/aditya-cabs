@@ -37,103 +37,138 @@
   /* =========================================================================
      STEP 1 - /cabs
      ====================================================================== */
-  function cabCardHTML(carKey) {
-    const car = ST.ONEWAY_CARS[carKey];
-    const fare = ST.getCarFare(carKey, flow.from, flow.to);
-    const fuelClass = /diesel/i.test(car.fuel) && !/cng/i.test(car.fuel) ? "fuel-diesel" : "fuel-cng";
-    const popular = car.popular ? '<span class="star-badge"><svg class="ic ic--fill" aria-hidden="true" style="width:10px;height:10px"><use href="#i-star"/></svg> POPULAR</span>' : "";
-    const [bags, seats] = [car.bags, car.seats];
-    return `
-      <div class="oneway-cab-card" data-car="${carKey}">
+  function routePillHTML() {
+    const type = flow.type || "oneway";
+    const dt = ST.dateTimeDisplay(flow.date, flow.time);
+    let left = "", right = dt;
+    if (type === "local") {
+      left = `<span class="dot-blue"></span><b>${flow.city || "Pune"}</b><span class="route-note">Local package</span>`;
+    } else if (type === "share") {
+      const r = ST.SHARE_ROUTES.find((x) => x.key === flow.route) || ST.SHARE_ROUTES[0];
+      const seats = Math.min(ST.SHARE_MAX_SEATS, Math.max(1, Number(flow.seats) || 1));
+      left = `<span class="dot-blue"></span><b>${ST.cityName(r.a)}</b><span class="line-connector"></span><svg class="ic route-pin" aria-hidden="true"><use href="#i-pin"/></svg><b>${ST.cityName(r.b)}</b><span class="route-note">Shared · ${seats} seat${seats > 1 ? "s" : ""}</span>`;
+    } else {
+      const note = type === "round" ? '<span class="route-note">Round trip</span>' : "";
+      left = `<span class="dot-blue"></span><b>${ST.cityName(flow.from)}</b><span class="line-connector"></span><svg class="ic route-pin" aria-hidden="true"><use href="#i-pin"/></svg><b>${ST.cityName(flow.to)}</b>${note}`;
+      if (type === "round" && flow.rdate) right = `${dt} → ${ST.formatDate(flow.rdate)}`;
+    }
+    return `<div class="oneway-route-pill">
+      <div class="oneway-route-line">${left}</div>
+      <div class="oneway-route-schedule"><svg class="ic" aria-hidden="true" style="width:15px;height:15px"><use href="#i-cal"/></svg><span>${right}</span></div>
+    </div>`;
+  }
+
+  function guaranteeHTML() {
+    return `<div class="oneway-blue-guarantee">
+      <div class="guarantee-icon"><svg viewBox="0 0 24 24" class="ic"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" fill="currentColor"/></svg></div>
+      <div class="guarantee-text">
+        <div class="guarantee-title"><span>WHAT YOU SEE IS WHAT YOU PAY</span><span class="guarantee-badge">GUARANTEED</span></div>
+        <p>Tolls, driver allowance, GST and state permits are all included. No hidden charges.</p>
+      </div>
+    </div>`;
+  }
+
+  function helpStripHTML() {
+    return `<div class="oneway-help-strip">
+      <div class="help-left"><svg class="ic" aria-hidden="true" style="width:20px;height:20px;color:#0284C7"><use href="#i-phone"/></svg>
+        <div><b>Need something special?</b><span>We're available 24/7: +91 60057 91807</span></div></div>
+      <a href="tel:+916005791807" class="btn-help-link">Call dispatch <svg class="ic" aria-hidden="true" style="width:15px;height:15px"><use href="#i-arrow"/></svg></a>
+    </div>`;
+  }
+
+  function genericCarCard(o) {
+    const fuelClass = o.fuel ? (/diesel/i.test(o.fuel) && !/cng/i.test(o.fuel) ? "fuel-diesel" : "fuel-cng") : "";
+    const popular = o.popular ? '<span class="star-badge"><svg class="ic ic--fill" aria-hidden="true" style="width:10px;height:10px"><use href="#i-star"/></svg> POPULAR</span>' : "";
+    return `<div class="oneway-cab-card" data-car="${o.key}">
         <div class="cab-left">
           <div class="cab-icon-wrap">
-            <img src="${car.image}" alt="${car.name}" class="cab-thumb" width="200" height="133" loading="lazy" decoding="async" />
-            <span class="fuel-badge ${fuelClass}">${car.fuel}</span>
+            <img src="${o.image}" alt="${o.name}" class="cab-thumb" width="200" height="133" loading="lazy" decoding="async" />
+            ${o.fuel ? `<span class="fuel-badge ${fuelClass}">${o.fuel}</span>` : ""}
           </div>
           <div class="cab-details">
-            <div class="cab-title-row">
-              <h4 class="cab-name">${car.name}</h4>
-              ${popular}
-            </div>
-            <p class="cab-models">${car.models}</p>
-            <div class="cab-specs"><span>${seats} seats</span><span>${bags} bag${bags > 1 ? "s" : ""}</span></div>
+            <div class="cab-title-row"><h4 class="cab-name">${o.name}</h4>${popular}</div>
+            <p class="cab-models">${o.models}</p>
+            <div class="cab-specs"><span>${o.seats} seats</span><span>${o.bags} bag${o.bags > 1 ? "s" : ""}</span></div>
           </div>
         </div>
         <div class="cab-right">
-          <div class="cab-pricing">
-            <span class="cab-price-num">${ST.inr(fare)}</span>
-            <span class="cab-price-sub">All inclusive</span>
-          </div>
-          <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="${carKey}">Select Cab <svg class="ic" aria-hidden="true" style="width:15px;height:15px"><use href="#i-arrow"/></svg></button>
+          <div class="cab-pricing"><span class="cab-price-num">${o.priceMain}</span><span class="cab-price-sub">${o.priceSub}</span></div>
+          <button type="button" class="btn btn-yellow btn-select-cab" data-select="${o.dataVal || o.key}">Select <svg class="ic" aria-hidden="true" style="width:15px;height:15px"><use href="#i-arrow"/></svg></button>
         </div>
       </div>`;
+  }
+
+  function seatPickerHTML() {
+    const cur = Math.min(ST.SHARE_MAX_SEATS, Math.max(1, Number(flow.seats) || 1));
+    let chips = "";
+    for (let i = 1; i <= ST.SHARE_MAX_SEATS; i++) chips += `<button type="button" class="seat-chip${i === cur ? " is-on" : ""}" data-seats="${i}">${i} seat${i > 1 ? "s" : ""}</button>`;
+    return `<div class="seat-picker"><span class="seat-picker__label">Seats (max ${ST.SHARE_MAX_SEATS})</span><div class="seat-chips">${chips}</div></div>`;
+  }
+
+  function buildStepOneList(type) {
+    if (type === "round") {
+      return ST.ROUND_ORDER.map((k) => {
+        const c = ST.ROUND_CARS[k];
+        return genericCarCard({ key: k, dataVal: k, name: c.name, models: c.models, seats: c.seats, bags: c.bags, image: c.image, priceMain: ST.inr(c.rate) + "/km", priceSub: "Est. " + ST.inr(c.rate * ST.ROUND_EST_KM) + " · " + ST.ROUND_EST_KM + " km" });
+      }).join("");
+    }
+    if (type === "local") {
+      const cards = [];
+      ["8h", "12h"].forEach((pk) => {
+        const p = ST.LOCAL_PACKAGES[pk];
+        ["sedan", "suv"].forEach((cls) => {
+          const c = ST.LOCAL_CLS[cls];
+          cards.push(genericCarCard({ key: pk + ":" + cls, dataVal: pk + ":" + cls, name: c.name + " · " + p.label, models: p.km + " km included · extra ₹12/km", seats: cls === "suv" ? 6 : 4, bags: cls === "suv" ? 4 : 2, image: c.image, priceMain: ST.inr(p[cls]), priceSub: p.label + " package" }));
+        });
+      });
+      return cards.join("");
+    }
+    if (type === "share") {
+      return ST.SHARE_ROUTES.map((r) => genericCarCard({ key: r.key, dataVal: r.key, name: ST.cityName(r.a) + " ⇄ " + ST.cityName(r.b), models: "Shared AC sedan · verified co-riders", seats: 3, bags: 1, image: "sedan-thumb.webp", priceMain: ST.inr(r.rate), priceSub: "per seat" })).join("");
+    }
+    return ST.CAR_ORDER.map((k) => {
+      const c = ST.ONEWAY_CARS[k];
+      return genericCarCard({ key: k, dataVal: k, name: c.name, models: c.models, seats: c.seats, bags: c.bags, image: c.image, fuel: c.fuel, popular: c.popular, priceMain: ST.inr(ST.getCarFare(k, flow.from, flow.to)), priceSub: "All inclusive" });
+    }).join("");
   }
 
   function initCabs() {
     const card = $("#bfCard");
-    const fromName = ST.cityName(flow.from);
-    const toName = ST.cityName(flow.to);
-    const dt = ST.dateTimeDisplay(flow.date, flow.time);
-
-    card.innerHTML = `
-      <div class="bf-card__body">
-        <div class="oneway-route-pill">
-          <div class="oneway-route-line">
-            <span class="dot-blue"></span><b>${fromName}</b>
-            <span class="line-connector"></span>
-            <svg class="ic route-pin" aria-hidden="true"><use href="#i-pin"/></svg><b>${toName}</b>
-          </div>
-          <div class="oneway-route-schedule">
-            <svg class="ic" aria-hidden="true" style="width:15px;height:15px"><use href="#i-cal"/></svg>
-            <span>${dt}</span>
-          </div>
-        </div>
-
-        <div class="oneway-blue-guarantee">
-          <div class="guarantee-icon">
-            <svg viewBox="0 0 24 24" class="ic"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" fill="currentColor"/></svg>
-          </div>
-          <div class="guarantee-text">
-            <div class="guarantee-title">
-              <span>WHAT YOU SEE IS WHAT YOU PAY</span>
-              <span class="guarantee-badge">GUARANTEED</span>
-            </div>
-            <p>Tolls, driver allowance, GST and state permits are all included. No hidden charges.</p>
-          </div>
-        </div>
-
-        <div class="oneway-cabs-list">
-          ${ST.CAR_ORDER.map(cabCardHTML).join("")}
-        </div>
-
-        <div class="oneway-help-strip">
-          <div class="help-left">
-            <svg class="ic" aria-hidden="true" style="width:20px;height:20px;color:#0284C7"><use href="#i-phone"/></svg>
-            <div><b>Need something special?</b><span>We're available 24/7: +91 60057 91807</span></div>
-          </div>
-          <a href="tel:+916005791807" class="btn-help-link">Call dispatch <svg class="ic" aria-hidden="true" style="width:15px;height:15px"><use href="#i-arrow"/></svg></a>
-        </div>
-      </div>`;
+    const type = flow.type || "oneway";
+    card.innerHTML = `<div class="bf-card__body">
+      ${routePillHTML()}
+      ${guaranteeHTML()}
+      ${type === "share" ? seatPickerHTML() : ""}
+      <div class="oneway-cabs-list">${buildStepOneList(type)}</div>
+      ${helpStripHTML()}
+    </div>`;
 
     card.querySelectorAll(".btn-select-cab").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        selectCab(btn.getAttribute("data-select-car"));
-      });
+      btn.addEventListener("click", (e) => { e.stopPropagation(); handleStepOneSelect(btn.getAttribute("data-select")); });
     });
     card.querySelectorAll(".oneway-cab-card").forEach((el) => {
-      el.addEventListener("click", (e) => {
-        if (e.target.closest(".btn-select-cab")) return;
-        selectCab(el.getAttribute("data-car"));
+      el.addEventListener("click", (e) => { if (e.target.closest(".btn-select-cab")) return; handleStepOneSelect(el.getAttribute("data-car")); });
+    });
+    card.querySelectorAll(".seat-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        ST.updateFlow({ seats: chip.getAttribute("data-seats") });
+        card.querySelectorAll(".seat-chip").forEach((c) => c.classList.toggle("is-on", c === chip));
       });
     });
   }
 
-  function selectCab(carKey) {
-    if (!carKey) return;
-    ST.updateFlow({ car: carKey });
-    const next = ST.loadFlow();
-    window.location.href = ST.buildUrl("book", next);
+  function handleStepOneSelect(val) {
+    if (!val) return;
+    const type = flow.type || "oneway";
+    if (type === "local") {
+      const parts = val.split(":");
+      ST.updateFlow({ pkg: parts[0], car: parts[1] });
+    } else if (type === "share") {
+      ST.updateFlow({ route: val });
+    } else {
+      ST.updateFlow({ car: val });
+    }
+    window.location.href = ST.buildUrl("book", ST.loadFlow());
   }
 
   // GPS current-location detector (mirrors the landing-page widget in app.js).
@@ -380,11 +415,11 @@
      ====================================================================== */
   function initBook() {
     const profile = ST.readProfile();
-    const car = ST.ONEWAY_CARS[flow.car] || ST.ONEWAY_CARS.sedan;
-    const fare = ST.getCarFare(flow.car, flow.from, flow.to);
+    const fareInfo = ST.computeFare(flow);
+    const type = flow.type || "oneway";
 
     const label = $("#selectedCabLabel");
-    if (label) label.innerHTML = `Selected Cab: <b>${car.name}</b> (${ST.inr(fare)} all-inclusive)`;
+    if (label) label.innerHTML = `Selected: <b>${fareInfo.carLabel}</b> (${ST.inr(fareInfo.total)}${type === "round" ? " est." : ""} · ${fareInfo.meta})`;
 
     // Prefill from lightweight profile / stored flow
     const nameIn = $("#mCustName"), phoneIn = $("#mCustPhone");
@@ -600,8 +635,7 @@
      STEP 3 - /summary  (Summary + Pay & Book)
      ====================================================================== */
   function initSummary() {
-    const car = ST.ONEWAY_CARS[flow.car] || ST.ONEWAY_CARS.sedan;
-    const baseFare = ST.getCarFare(flow.car, flow.from, flow.to);
+    const fare = ST.computeFare(flow);
 
     // Guard: require verified passenger details
     if (!flow.phone || !flow.otpVerified) {
@@ -609,14 +643,23 @@
       return;
     }
 
-    // Summary card
-    $("#summaryRouteTitle").textContent = `${ST.cityName(flow.from)} to ${ST.cityName(flow.to)}`;
-    $("#summaryPickupAddr").textContent = flow.pickupAddress || `${ST.cityName(flow.from)} doorstep pickup`;
-    $("#summaryDropAddr").textContent = flow.dropAddress || `${ST.cityName(flow.to)} drop point`;
-    $("#summaryPickupTime").textContent = ST.dateTimeDisplay(flow.date, flow.time);
-    $("#summaryCabImg").src = car.image;
-    $("#summaryCabName").textContent = car.name;
-    $("#summaryCabSpec").textContent = car.specs;
+    const type = flow.type || "oneway";
+    const baseFare = fare.total;
+
+    // Summary card (type-aware)
+    $("#summaryRouteTitle").textContent = fare.title;
+    $("#summaryPickupAddr").textContent = type === "local"
+      ? `${flow.city || "Pune"} — within city limits`
+      : (flow.pickupAddress || `${ST.cityName(flow.from)} doorstep pickup`);
+    $("#summaryDropAddr").textContent = type === "local"
+      ? `${flow.city || "Pune"} — within city limits`
+      : (flow.dropAddress || `${ST.cityName(flow.to)} drop point`);
+    $("#summaryPickupTime").textContent = (type === "round" && flow.rdate)
+      ? `${ST.dateTimeDisplay(flow.date, flow.time)} · returns ${ST.formatDate(flow.rdate)}`
+      : ST.dateTimeDisplay(flow.date, flow.time);
+    $("#summaryCabImg").src = fare.carImage;
+    $("#summaryCabName").textContent = fare.carLabel;
+    $("#summaryCabSpec").textContent = fare.carSpec;
 
     $("#bfBackToBookCrumb").setAttribute("href", ST.buildUrl("book", flow));
     $("#btnBackToBook").addEventListener("click", () => (window.location.href = ST.buildUrl("book", flow)));
@@ -657,7 +700,7 @@
   }
 
   function renderPlan() {
-    const base = ST.getCarFare(flow.car, flow.from, flow.to);
+    const base = ST.computeFare(flow).total;
     const flexiTotal = base + 100;
     const saver = $("#planSaverCard"), flexi = $("#planFlexiCard");
     if (saver) saver.classList.toggle("is-selected", flow.plan === "saver");
@@ -797,16 +840,29 @@
   }
 
   function finalizeBooking(mode, rzResponse, verified) {
-    const car = ST.ONEWAY_CARS[flow.car] || ST.ONEWAY_CARS.sedan;
+    const fare = ST.computeFare(flow);
+    const type = flow.type || "oneway";
     const { total, advance, balance } = bookAmounts(mode);
+
+    let bFrom, bTo;
+    if (type === "local") { bFrom = flow.city || "Pune"; bTo = "Local package"; }
+    else if (type === "share") {
+      const r = ST.SHARE_ROUTES.find((x) => x.key === flow.route) || ST.SHARE_ROUTES[0];
+      bFrom = ST.cityName(r.a); bTo = ST.cityName(r.b);
+    } else { bFrom = ST.cityName(flow.from); bTo = ST.cityName(flow.to); }
+
     const booking = {
       id: ST.newBookingId(),
       createdAt: new Date().toISOString(),
-      from: ST.cityName(flow.from),
-      to: ST.cityName(flow.to),
+      type: type,
+      from: bFrom,
+      to: bTo,
       date: flow.date || "",
       time: flow.time || "08:00",
-      car: `${car.name} (${car.fuel})`,
+      returnDate: flow.rdate || "",
+      package: type === "local" ? ((ST.LOCAL_PACKAGES[flow.pkg] || {}).label || "") : "",
+      seats: type === "share" ? (Number(flow.seats) || 1) : undefined,
+      car: fare.carLabel,
       totalFare: total,
       advance,
       balance,
@@ -834,9 +890,9 @@
     if (confirmCard) confirmCard.hidden = false;
 
     $("#bfBookingId").textContent = "#" + booking.id;
-    $("#bfcRoute").textContent = `${booking.from} → ${booking.to}`;
+    $("#bfcRoute").textContent = fare.title;
     $("#bfcTime").textContent = ST.dateTimeDisplay(flow.date, flow.time);
-    $("#bfcCar").textContent = car.name;
+    $("#bfcCar").textContent = fare.carLabel;
     $("#bfcPassenger").textContent = `${booking.name} (${booking.phone})`;
     $("#bfcPickup").textContent = booking.pickupAddress;
     $("#bfcDrop").textContent = booking.dropAddress;
@@ -860,6 +916,11 @@
 
   function bookingWhatsAppMessage(b) {
     const carLine = `Car: ${b.car}`;
+    const typeLabel = { oneway: "One-way", round: "Round trip", local: "Local rental", share: "Shared cab" }[b.type || "oneway"] || "One-way";
+    const extras = [];
+    if (b.type === "round" && b.returnDate) extras.push(`Return: ${ST.formatDate(b.returnDate)}`);
+    if (b.type === "local" && b.package) extras.push(`Package: ${b.package}`);
+    if (b.type === "share" && b.seats) extras.push(`Seats: ${b.seats}`);
     const head = b.paymentMode === "cash"
       ? "🚖 *CASH ON CAB - SHIVRUDRA TAXI*"
       : (b.paymentMode === "full" ? "🌟 *FULLY PAID BOOKING - SHIVRUDRA TAXI*" : "✅ *ADVANCE PAID BOOKING - SHIVRUDRA TAXI*");
@@ -872,10 +933,12 @@
       head,
       "──────────────────────────",
       `*Booking ID:* #${b.id}`,
+      `*Trip type:* ${typeLabel}`,
       `*Route:* ${b.from} → ${b.to}`,
       `*Date:* ${ST.formatDate(b.date)}`,
       `*Time:* ${ST.formatTime(b.time)}${b.urgent ? " (URGENT)" : ""}`,
       carLine,
+      ...(extras.length ? extras : []),
       "──────────────────────────",
       payLine,
       `*Total:* ₹${Number(b.totalFare).toLocaleString("en-IN")} (all inclusive)`,

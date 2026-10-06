@@ -63,6 +63,39 @@
 
   const CAR_ORDER = ["hatchback", "sedan", "sedan_xl", "suv", "crysta"];
 
+  // --- Round trip (per-km) ---
+  const ROUND_EST_KM = 500;
+  const ROUND_CARS = {
+    sedan:  { key: "sedan",  name: "Sedan",         models: "Dzire / Aura / Etios", rate: 12, seats: 4, bags: 2, image: "sedan-thumb.webp" },
+    ertiga: { key: "ertiga", name: "SUV Ertiga",    models: "Maruti Ertiga",        rate: 14, seats: 6, bags: 3, image: "ertiga-thumb.webp" },
+    carens: { key: "carens", name: "Kia Carens",    models: "Carens / XL6",         rate: 17, seats: 6, bags: 3, image: "ertiga-thumb.webp" },
+    crysta: { key: "crysta", name: "Innova Crysta", models: "Toyota Innova Crysta", rate: 20, seats: 7, bags: 4, image: "suv-thumb.webp" }
+  };
+  const ROUND_ORDER = ["sedan", "ertiga", "carens", "crysta"];
+
+  // --- Local rental (hourly packages) ---
+  const LOCAL_PACKAGES = {
+    "8h":  { key: "8h",  label: "8 Hours",  km: 80,  sedan: 2200, suv: 2600 },
+    "12h": { key: "12h", label: "12 Hours", km: 120, sedan: 2600, suv: 3000 }
+  };
+  const LOCAL_CLS = {
+    sedan: { key: "sedan", name: "Sedan", models: "Dzire / Aura / Etios", image: "sedan-thumb.webp" },
+    suv:   { key: "suv",   name: "SUV",   models: "Ertiga / Innova",      image: "ertiga-thumb.webp" }
+  };
+
+  // --- Shared cab (fixed per-seat routes) ---
+  const SHARE_ROUTES = [
+    { key: "pune-sambhajinagar", a: "pune", b: "sambhajinagar", rate: 1000 },
+    { key: "pune-ahilyanagar", a: "pune", b: "ahilyanagar", rate: 600 },
+    { key: "pune-mumbai", a: "pune", b: "mumbai", rate: 800 },
+    { key: "pune-nashik", a: "pune", b: "nashik", rate: 900 },
+    { key: "sambhajinagar-nashik", a: "sambhajinagar", b: "nashik", rate: 800 },
+    { key: "sambhajinagar-shirdi", a: "sambhajinagar", b: "shirdi", rate: 600 },
+    { key: "pune-shirdi", a: "pune", b: "shirdi", rate: 800 },
+    { key: "mumbai-nashik", a: "mumbai", b: "nashik", rate: 700 }
+  ];
+  const SHARE_MAX_SEATS = 3;
+
   const inr = (n) => "\u20B9" + Number(n).toLocaleString("en-IN");
 
   function findRoute(a, b) {
@@ -87,8 +120,29 @@
   }
 
   function planFare(flow) {
-    const base = getCarFare(flow.car || "sedan", flow.from, flow.to);
+    const base = computeFare(flow).total;
     return flow.plan === "flexi" ? base + 100 : base;
+  }
+
+  // Resolve the fare + labels for any trip type.
+  function computeFare(flow) {
+    const type = flow.type || "oneway";
+    if (type === "round") {
+      const car = ROUND_CARS[flow.car] || ROUND_CARS.sedan;
+      return { total: car.rate * ROUND_EST_KM, kind: "round", title: `${cityName(flow.from)} to ${cityName(flow.to)} (round trip)`, meta: `Est. ${ROUND_EST_KM} km return · ₹${car.rate}/km`, carLabel: car.name, carSpec: `${car.seats} seats · ${car.bags} bags`, carImage: car.image };
+    }
+    if (type === "local") {
+      const pkg = LOCAL_PACKAGES[flow.pkg] || LOCAL_PACKAGES["8h"];
+      const cls = LOCAL_CLS[flow.car === "suv" ? "suv" : "sedan"];
+      return { total: pkg[cls.key], kind: "local", title: `${flow.city || "Pune"} · ${pkg.label} (${pkg.km} km)`, meta: `Extra ₹12/km or ₹150/hr beyond ${pkg.km} km`, carLabel: cls.name, carSpec: `${pkg.label} · ${pkg.km} km`, carImage: cls.image };
+    }
+    if (type === "share") {
+      const r = SHARE_ROUTES.find((x) => x.key === flow.route) || SHARE_ROUTES[0];
+      const seats = Math.min(SHARE_MAX_SEATS, Math.max(1, Number(flow.seats) || 1));
+      return { total: r.rate * seats, kind: "share", title: `${cityName(r.a)} to ${cityName(r.b)} (shared)`, meta: `${seats} seat${seats > 1 ? "s" : ""} · ₹${r.rate}/seat`, carLabel: "Shared AC Sedan", carSpec: `${seats} seat${seats > 1 ? "s" : ""} · max ${SHARE_MAX_SEATS}`, carImage: "sedan-thumb.webp" };
+    }
+    const car = ONEWAY_CARS[flow.car] || ONEWAY_CARS.sedan;
+    return { total: getCarFare(flow.car, flow.from, flow.to), kind: "oneway", title: `${cityName(flow.from)} to ${cityName(flow.to)}`, meta: car.specs, carLabel: car.name, carSpec: car.specs, carImage: car.image };
   }
 
   function waUrl(message) {
@@ -138,7 +192,7 @@
   function loadFlow() {
     const f = readFlow();
     const q = new URLSearchParams(location.search);
-    ["from", "to", "date", "time", "car", "plan"].forEach((k) => {
+    ["from", "to", "date", "time", "car", "plan", "type", "rdate", "pkg", "seats", "route", "city"].forEach((k) => {
       if (q.has(k) && q.get(k)) f[k] = q.get(k);
     });
     if (q.has("urgent")) f.urgent = q.get("urgent") === "1" || q.get("urgent") === "true";
@@ -147,13 +201,17 @@
     if (!f.to) f.to = "mumbai";
     if (!f.car) f.car = "sedan";
     if (!f.plan) f.plan = "saver";
+    if (!f.type) f.type = "oneway";
+    if (!f.pkg) f.pkg = "8h";
+    if (f.seats == null) f.seats = 1;
+    if (!f.route) f.route = (SHARE_ROUTES[0] && SHARE_ROUTES[0].key) || "pune-sambhajinagar";
     if (f.urgent == null) f.urgent = false;
     return f;
   }
 
   function buildUrl(page, flow) {
     const p = new URLSearchParams();
-    ["from", "to", "date", "time", "car", "plan"].forEach((k) => {
+    ["from", "to", "date", "time", "car", "plan", "type", "rdate", "pkg", "seats", "route", "city"].forEach((k) => {
       if (flow[k]) p.set(k, flow[k]);
     });
     if (flow.urgent) p.set("urgent", "1");
@@ -260,7 +318,8 @@
 
   window.STBooking = {
     CONFIG, CITIES, CITY_GEO, ROUTES, ONEWAY_CARS, CAR_ORDER, LOCAL_SUGGESTIONS,
-    inr, findRoute, cityName, getCarFare, planFare, waUrl,
+    ROUND_CARS, ROUND_ORDER, ROUND_EST_KM, LOCAL_PACKAGES, LOCAL_CLS, SHARE_ROUTES, SHARE_MAX_SEATS,
+    inr, findRoute, cityName, getCarFare, planFare, computeFare, waUrl,
     formatDate, formatTime, dateTimeDisplay,
     readFlow, writeFlow, updateFlow, loadFlow, buildUrl,
     readProfile, saveProfile, saveBooking, syncBookingToServer, newBookingId
