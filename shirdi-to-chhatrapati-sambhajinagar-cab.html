@@ -1050,12 +1050,12 @@
   </div>
 </footer>
 
-<!-- ============ FLEET SELECTION & PAYMENT CHECKOUT MODAL (OneWay.Cab / MakeMyTrip style) ============ -->
+<!-- ============ FLEET SELECTION & PAYMENT CHECKOUT MODAL (OneWay.Cab 3-Step Funnel) ============ -->
 <div class="fmodal" id="fleetModal" role="dialog" aria-modal="true" aria-labelledby="fmodalTitle" hidden>
   <div class="fmodal__panel">
     <div class="fmodal__header">
       <div class="fmodal__title">
-        <h2 id="fmodalTitle">Select Cab & Payment Option</h2>
+        <h2 id="fmodalTitle">Book Your Cab Online</h2>
         <p id="fmodalSub">Pune → Mumbai · 150 km · ~3h 30m · Doorstep Pickup & Drop</p>
       </div>
       <button type="button" class="fmodal__close" id="fmodalClose" aria-label="Close booking modal">
@@ -1063,10 +1063,53 @@
       </button>
     </div>
 
+    <!-- 3-STEP WIZARD PROGRESS BAR (OneWay.Cab Style) -->
+    <div class="fmodal-steps-bar" id="fmodalStepsBar">
+      <div class="fmodal-step is-active" data-step="1" id="fstepTab1">
+        <div class="fmodal-step__circle">
+          <span class="fmodal-step__num">1</span>
+          <span class="fmodal-step__check">✓</span>
+        </div>
+        <div class="fmodal-step__info">
+          <span class="fmodal-step__sub">Step 1</span>
+          <span class="fmodal-step__title">Choose Vehicle</span>
+        </div>
+      </div>
+      <div class="fmodal-step__connector"></div>
+      <div class="fmodal-step" data-step="2" id="fstepTab2">
+        <div class="fmodal-step__circle">
+          <span class="fmodal-step__num">2</span>
+          <span class="fmodal-step__check">✓</span>
+        </div>
+        <div class="fmodal-step__info">
+          <span class="fmodal-step__sub">Step 2</span>
+          <span class="fmodal-step__title">Verify WhatsApp</span>
+        </div>
+      </div>
+      <div class="fmodal-step__connector"></div>
+      <div class="fmodal-step" data-step="3" id="fstepTab3">
+        <div class="fmodal-step__circle">
+          <span class="fmodal-step__num">3</span>
+          <span class="fmodal-step__check">✓</span>
+        </div>
+        <div class="fmodal-step__info">
+          <span class="fmodal-step__sub">Step 3</span>
+          <span class="fmodal-step__title">Address & Confirm</span>
+        </div>
+      </div>
+    </div>
+
     <div class="fmodal__body">
-      <!-- 1. VEHICLE OPTIONS (Requirement #8) -->
-      <div>
-        <label style="font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);display:block;margin-bottom:8px">1. CHOOSE YOUR VEHICLE</label>
+      <!-- ================= STEP 1: VEHICLE SELECTION ================= -->
+      <div class="fmodal-pane is-active" id="stepPane1">
+        <div class="fmodal-pane-header">
+          <div>
+            <h3 class="fmodal-pane-title">1. Select Your Preferred Cab</h3>
+            <p class="fmodal-pane-desc">Compare vehicle types and all-inclusive transparent fares with zero hidden surcharges.</p>
+          </div>
+          <span class="fmodal-pill-guarantee">🛡️ Fixed Fare Guarantee</span>
+        </div>
+
         <div class="fmodal-cars" id="fmodalCars">
           <!-- Sedan -->
           <div class="fmodal-car is-selected" data-car="sedan">
@@ -1089,8 +1132,9 @@
               </div>
               <div class="fmodal-car__badges">
                 <span class="fmodal-car__badge">4 Seats</span>
-                <span class="fmodal-car__badge">2 Large Bags</span>
+                <span class="fmodal-car__badge">2 Bags</span>
                 <span class="fmodal-car__badge">Chilled AC</span>
+                <span class="fmodal-car__badge fmodal-car__badge--km">Extra: ₹11/km</span>
               </div>
             </div>
           </div>
@@ -1118,6 +1162,7 @@
                 <span class="fmodal-car__badge">6 Seats</span>
                 <span class="fmodal-car__badge">3 Bags</span>
                 <span class="fmodal-car__badge">Rear AC</span>
+                <span class="fmodal-car__badge fmodal-car__badge--km">Extra: ₹14/km</span>
               </div>
             </div>
           </div>
@@ -1145,6 +1190,7 @@
                 <span class="fmodal-car__badge">6-7 Seats</span>
                 <span class="fmodal-car__badge">3 Bags</span>
                 <span class="fmodal-car__badge">Captain Luxury</span>
+                <span class="fmodal-car__badge fmodal-car__badge--km">Extra: ₹15/km</span>
               </div>
             </div>
           </div>
@@ -1172,133 +1218,250 @@
                 <span class="fmodal-car__badge">7 Seats</span>
                 <span class="fmodal-car__badge">4 Large Bags</span>
                 <span class="fmodal-car__badge">VIP Comfort</span>
+                <span class="fmodal-car__badge fmodal-car__badge--km">Extra: ₹17/km</span>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- 2. PAYMENT OPTIONS (Requirement #1) -->
-      <div class="fmodal-pay">
-        <div class="fmodal-pay__title">
-          <span>2. SELECT PAYMENT OPTION</span>
-          <span style="font-size:.72rem;color:#0B8045;font-weight:700">✓ 100% Secure Guarantee</span>
-        </div>
-        <div class="fmodal-pay__opts">
-          <label class="fmodal-pay-opt is-selected" id="payOptAdvance">
-            <div class="fmodal-pay-opt__left">
-              <input type="radio" name="modalPayment" value="advance" checked />
-              <div class="fmodal-pay-opt__label">
-                <span>Pay ₹500 Advance & Rest to Driver</span>
-                <span class="fmodal-pay-opt__desc">Reserve & confirm cab instantly. Pay balance directly to driver at drop point.</span>
-              </div>
-            </div>
-            <span class="fmodal-pay-opt__badge">Most Popular</span>
-          </label>
-
-          <label class="fmodal-pay-opt" id="payOptFull">
-            <div class="fmodal-pay-opt__left">
-              <input type="radio" name="modalPayment" value="full" />
-              <div class="fmodal-pay-opt__label">
-                <span>Pay Full Online</span>
-                <span class="fmodal-pay-opt__desc">100% advance via UPI / GPay / PhonePe / Card. Hassle-free drop.</span>
-              </div>
-            </div>
-          </label>
-
-          <label class="fmodal-pay-opt" id="payOptDrop">
-            <div class="fmodal-pay-opt__left">
-              <input type="radio" name="modalPayment" value="cash" />
-              <div class="fmodal-pay-opt__label">
-                <span>Pay After Drop / Cash on Cab</span>
-                <span class="fmodal-pay-opt__desc">Pay zero advance now. Settle full amount directly with driver on arrival.</span>
-              </div>
-            </div>
-          </label>
+        <!-- Inclusions Strip (OneWayCab highlights) -->
+        <div class="fmodal-inclusions">
+          <div class="fmodal-inc-tag">✓ Tolls & State Tax Included</div>
+          <div class="fmodal-inc-tag">✓ Doorstep Pickup & Drop</div>
+          <div class="fmodal-inc-tag">✓ Clean Commercial AC Fleet</div>
+          <div class="fmodal-inc-tag">✓ 24x7 Customer Support</div>
         </div>
 
-        <div class="fmodal-breakdown" id="fmodalBreakdown">
-          <div>Advance Payable Now: <b id="mBreakAdvance">₹500</b></div>
-          <div>Balance on Drop: <b id="mBreakBalance">₹2,299</b></div>
-        </div>
-      </div>
-
-      <!-- 3. SECURE ONLINE PAYMENT (Official Razorpay Checkout Only) -->
-      <div class="fmodal-upi" id="fmodalUpiSection">
-        <div class="fmodal-upi__header">
-          <div class="fmodal-upi__title-wrap">
-            <span class="fmodal-upi__tag">🔒 100% Secure & Verified Payment</span>
-            <h3 class="fmodal-upi__h3">Pay <span id="mUpiAmount">₹500</span> via Razorpay</h3>
-          </div>
-          <div class="fmodal-upi__badge">Instant Auto-Verification</div>
-        </div>
-
-        <!-- Official Razorpay 1-Click Secure Pay Card -->
-        <div class="razorpay-card" id="razorpayCard">
-          <button type="button" class="btn-razorpay-pay" id="btnRazorpayPay">
-            <div class="btn-razorpay-pay__left">
-              <span class="btn-razorpay-pay__badge">AUTO-VERIFIED CHECKOUT</span>
-              <span class="btn-razorpay-pay__title">
-                <svg class="ic-rzp-lock" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-                Pay <span id="mRzpAmount">₹500</span> via Razorpay
-              </span>
-              <span class="btn-razorpay-pay__sub">UPI (Google Pay, PhonePe, Paytm, CRED), Cards & NetBanking</span>
-            </div>
-            <div class="btn-razorpay-pay__right">
-              <span class="btn-razorpay-pay__action">Pay Now ➔</span>
-            </div>
+        <div class="fmodal-step-actions">
+          <button type="button" class="btn btn--primary btn-step-continue" id="btnGoToStep2">
+            <span>Select Vehicle & Verify Mobile ➔</span>
           </button>
+        </div>
+      </div>
 
-          <!-- Verified Banner (Shown when Razorpay payment succeeds) -->
-          <div class="rzp-verified-banner" id="rzpVerifiedBanner" hidden>
-            <div class="rzp-verified-banner__icon">✓</div>
-            <div class="rzp-verified-banner__info">
-              <b>Payment Authenticated & Verified by Razorpay!</b>
-              <span id="rzpPaymentRef">Payment ID: —</span>
+      <!-- ================= STEP 2: WHATSAPP OTP VERIFICATION ================= -->
+      <div class="fmodal-pane" id="stepPane2" hidden>
+        <!-- Recap banner of chosen car -->
+        <div class="fmodal-recap">
+          <div class="fmodal-recap__left">
+            <span class="fmodal-recap__tag">Selected Cab</span>
+            <h4 class="fmodal-recap__name" id="step2CarName">Sedan (Dzire / Aura)</h4>
+            <span class="fmodal-recap__price" id="step2CarPrice">₹2,799 All-Inclusive</span>
+          </div>
+          <button type="button" class="btn-step-edit" id="btnBackToStep1">Change Cab</button>
+        </div>
+
+        <div class="fmodal-otp-box">
+          <div class="fmodal-pane-header">
+            <div>
+              <h3 class="fmodal-pane-title">2. Enter Passenger Details & Verify Mobile</h3>
+              <p class="fmodal-pane-desc">We will send a 6-digit verification code to your WhatsApp for booking authentication.</p>
             </div>
+          </div>
+
+          <div class="fmodal-fields">
+            <div class="field">
+              <label for="mCustName">Passenger Full Name <span class="req" style="color:#EF4444">*</span></label>
+              <div class="select">
+                <input id="mCustName" type="text" placeholder="e.g. Aditya Deshmukh" autocomplete="name" required />
+              </div>
+            </div>
+            <div class="field">
+              <label for="mCustPhone">WhatsApp / Mobile Number <span class="req" style="color:#EF4444">*</span></label>
+              <div class="select">
+                <input id="mCustPhone" type="tel" placeholder="10-digit mobile number" maxlength="14" autocomplete="tel" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- Send OTP Button Row -->
+          <div class="otp-send-wrap" id="otpSendRow">
+            <button type="button" class="btn btn-wa-send-otp" id="btnSendOtp">
+              <svg class="ic" aria-hidden="true" style="width:20px;height:20px;fill:currentColor"><use href="#i-wa"/></svg>
+              <span id="btnSendOtpText">Send 6-Digit WhatsApp OTP</span>
+            </button>
+            <div class="otp-hint-note">🔒 Fast verification via WhatsApp · Safe & confidential</div>
+          </div>
+
+          <!-- OTP Input & Verify Section (Shown after Send OTP is clicked) -->
+          <div class="otp-input-area" id="otpInputArea" hidden>
+            <div class="otp-prompt">
+              <span>Enter 6-digit OTP sent on WhatsApp to:</span>
+              <strong id="otpTargetPhone">+91 —</strong>
+            </div>
+
+            <!-- Demo Mode Alert Banner -->
+            <div class="otp-demo-notice" id="otpDemoNotice" hidden>
+              <span class="otp-demo-badge">DEMO SIMULATION</span>
+              <span id="otpDemoText">WhatsApp OTP is: <b>123456</b></span>
+            </div>
+
+            <div class="otp-form-row">
+              <input type="text" id="mCustOtp" class="input-otp-code" maxlength="6" inputmode="numeric" placeholder="● ● ● ● ● ●" autocomplete="one-time-code" />
+              <button type="button" class="btn btn--primary btn-otp-verify" id="btnVerifyOtp">
+                <span>Verify OTP ➔</span>
+              </button>
+            </div>
+
+            <div class="otp-resend-bar">
+              <span id="otpTimerCount">Resend available in <b id="otpSeconds">30s</b></span>
+              <button type="button" class="btn-resend-link" id="btnResendOtp" disabled>Resend WhatsApp OTP</button>
+            </div>
+          </div>
+
+          <!-- Verified Success Badge -->
+          <div class="otp-success-banner" id="otpSuccessBanner" hidden>
+            <div class="otp-success-icon">✓</div>
+            <div class="otp-success-info">
+              <b>WhatsApp Number Verified!</b>
+              <span id="otpSuccessPhone">+91 —</span>
+            </div>
+            <button type="button" class="btn btn--primary btn-step-continue" id="btnGoToStep3" style="margin-left:auto">
+              <span>Proceed to Step 3 (Address & Pay) ➔</span>
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Cash on Cab notice (shown when Cash on Cab is selected) -->
-      <div class="fmodal-cash-notice" id="fmodalCashNotice" hidden>
-        <div class="fmodal-cash-notice__icon">
-          <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
+      <!-- ================= STEP 3: DOORSTEP ADDRESSES & PAYMENT ================= -->
+      <div class="fmodal-pane" id="stepPane3" hidden>
+        <!-- Recap Strip -->
+        <div class="fmodal-recap-strip">
+          <div class="fmodal-recap-strip__col">
+            <span>TRIP & CAB</span>
+            <b id="step3TripSummary">Pune → Mumbai · Sedan (Dzire)</b>
+          </div>
+          <div class="fmodal-recap-strip__col">
+            <span>VERIFIED PASSENGER</span>
+            <b id="step3PassengerSummary">Aditya Deshmukh (+91 9876543210)</b>
+          </div>
+          <button type="button" class="btn-step-edit-sm" id="btnBackToStep2">Edit</button>
         </div>
-        <div class="fmodal-cash-notice__text">
-          <h4>Zero Advance Payment Required</h4>
-          <p>Your cab booking is reserved instantly. Pay the full fare directly to your driver after reaching your destination via Cash or UPI.</p>
-        </div>
-      </div>
 
-      <!-- 4. PASSENGER DETAILS FORM (Requirement #12) -->
-      <div>
-        <label style="font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);display:block;margin-bottom:8px">4. PASSENGER DETAILS</label>
-        <div class="fmodal-fields">
-          <div class="field">
-            <label for="mCustName">Your Full Name</label>
-            <div class="select">
-              <input id="mCustName" type="text" placeholder="e.g. Aditya Deshmukh" autocomplete="name" required />
-            </div>
+        <!-- Doorstep Address Input -->
+        <div class="fmodal-address-box">
+          <div class="fmodal-pay__title" style="margin-bottom:8px">
+            <span>3. EXACT DOORSTEP ADDRESSES</span>
+            <span style="font-size:.72rem;color:#0284C7;font-weight:700">📍 Direct Cab Arrival</span>
           </div>
-          <div class="field">
-            <label for="mCustPhone">WhatsApp / Mobile Number</label>
-            <div class="select">
-              <input id="mCustPhone" type="tel" placeholder="+91 98765 43210" autocomplete="tel" required />
+          <div class="fmodal-fields">
+            <div class="field">
+              <label for="mCustAddress">Exact Pickup Address / Landmark <span class="req" style="color:#EF4444">*</span></label>
+              <div class="select">
+                <input id="mCustAddress" type="text" placeholder="e.g. Flat 402, Rohan Heights, Wakad, Pune" required />
+              </div>
+            </div>
+            <div class="field">
+              <label for="mCustDropAddress">Exact Drop Address / Destination Landmark</label>
+              <div class="select">
+                <input id="mCustDropAddress" type="text" placeholder="e.g. Building 4, Mindspace, Malad West, Mumbai" />
+              </div>
             </div>
           </div>
         </div>
-        <div class="field" style="margin-top:10px">
-          <label for="mCustAddress">Exact Pickup Address / Landmark</label>
-          <div class="select">
-            <input id="mCustAddress" type="text" placeholder="e.g. Flat 402, Rohan Heights, Wakad, Pune" required />
+
+        <!-- Payment Options (Requirement #1) -->
+        <div class="fmodal-pay">
+          <div class="fmodal-pay__title">
+            <span>4. SELECT PAYMENT OPTION</span>
+            <span style="font-size:.72rem;color:#0B8045;font-weight:700">✓ 100% Secure Guarantee</span>
+          </div>
+          <div class="fmodal-pay__opts">
+            <label class="fmodal-pay-opt is-selected" id="payOptAdvance">
+              <div class="fmodal-pay-opt__left">
+                <input type="radio" name="modalPayment" value="advance" checked />
+                <div class="fmodal-pay-opt__label">
+                  <span>Pay ₹500 Advance & Rest to Driver</span>
+                  <span class="fmodal-pay-opt__desc">Reserve & confirm cab instantly. Pay balance directly to driver at drop point.</span>
+                </div>
+              </div>
+              <span class="fmodal-pay-opt__badge">Most Popular</span>
+            </label>
+
+            <label class="fmodal-pay-opt" id="payOptFull">
+              <div class="fmodal-pay-opt__left">
+                <input type="radio" name="modalPayment" value="full" />
+                <div class="fmodal-pay-opt__label">
+                  <span>Pay Full Online</span>
+                  <span class="fmodal-pay-opt__desc">100% advance via UPI / GPay / PhonePe / Card. Hassle-free drop.</span>
+                </div>
+              </div>
+            </label>
+
+            <label class="fmodal-pay-opt" id="payOptDrop">
+              <div class="fmodal-pay-opt__left">
+                <input type="radio" name="modalPayment" value="cash" />
+                <div class="fmodal-pay-opt__label">
+                  <span>Pay After Drop / Cash on Cab</span>
+                  <span class="fmodal-pay-opt__desc">Pay zero advance now. Settle full amount directly with driver on arrival.</span>
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <div class="fmodal-breakdown" id="fmodalBreakdown">
+            <div>Advance Payable Now: <b id="mBreakAdvance">₹500</b></div>
+            <div>Balance on Drop: <b id="mBreakBalance">₹2,299</b></div>
           </div>
         </div>
-        <div class="field" style="margin-top:10px">
-          <label for="mCustDropAddress">Exact Drop Address / Destination Building</label>
-          <div class="select">
-            <input id="mCustDropAddress" type="text" placeholder="e.g. Building 4, Mindspace, Malad West, Mumbai" />
+
+        <!-- Secure Online Payment (Razorpay Checkout) -->
+        <div class="fmodal-upi" id="fmodalUpiSection">
+          <div class="fmodal-upi__header">
+            <div class="fmodal-upi__title-wrap">
+              <span class="fmodal-upi__tag">🔒 100% Secure & Verified Payment</span>
+              <h3 class="fmodal-upi__h3">Pay <span id="mUpiAmount">₹500</span> via Razorpay</h3>
+            </div>
+            <div class="fmodal-upi__badge">Instant Auto-Verification</div>
           </div>
+
+          <!-- Official Razorpay Pay Card -->
+          <div class="razorpay-card" id="razorpayCard">
+            <button type="button" class="btn-razorpay-pay" id="btnRazorpayPay">
+              <div class="btn-razorpay-pay__left">
+                <span class="btn-razorpay-pay__badge">AUTO-VERIFIED CHECKOUT</span>
+                <span class="btn-razorpay-pay__title">
+                  <svg class="ic-rzp-lock" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                  Pay <span id="mRzpAmount">₹500</span> via Razorpay
+                </span>
+                <span class="btn-razorpay-pay__sub">UPI (Google Pay, PhonePe, Paytm, CRED), Cards & NetBanking</span>
+              </div>
+              <div class="btn-razorpay-pay__right">
+                <span class="btn-razorpay-pay__action">Pay Now ➔</span>
+              </div>
+            </button>
+
+            <!-- Verified Banner (Shown when Razorpay payment succeeds) -->
+            <div class="rzp-verified-banner" id="rzpVerifiedBanner" hidden>
+              <div class="rzp-verified-banner__icon">✓</div>
+              <div class="rzp-verified-banner__info">
+                <b>Payment Authenticated & Verified by Razorpay!</b>
+                <span id="rzpPaymentRef">Payment ID: —</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cash on Cab notice (shown when Cash on Cab is selected) -->
+        <div class="fmodal-cash-notice" id="fmodalCashNotice" hidden>
+          <div class="fmodal-cash-notice__icon">
+            <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
+          </div>
+          <div class="fmodal-cash-notice__text">
+            <h4>Zero Advance Payment Required</h4>
+            <p>Your cab booking is reserved instantly. Pay the full fare directly to your driver after reaching your destination via Cash or UPI.</p>
+          </div>
+        </div>
+
+        <!-- Final Confirmation Actions -->
+        <div class="fmodal-step-actions fmodal-step-actions--between">
+          <button type="button" class="btn btn--ghost" id="btnBackToStep2From3">
+            <span>← Back to Step 2</span>
+          </button>
+          <button type="button" class="btn--book-wa" id="mConfirmWa">
+            <svg class="ic" aria-hidden="true" style="width:22px;height:22px"><use href="#i-wa"/></svg>
+            <span>Confirm & Book on WhatsApp</span>
+          </button>
         </div>
       </div>
     </div>
@@ -1306,12 +1469,11 @@
     <div class="fmodal__footer">
       <a class="btn btn--ghost" href="tel:+916005791807" data-phone-link>
         <svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>
-        <span>Call 24x7 Dispatch</span>
+        <span>Call 24x7 Dispatch (+91 60057 91807)</span>
       </a>
-      <button type="button" class="btn--book-wa" id="mConfirmWa">
-        <svg class="ic" aria-hidden="true" style="width:22px;height:22px"><use href="#i-wa"/></svg>
-        <span>Confirm & Book on WhatsApp</span>
-      </button>
+      <div class="fmodal-footer-badge">
+        <span>🛡️ Commercial Insured Fleet · 24x7 GPS Tracking</span>
+      </div>
     </div>
   </div>
 </div>

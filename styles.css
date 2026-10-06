@@ -2483,3 +2483,211 @@ body.rmodal-open{overflow:hidden}
   content:'';flex:1;border-bottom:1px solid var(--line-2);
 }
 .upi-or-divider span{padding:0 10px}
+
+/* ============================================================================
+   ONEWAY.CAB 3-STEP BOOKING FUNNEL & WHATSAPP OTP STYLES
+   ========================================================================= */
+
+/* Wizard Progress Bar */
+.fmodal-steps-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 22px;background:var(--surface-2);border-bottom:1px solid var(--line-2);
+  gap:10px;overflow-x:auto;
+}
+.fmodal-step{
+  display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;
+  opacity:0.55;transition:all .2s ease;user-select:none;
+}
+.fmodal-step.is-active{opacity:1}
+.fmodal-step.is-done{opacity:0.95}
+.fmodal-step__circle{
+  width:32px;height:32px;border-radius:50%;background:var(--surface-3);
+  border:2px solid var(--line-2);display:grid;place-items:center;
+  font-weight:800;font-size:.85rem;color:var(--text-3);transition:all .2s ease;
+  position:relative;
+}
+.fmodal-step.is-active .fmodal-step__circle{
+  background:#0284C7;border-color:#38BDF8;color:#FFF;
+  box-shadow:0 0 0 3px rgba(2,132,199,.25);
+}
+.fmodal-step.is-done .fmodal-step__circle{
+  background:#10B981;border-color:#34D399;color:#FFF;
+}
+.fmodal-step__check{display:none}
+.fmodal-step.is-done .fmodal-step__num{display:none}
+.fmodal-step.is-done .fmodal-step__check{display:inline-block;font-weight:900;font-size:.9rem}
+.fmodal-step__info{display:flex;flex-direction:column;line-height:1.2}
+.fmodal-step__sub{font-size:.64rem;text-transform:uppercase;font-weight:800;letter-spacing:.05em;color:var(--text-3)}
+.fmodal-step__title{font-size:.82rem;font-weight:700;color:var(--text)}
+.fmodal-step.is-active .fmodal-step__title{color:#0284C7}
+.fmodal-step__connector{
+  flex:1;height:2px;background:var(--line-2);min-width:16px;max-width:60px;
+}
+.fmodal-step__connector.is-active{background:#0284C7}
+
+/* Step Panes */
+.fmodal-pane{
+  display:none;gap:18px;animation:fadeSlideIn .25s ease-out;
+}
+.fmodal-pane.is-active{display:grid}
+@keyframes fadeSlideIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.fmodal-pane-header{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+}
+.fmodal-pane-title{font-size:1.02rem;font-weight:800;color:var(--text);margin:0 0 4px}
+.fmodal-pane-desc{font-size:.78rem;color:var(--text-3);margin:0;line-height:1.4}
+.fmodal-pill-guarantee{
+  font-size:.70rem;font-weight:800;background:rgba(16,185,129,.12);
+  color:#10B981;padding:4px 10px;border-radius:999px;border:1px solid rgba(16,185,129,.3);
+  white-space:nowrap;
+}
+
+/* Extra KM badge on cars */
+.fmodal-car__badge--km{
+  background:rgba(2,132,199,.12) !important;color:#0284C7 !important;font-weight:700 !important;
+}
+
+/* Inclusions Highlights Strip */
+.fmodal-inclusions{
+  display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px;
+  background:rgba(2,132,199,.05);border:1px dashed rgba(2,132,199,.25);
+  border-radius:12px;
+}
+.fmodal-inc-tag{
+  font-size:.72rem;font-weight:700;color:var(--text-2);
+  display:inline-flex;align-items:center;gap:4px;
+}
+
+/* Step Action Buttons */
+.fmodal-step-actions{
+  display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:6px;
+}
+.fmodal-step-actions--between{justify-content:space-between}
+.btn-step-continue{
+  font-size:.95rem;font-weight:800;padding:12px 24px;border-radius:12px;
+  background:linear-gradient(135deg,#0284C7 0%,#0369A1 100%);
+  color:#FFF;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  box-shadow:0 4px 14px rgba(2,132,199,.3);transition:all .2s ease;
+}
+.btn-step-continue:hover{
+  background:linear-gradient(135deg,#0369A1 0%,#0284C7 100%);
+  transform:translateY(-1px);box-shadow:0 6px 18px rgba(2,132,199,.4);
+}
+
+/* Step 2 Recap Banner */
+.fmodal-recap{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--surface-2);border:1px solid var(--line-2);border-radius:14px;
+  padding:12px 16px;
+}
+.fmodal-recap__left{display:flex;flex-direction:column;gap:2px}
+.fmodal-recap__tag{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3)}
+.fmodal-recap__name{font-size:.96rem;font-weight:800;color:var(--text);margin:0}
+.fmodal-recap__price{font-size:.84rem;font-weight:800;color:#0284C7}
+.btn-step-edit{
+  background:rgba(2,132,199,.1);border:1px solid rgba(2,132,199,.25);
+  color:#0284C7;font-size:.76rem;font-weight:700;padding:6px 12px;
+  border-radius:8px;cursor:pointer;transition:all .15s;
+}
+.btn-step-edit:hover{background:#0284C7;color:#FFF}
+
+/* Step 2 WhatsApp OTP Card */
+.fmodal-otp-box{
+  background:var(--surface);border:1px solid var(--line-2);
+  border-radius:16px;padding:18px;display:grid;gap:16px;
+}
+.otp-send-wrap{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.btn-wa-send-otp{
+  background:linear-gradient(135deg,#25D366 0%,#128C7E 100%);
+  color:#FFF;font-size:.92rem;font-weight:800;padding:12px 20px;
+  border-radius:12px;border:0;cursor:pointer;display:inline-flex;align-items:center;
+  gap:10px;box-shadow:0 4px 14px rgba(37,211,102,.3);transition:all .2s ease;
+}
+.btn-wa-send-otp:hover{
+  transform:translateY(-1px);box-shadow:0 6px 18px rgba(37,211,102,.45);
+}
+.otp-hint-note{font-size:.74rem;color:var(--text-3)}
+
+/* OTP Input Area */
+.otp-input-area{
+  background:var(--surface-2);border:1.5px solid rgba(37,211,102,.4);
+  border-radius:14px;padding:16px;display:grid;gap:12px;
+  animation:fadeSlideIn .25s ease-out;
+}
+.otp-prompt{display:flex;flex-direction:column;gap:2px;font-size:.82rem;color:var(--text-2)}
+.otp-prompt strong{color:#25D366;font-size:.92rem}
+
+.otp-demo-notice{
+  background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);
+  border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;
+  font-size:.78rem;color:var(--text);
+}
+.otp-demo-badge{
+  font-size:.65rem;font-weight:800;background:#F59E0B;color:#000;
+  padding:2px 6px;border-radius:4px;letter-spacing:.05em;
+}
+.otp-form-row{
+  display:flex;gap:10px;align-items:center;
+}
+.input-otp-code{
+  font-family:monospace;font-size:1.4rem;font-weight:800;letter-spacing:10px;
+  text-align:center;padding:10px 14px;border-radius:10px;
+  border:2px solid var(--line-2);background:var(--surface);color:var(--text);
+  max-width:200px;outline:none;transition:border-color .2s;
+}
+.input-otp-code:focus{border-color:#25D366;box-shadow:0 0 0 3px rgba(37,211,102,.25)}
+.btn-otp-verify{
+  padding:12px 20px;font-size:.9rem;font-weight:800;border-radius:10px;
+  background:linear-gradient(135deg,#0284C7 0%,#0369A1 100%);
+  color:#FFF;border:0;cursor:pointer;
+}
+.otp-resend-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  font-size:.76rem;color:var(--text-3);
+}
+.btn-resend-link{
+  background:none;border:0;color:#0284C7;font-size:.76rem;font-weight:700;
+  cursor:pointer;padding:0;text-decoration:underline;
+}
+.btn-resend-link:disabled{color:var(--text-3);text-decoration:none;cursor:not-allowed}
+
+/* OTP Success Banner */
+.otp-success-banner{
+  background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.4);
+  border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;
+}
+.otp-success-icon{
+  width:30px;height:30px;border-radius:50%;background:#10B981;color:#FFF;
+  display:grid;place-items:center;font-weight:900;font-size:.9rem;flex-shrink:0;
+}
+.otp-success-info{display:flex;flex-direction:column;gap:1px}
+.otp-success-info b{font-size:.86rem;color:#10B981}
+.otp-success-info span{font-size:.76rem;color:var(--text-2);font-family:monospace}
+
+/* Step 3 Recap Strip */
+.fmodal-recap-strip{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  background:var(--surface-2);border:1px solid var(--line-2);border-radius:14px;
+  padding:12px 16px;
+}
+.fmodal-recap-strip__col{display:flex;flex-direction:column;gap:2px}
+.fmodal-recap-strip__col span{font-size:.65rem;font-weight:800;color:var(--text-3);text-transform:uppercase}
+.fmodal-recap-strip__col b{font-size:.85rem;font-weight:700;color:var(--text)}
+.btn-step-edit-sm{
+  background:none;border:1px solid var(--line-2);color:#0284C7;
+  font-size:.74rem;font-weight:700;padding:5px 10px;border-radius:6px;cursor:pointer;
+}
+.btn-step-edit-sm:hover{border-color:#0284C7;background:rgba(2,132,199,.08)}
+
+.fmodal-address-box{
+  background:var(--surface-2);border:1px solid var(--line-2);
+  border-radius:14px;padding:16px;display:grid;gap:10px;
+}
+.fmodal-footer-badge{
+  font-size:.74rem;color:var(--text-3);font-weight:600;
+}
+

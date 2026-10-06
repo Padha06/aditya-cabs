@@ -799,6 +799,256 @@ function initTabs() {
   });
 }
 
+/* --- ONEWAY.CAB 3-STEP BOOKING WIZARD & WHATSAPP OTP STATE --- */
+const wizardState = {
+  currentStep: 1, // 1: Vehicle, 2: WhatsApp OTP, 3: Address & Payment
+  otpToken: null,
+  otpVerified: false,
+  verifiedPhone: "",
+  timerInterval: null,
+  countdownSeconds: 30
+};
+
+const CAR_DISPLAY_NAMES = {
+  sedan: "Sedan (Dzire / Aura / Etios)",
+  suv: "SUV Ertiga (6 Seater AC)",
+  carens: "SUV Kia Carens (6-7 Seater Executive Luxury)",
+  crysta: "Premium Innova Crysta (7 Seater VIP Comfort)"
+};
+
+function goToWizardStep(stepNum) {
+  wizardState.currentStep = stepNum;
+
+  // 1. Update Wizard Tabs
+  [1, 2, 3].forEach(num => {
+    const tab = $(`#fstepTab${num}`);
+    if (!tab) return;
+    tab.classList.toggle("is-active", num === stepNum);
+    tab.classList.toggle("is-done", num < stepNum || (num === 2 && wizardState.otpVerified));
+  });
+
+  // 2. Toggle Panes
+  [1, 2, 3].forEach(num => {
+    const pane = $(`#stepPane${num}`);
+    if (!pane) return;
+    if (num === stepNum) {
+      pane.hidden = false;
+      pane.classList.add("is-active");
+    } else {
+      pane.hidden = true;
+      pane.classList.remove("is-active");
+    }
+  });
+
+  // 3. Step Specific Updates
+  if (stepNum === 1) {
+    updateModalPayment(getSelectedTotalFare());
+  } else if (stepNum === 2) {
+    const carName = CAR_DISPLAY_NAMES[bookState.selectedCar] || "Sedan (AC)";
+    const totalFare = getSelectedTotalFare();
+    const cNameEl = $("#step2CarName");
+    const cPriceEl = $("#step2CarPrice");
+    if (cNameEl) cNameEl.textContent = carName;
+    if (cPriceEl) cPriceEl.textContent = `${inr(totalFare)} All-Inclusive`;
+
+    const phoneIn = $("#mCustPhone");
+    const cleanPhone = phoneIn ? phoneIn.value.trim().replace(/\D/g, "").slice(-10) : "";
+    if (wizardState.otpVerified && wizardState.verifiedPhone === cleanPhone && cleanPhone.length === 10) {
+      showOtpVerifiedBadge(cleanPhone);
+    }
+  } else if (stepNum === 3) {
+    const fromTitle = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
+    const toTitle = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
+    const carName = CAR_DISPLAY_NAMES[bookState.selectedCar] || "Sedan (AC)";
+    const nameVal = ($("#mCustName") && $("#mCustName").value.trim()) || "Valued Passenger";
+    const phoneVal = ($("#mCustPhone") && $("#mCustPhone").value.trim()) || wizardState.verifiedPhone;
+
+    const summaryEl = $("#step3TripSummary");
+    if (summaryEl) summaryEl.textContent = `${fromTitle} → ${toTitle} · ${carName}`;
+    const custEl = $("#step3PassengerSummary");
+    if (custEl) custEl.textContent = `${nameVal} (+91 ${phoneVal})`;
+
+    updateModalPayment(getSelectedTotalFare());
+  }
+}
+
+async function sendWhatsAppOtp() {
+  const nameIn = $("#mCustName");
+  const phoneIn = $("#mCustPhone");
+  const name = nameIn ? nameIn.value.trim() : "";
+  const rawPhone = phoneIn ? phoneIn.value.trim() : "";
+  const cleanPhone = rawPhone.replace(/\D/g, "").slice(-10);
+
+  if (!name) {
+    alert("Please enter passenger full name before sending OTP.");
+    if (nameIn) nameIn.focus();
+    return;
+  }
+  if (!cleanPhone || cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
+    alert("Please enter a valid 10-digit Indian WhatsApp mobile number.");
+    if (phoneIn) phoneIn.focus();
+    return;
+  }
+
+  const btnSend = $("#btnSendOtp");
+  const btnText = $("#btnSendOtpText");
+  if (btnSend) btnSend.disabled = true;
+  if (btnText) btnText.textContent = "Sending WhatsApp OTP...";
+
+  try {
+    const res = await fetch("/api/send-whatsapp-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, phone: cleanPhone })
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      alert("Error sending OTP: " + (data.error || "Please try again."));
+      if (btnSend) btnSend.disabled = false;
+      if (btnText) btnText.textContent = "Send 6-Digit WhatsApp OTP";
+      return;
+    }
+
+    wizardState.otpToken = data.token;
+
+    // Show OTP input box
+    const inputArea = $("#otpInputArea");
+    const targetPhoneEl = $("#otpTargetPhone");
+    if (targetPhoneEl) targetPhoneEl.textContent = `+91 ${cleanPhone}`;
+    if (inputArea) inputArea.hidden = false;
+
+    // Demo simulation notice
+    const demoNotice = $("#otpDemoNotice");
+    const demoText = $("#otpDemoText");
+    if (data.isTestMode && data.testOtp) {
+      if (demoNotice) demoNotice.hidden = false;
+      if (demoText) demoText.innerHTML = `Demo Mode: OTP sent! Use Code: <b>${data.testOtp}</b>`;
+      const otpInput = $("#mCustOtp");
+      if (otpInput) otpInput.value = data.testOtp;
+    } else {
+      if (demoNotice) demoNotice.hidden = true;
+    }
+
+    startOtpCountdown();
+
+    const otpInput = $("#mCustOtp");
+    if (otpInput) otpInput.focus();
+
+    if (btnText) btnText.textContent = "OTP Sent to WhatsApp ✓";
+  } catch (err) {
+    console.error("sendWhatsAppOtp err:", err);
+    alert("Network error sending OTP. Please check your connection and try again.");
+    if (btnSend) btnSend.disabled = false;
+    if (btnText) btnText.textContent = "Send 6-Digit WhatsApp OTP";
+  }
+}
+
+function startOtpCountdown() {
+  clearInterval(wizardState.timerInterval);
+  wizardState.countdownSeconds = 30;
+  const timerCount = $("#otpTimerCount");
+  const secondsEl = $("#otpSeconds");
+  const resendBtn = $("#btnResendOtp");
+  if (resendBtn) resendBtn.disabled = true;
+  if (timerCount) timerCount.hidden = false;
+  if (secondsEl) secondsEl.textContent = "30s";
+
+  wizardState.timerInterval = setInterval(() => {
+    wizardState.countdownSeconds--;
+    if (secondsEl) secondsEl.textContent = `${wizardState.countdownSeconds}s`;
+
+    if (wizardState.countdownSeconds <= 0) {
+      clearInterval(wizardState.timerInterval);
+      if (resendBtn) resendBtn.disabled = false;
+      if (timerCount) timerCount.hidden = true;
+    }
+  }, 1000);
+}
+
+async function verifyWhatsAppOtp() {
+  const phoneIn = $("#mCustPhone");
+  const otpIn = $("#mCustOtp");
+  const cleanPhone = (phoneIn && phoneIn.value.trim().replace(/\D/g, "").slice(-10)) || "";
+  const otpVal = (otpIn && otpIn.value.trim()) || "";
+
+  if (!cleanPhone || cleanPhone.length !== 10) {
+    alert("Please enter a valid 10-digit mobile number.");
+    return;
+  }
+  if (!otpVal || otpVal.length !== 6) {
+    alert("Please enter the 6-digit verification code sent on your WhatsApp.");
+    if (otpIn) otpIn.focus();
+    return;
+  }
+
+  const btnVerify = $("#btnVerifyOtp");
+  if (btnVerify) {
+    btnVerify.disabled = true;
+    const btnSpan = btnVerify.querySelector("span");
+    if (btnSpan) btnSpan.textContent = "Verifying...";
+  }
+
+  try {
+    const res = await fetch("/api/verify-whatsapp-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        phone: cleanPhone,
+        otp: otpVal,
+        token: wizardState.otpToken
+      })
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success || !data.verified) {
+      alert(data.error || "Incorrect OTP entered. Please try again.");
+      if (btnVerify) {
+        btnVerify.disabled = false;
+        const btnSpan = btnVerify.querySelector("span");
+        if (btnSpan) btnSpan.textContent = "Verify OTP ➔";
+      }
+      return;
+    }
+
+    // Success!
+    wizardState.otpVerified = true;
+    wizardState.verifiedPhone = cleanPhone;
+    clearInterval(wizardState.timerInterval);
+
+    showOtpVerifiedBadge(cleanPhone);
+
+    // Auto-advance to Step 3 after brief pause
+    setTimeout(() => {
+      goToWizardStep(3);
+    }, 700);
+
+  } catch (err) {
+    console.error("verifyWhatsAppOtp err:", err);
+    alert("Error verifying OTP. Please try again.");
+    if (btnVerify) {
+      btnVerify.disabled = false;
+      const btnSpan = btnVerify.querySelector("span");
+      if (btnSpan) btnSpan.textContent = "Verify OTP ➔";
+    }
+  }
+}
+
+function showOtpVerifiedBadge(phone) {
+  const sendRow = $("#otpSendRow");
+  const inputArea = $("#otpInputArea");
+  const successBanner = $("#otpSuccessBanner");
+  const successPhone = $("#otpSuccessPhone");
+
+  if (sendRow) sendRow.hidden = true;
+  if (inputArea) inputArea.hidden = true;
+  if (successBanner) successBanner.hidden = false;
+  if (successPhone) successPhone.textContent = `+91 ${phone}`;
+
+  const tab2 = $("#fstepTab2");
+  if (tab2) tab2.classList.add("is-done");
+}
+
 /* --- FLEET SELECTION & PAYMENT MODAL --- */
 function openFleetModal() {
   const modal = $("#fleetModal");
@@ -824,6 +1074,17 @@ function openFleetModal() {
       }
     }
     return;
+  }
+
+  // Pre-fill user data from Firebase profile if available
+  const user = fb.currentUser;
+  const nameIn = $("#mCustName");
+  const phoneIn = $("#mCustPhone");
+  if (nameIn && !nameIn.value && user.displayName) {
+    nameIn.value = user.displayName;
+  }
+  if (phoneIn && !phoneIn.value && user.phoneNumber) {
+    nameIn.value = user.phoneNumber.replace("+91", "").trim();
   }
 
   const r = findRoute(bookState.from, bookState.to);
@@ -869,6 +1130,9 @@ function openFleetModal() {
       mDrop.value = `${toTitle} Drop Point`;
     }
   }
+
+  // Always reset to Step 1 on opening unless already verified
+  goToWizardStep(1);
 
   modal.hidden = false;
   modal.classList.add("is-open");
@@ -962,7 +1226,14 @@ function updateUpiDetails(totalFare) {
 }
 
 function executeBookingConfirmation(options = {}) {
-  // 1. Payment Verification Check: If Advance or Full selected, prevent confirmation until payment is made
+  // Step Verification Check: Must be verified via WhatsApp OTP
+  if (!wizardState.otpVerified) {
+    alert("Please verify your WhatsApp mobile number in Step 2 before confirming your booking.");
+    goToWizardStep(2);
+    return false;
+  }
+
+  // Payment Verification Check: If Advance or Full selected, prevent confirmation until payment is made
   if (bookState.paymentMode !== "cash" && !bookState.isPaymentDone) {
     if (options.source === "btn_upi_paid_confirm") {
       bookState.isPaymentDone = true;
@@ -976,7 +1247,7 @@ function executeBookingConfirmation(options = {}) {
         upiSec.classList.add("pulse-highlight");
         setTimeout(() => { upiSec.classList.remove("pulse-highlight"); }, 2000);
       }
-      alert(`⚠️ Advance Payment Required:\nPlease complete your ${mode === "full" ? "full payment (" + inr(amt) + ")" : "₹500 advance"} via Google Pay, PhonePe, Paytm or scan QR code above before confirming on WhatsApp.`);
+      alert(`⚠️ Advance Payment Required:\nPlease complete your ${mode === "full" ? "full payment (" + inr(amt) + ")" : "₹500 advance"} via Razorpay checkout above before confirming on WhatsApp.`);
       return false;
     }
   }
@@ -985,7 +1256,7 @@ function executeBookingConfirmation(options = {}) {
   const phoneInput = $("#mCustPhone");
 
   const nameVal = (nameInput && nameInput.value.trim()) || "";
-  const phoneVal = (phoneInput && phoneInput.value.trim()) || "";
+  const phoneVal = (phoneInput && phoneInput.value.trim()) || wizardState.verifiedPhone;
 
   if (!nameVal) {
     if (nameInput) {
@@ -993,21 +1264,8 @@ function executeBookingConfirmation(options = {}) {
       nameInput.style.borderColor = "#EF4444";
       setTimeout(() => { nameInput.style.borderColor = ""; }, 2500);
     }
-    const noteEl = $("#upiStatusNote");
-    if (noteEl) noteEl.textContent = "Payment recorded! Please enter passenger name to issue ticket.";
-    alert("Please enter your name for cab confirmation.");
-    return false;
-  }
-
-  if (!phoneVal) {
-    if (phoneInput) {
-      phoneInput.focus();
-      phoneInput.style.borderColor = "#EF4444";
-      setTimeout(() => { phoneInput.style.borderColor = ""; }, 2500);
-    }
-    const noteEl = $("#upiStatusNote");
-    if (noteEl) noteEl.textContent = "Payment recorded! Please enter WhatsApp number for driver dispatch.";
-    alert("Please enter your WhatsApp / Mobile number for driver dispatch.");
+    alert("Please enter passenger full name for cab confirmation.");
+    goToWizardStep(2);
     return false;
   }
 
@@ -1015,12 +1273,7 @@ function executeBookingConfirmation(options = {}) {
   const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
   const total = getSelectedTotalFare();
 
-  const carNames = {
-    sedan: "Sedan (Dzire / Aura / Etios)",
-    suv: "SUV Ertiga (6 Seater AC)",
-    carens: "SUV Kia Carens (6-7 Seater Premium AC)",
-    crysta: "Premium Innova Crysta (7 Seater Captain Seats)"
-  };
+  const carNames = CAR_DISPLAY_NAMES;
 
   let advanceAmt = 500, balanceAmt = Math.max(0, total - 500);
   if (bookState.paymentMode === "full") { advanceAmt = total; balanceAmt = 0; }
@@ -2037,6 +2290,9 @@ function initBooking() {
     });
   }
 
+  // Initialize Wizard Step & WhatsApp OTP Events
+  initModalWizardEvents();
+
   // Initialize Razorpay Payment Events
   initPaymentEvents();
 
@@ -2048,6 +2304,93 @@ function initBooking() {
   initRoundTrip();
   initCarSharing();
   initUrgentModal();
+}
+
+function initModalWizardEvents() {
+  // Step 1 -> Step 2
+  const btnGoToStep2 = $("#btnGoToStep2");
+  if (btnGoToStep2) {
+    btnGoToStep2.addEventListener("click", () => {
+      goToWizardStep(2);
+    });
+  }
+
+  // Step 2 -> Back to Step 1
+  const btnBackToStep1 = $("#btnBackToStep1");
+  if (btnBackToStep1) {
+    btnBackToStep1.addEventListener("click", () => {
+      goToWizardStep(1);
+    });
+  }
+
+  // Send WhatsApp OTP
+  const btnSendOtp = $("#btnSendOtp");
+  if (btnSendOtp) {
+    btnSendOtp.addEventListener("click", sendWhatsAppOtp);
+  }
+
+  // Resend WhatsApp OTP
+  const btnResendOtp = $("#btnResendOtp");
+  if (btnResendOtp) {
+    btnResendOtp.addEventListener("click", sendWhatsAppOtp);
+  }
+
+  // Verify OTP
+  const btnVerifyOtp = $("#btnVerifyOtp");
+  if (btnVerifyOtp) {
+    btnVerifyOtp.addEventListener("click", verifyWhatsAppOtp);
+  }
+
+  const otpInput = $("#mCustOtp");
+  if (otpInput) {
+    otpInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        verifyWhatsAppOtp();
+      }
+    });
+  }
+
+  // Proceed to Step 3 from Step 2
+  const btnGoToStep3 = $("#btnGoToStep3");
+  if (btnGoToStep3) {
+    btnGoToStep3.addEventListener("click", () => {
+      if (!wizardState.otpVerified) {
+        alert("Please complete WhatsApp OTP verification first.");
+        return;
+      }
+      goToWizardStep(3);
+    });
+  }
+
+  // Step 3 -> Back to Step 2
+  const btnBackToStep2 = $("#btnBackToStep2");
+  if (btnBackToStep2) {
+    btnBackToStep2.addEventListener("click", () => {
+      goToWizardStep(2);
+    });
+  }
+  const btnBackToStep2From3 = $("#btnBackToStep2From3");
+  if (btnBackToStep2From3) {
+    btnBackToStep2From3.addEventListener("click", () => {
+      goToWizardStep(2);
+    });
+  }
+
+  // Wizard Tab Navigation Clicking
+  const tab1 = $("#fstepTab1");
+  if (tab1) tab1.addEventListener("click", () => goToWizardStep(1));
+  const tab2 = $("#fstepTab2");
+  if (tab2) tab2.addEventListener("click", () => goToWizardStep(2));
+  const tab3 = $("#fstepTab3");
+  if (tab3) tab3.addEventListener("click", () => {
+    if (!wizardState.otpVerified) {
+      alert("Please verify your WhatsApp mobile number in Step 2 first.");
+      goToWizardStep(2);
+      return;
+    }
+    goToWizardStep(3);
+  });
 }
 
 /* ---------------------------------------------------------------------------
