@@ -480,24 +480,24 @@
     <div class="oneway-breadcrumb" id="fmodalStepsBar">
       <div class="oneway-crumb is-active" data-step="1" id="fstepTab1">
         <span class="crumb-num">1</span>
-        <span class="crumb-label">Ride & WhatsApp</span>
+        <span class="crumb-label">Select Cab</span>
       </div>
       <div class="crumb-arrow">›</div>
       <div class="oneway-crumb" data-step="2" id="fstepTab2">
         <span class="crumb-num">2</span>
-        <span class="crumb-label">Select Cab</span>
+        <span class="crumb-label">Passenger &amp; WhatsApp</span>
       </div>
       <div class="crumb-arrow">›</div>
       <div class="oneway-crumb" data-step="3" id="fstepTab3">
         <span class="crumb-num">3</span>
-        <span class="crumb-label">Trip Summary & Pay</span>
+        <span class="crumb-label">Summary &amp; Pay</span>
       </div>
     </div>
 
     <div class="fmodal__body oneway-body">
-      <!-- ================= SCREEN 1: /book (Ride Details, WhatsApp OTP & Addresses) ================= -->
+      <!-- ================= SCREEN 1: /cabs (Select Cab - Step 1) ================= -->
       <div class="oneway-step is-active" id="stepPane1">
-        <!-- Route Strip (Screenshot 1) -->
+        <!-- Route Strip -->
         <div class="oneway-route-pill">
           <div class="oneway-route-line">
             <span class="dot-blue"></span>
@@ -512,6 +512,172 @@
           </div>
         </div>
 
+        <!-- Blue Guarantee Banner -->
+        <div class="oneway-blue-guarantee">
+          <div class="guarantee-icon">
+            <svg viewBox="0 0 24 24" class="ic"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" fill="currentColor"/></svg>
+          </div>
+          <div class="guarantee-text">
+            <div class="guarantee-title">
+              <span>WHAT YOU SEE IS WHAT YOU PAY</span>
+              <span class="guarantee-badge">GUARANTEED</span>
+            </div>
+            <p>This fare includes everything: tolls, driver allowance, GST, state permit, even night charges.</p>
+          </div>
+        </div>
+
+        <!-- Cabs List -->
+        <div class="oneway-cabs-list" id="fmodalCars">
+          <!-- HATCHBACK -->
+          <div class="oneway-cab-card" data-car="hatchback">
+            <div class="cab-left">
+              <div class="cab-icon-wrap">
+                <img src="sedan.webp" alt="Hatchback" class="cab-thumb" />
+                <span class="fuel-badge fuel-cng">CNG</span>
+              </div>
+              <div class="cab-details">
+                <h4 class="cab-name">HATCHBACK</h4>
+                <p class="cab-models">WagonR, i20, Celerio, Swift, etc.</p>
+                <div class="cab-specs">
+                  <span>👤 4</span>
+                  <span>🧳 1</span>
+                </div>
+              </div>
+            </div>
+            <div class="cab-right">
+              <div class="cab-pricing">
+                <span class="cab-price-num" id="mPriceHatch">₹2,499</span>
+                <span class="cab-price-sub">All Inclusive</span>
+              </div>
+              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="hatchback">Select Cab ➔</button>
+            </div>
+          </div>
+
+          <!-- SEDAN (Dzire / Aura / Etios) -->
+          <div class="oneway-cab-card is-selected" data-car="sedan">
+            <div class="cab-left">
+              <div class="cab-icon-wrap">
+                <img src="sedan.webp" alt="Sedan Dzire" class="cab-thumb" />
+                <span class="fuel-badge fuel-cng">CNG / PETROL</span>
+              </div>
+              <div class="cab-details">
+                <div class="cab-title-row">
+                  <h4 class="cab-name">SEDAN</h4>
+                  <span class="star-badge">★ POPULAR</span>
+                </div>
+                <p class="cab-models">Maruti Dzire, Hyundai Aura, Toyota Etios</p>
+                <div class="cab-specs">
+                  <span>👤 4</span>
+                  <span>🧳 2</span>
+                </div>
+              </div>
+            </div>
+            <div class="cab-right">
+              <div class="cab-pricing">
+                <span class="cab-price-num" id="mPriceSedan">₹2,799</span>
+                <span class="cab-price-sub">All Inclusive</span>
+              </div>
+              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="sedan">Select Cab ➔</button>
+            </div>
+          </div>
+
+          <!-- SEDAN XL (Diesel Only) -->
+          <div class="oneway-cab-card" data-car="sedan_xl">
+            <div class="cab-left">
+              <div class="cab-icon-wrap">
+                <img src="sedan.webp" alt="Sedan XL" class="cab-thumb" />
+                <span class="fuel-badge fuel-diesel">DIESEL</span>
+              </div>
+              <div class="cab-details">
+                <h4 class="cab-name">SEDAN XL</h4>
+                <p class="cab-models">Diesel Only · Swift Dzire, Etios, Honda Amaze</p>
+                <div class="cab-specs">
+                  <span>👤 4</span>
+                  <span>🧳 2</span>
+                </div>
+              </div>
+            </div>
+            <div class="cab-right">
+              <div class="cab-pricing">
+                <span class="cab-price-num" id="mPriceSedanXl">₹2,999</span>
+                <span class="cab-price-sub">All Inclusive</span>
+              </div>
+              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="sedan_xl">Select Cab ➔</button>
+            </div>
+          </div>
+
+          <!-- 24x7 Help Banner -->
+          <div class="oneway-help-strip">
+            <div class="help-left">
+              <svg class="ic" aria-hidden="true" style="width:20px;height:20px;color:#0284C7"><use href="#i-phone"/></svg>
+              <div>
+                <b>Need something special?</b>
+                <span>We're available 24/7 to help: +91 60057 91807</span>
+              </div>
+            </div>
+            <a href="tel:+916005791807" class="btn-help-link">Call Dispatch ➔</a>
+          </div>
+
+          <!-- SUV (Ertiga / Carens) -->
+          <div class="oneway-cab-card" data-car="suv">
+            <div class="cab-left">
+              <div class="cab-icon-wrap">
+                <img src="ertiga.webp" alt="SUV Ertiga" class="cab-thumb" />
+                <span class="fuel-badge fuel-cng">CNG / DIESEL</span>
+              </div>
+              <div class="cab-details">
+                <h4 class="cab-name">SUV</h4>
+                <p class="cab-models">Maruti Ertiga, Kia Carens, Mahindra Marazzo</p>
+                <div class="cab-specs">
+                  <span>👤 6</span>
+                  <span>🧳 4</span>
+                </div>
+              </div>
+            </div>
+            <div class="cab-right">
+              <div class="cab-pricing">
+                <span class="cab-price-num" id="mPriceSuv">₹3,499</span>
+                <span class="cab-price-sub">All Inclusive</span>
+              </div>
+              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="suv">Select Cab ➔</button>
+            </div>
+          </div>
+
+          <!-- SUV VIP (Innova Crysta) -->
+          <div class="oneway-cab-card" data-car="crysta">
+            <div class="cab-left">
+              <div class="cab-icon-wrap">
+                <img src="suv.webp" alt="Innova Crysta" class="cab-thumb" />
+                <span class="fuel-badge fuel-diesel">DIESEL</span>
+              </div>
+              <div class="cab-details">
+                <h4 class="cab-name">INNOVA CRYSTA (VIP)</h4>
+                <p class="cab-models">Toyota Innova Crysta / Hycross · Captain Seats</p>
+                <div class="cab-specs">
+                  <span>👤 7</span>
+                  <span>🧳 4 Large</span>
+                </div>
+              </div>
+            </div>
+            <div class="cab-right">
+              <div class="cab-pricing">
+                <span class="cab-price-num" id="mPriceCrysta">₹4,399</span>
+                <span class="cab-price-sub">All Inclusive</span>
+              </div>
+              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="crysta">Select Cab ➔</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SCREEN 2: /book (Passenger Details, WhatsApp OTP & Addresses - Step 2) ================= -->
+      <div class="oneway-step" id="stepPane2" hidden>
+        <!-- Selected Cab Banner -->
+        <div class="selected-cab-strip">
+          <span id="selectedCabLabel">Selected Cab: <b>SEDAN</b> (₹2,799 All-Inclusive)</span>
+          <button type="button" class="btn-change-cab" id="btnBackToCabsTop">Change Cab</button>
+        </div>
+
         <!-- Name & Mobile with WhatsApp OTP Verification -->
         <div class="oneway-form-grid">
           <div class="oneway-field">
@@ -520,7 +686,7 @@
               <svg class="ic" aria-hidden="true" style="width:18px;height:18px;color:#94A3B8"><use href="#i-user"/></svg>
               <input id="mCustName" type="text" placeholder="Your full name" autocomplete="name" required />
             </div>
-            <span class="field-subnote">Auto-filled from your profile</span>
+            <span class="field-subnote">Pre-filled or enter passenger name</span>
           </div>
 
           <div class="oneway-field">
@@ -571,7 +737,7 @@
           </div>
         </div>
 
-        <!-- Doorstep Addresses with Connected Dots (Screenshot 1) -->
+        <!-- Doorstep Addresses with Connected Dots -->
         <div class="oneway-address-container">
           <div class="addr-track-line">
             <div class="addr-dot-pickup"></div>
@@ -580,184 +746,24 @@
           </div>
           <div class="addr-inputs-col">
             <div class="addr-input-block">
-              <input id="mCustAddress" type="text" placeholder="Search pickup address (House No, Society, Wakad, Pune)" required />
+              <input id="mCustAddress" type="text" placeholder="Search pickup address (House No, Society, Area)" required />
               <span class="addr-tag-pill">PICKUP</span>
             </div>
             <div class="addr-input-block">
-              <input id="mCustDropAddress" type="text" placeholder="Search drop address (Building, Mindspace, Malad, Mumbai)" />
+              <input id="mCustDropAddress" type="text" placeholder="Search drop address (Building, Landmark, Area)" />
               <span class="addr-tag-pill">DROP</span>
             </div>
           </div>
         </div>
 
-        <!-- Action Button (Screenshot 1 Big Yellow Button) -->
-        <button type="button" class="btn btn-yellow btn-oneway-checkfare" id="btnGoToCabs">
-          <span>Check Fare & View Cabs ➔</span>
+        <!-- Action Button -->
+        <button type="button" class="btn btn-yellow btn-oneway-checkfare" id="btnGoToSummary">
+          <span>Continue to Booking Summary ➔</span>
         </button>
         <p class="oneway-terms-note">By continuing, you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a></p>
-      </div>
-
-      <!-- ================= SCREEN 2: /cabs (Select Cab - Screenshot 2) ================= -->
-      <div class="oneway-step" id="stepPane2" hidden>
-        <!-- Blue Guarantee Banner (Screenshot 2) -->
-        <div class="oneway-blue-guarantee">
-          <div class="guarantee-icon">
-            <svg viewBox="0 0 24 24" class="ic"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" fill="currentColor"/></svg>
-          </div>
-          <div class="guarantee-text">
-            <div class="guarantee-title">
-              <span>WHAT YOU SEE IS WHAT YOU PAY</span>
-              <span class="guarantee-badge">GUARANTEED</span>
-            </div>
-            <p>This fare includes everything: tolls, driver allowance, GST, state permit, even night charges.</p>
-          </div>
-        </div>
-
-        <!-- Cabs List (Exact Screenshot 2 Layout) -->
-        <div class="oneway-cabs-list" id="fmodalCars">
-          <!-- HATCHBACK -->
-          <div class="oneway-cab-card" data-car="hatchback">
-            <div class="cab-left">
-              <div class="cab-icon-wrap">
-                <img src="sedan.webp" alt="Hatchback" class="cab-thumb" />
-                <span class="fuel-badge fuel-cng">CNG</span>
-              </div>
-              <div class="cab-details">
-                <h4 class="cab-name">HATCHBACK</h4>
-                <p class="cab-models">WagonR, i20, Celerio, Swift, etc.</p>
-                <div class="cab-specs">
-                  <span>👤 4</span>
-                  <span>🧳 1</span>
-                </div>
-              </div>
-            </div>
-            <div class="cab-right">
-              <div class="cab-pricing">
-                <span class="cab-price-num" id="mPriceHatch">₹2,499</span>
-                <span class="cab-price-sub">All Inclusive</span>
-              </div>
-              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="hatchback">Select</button>
-            </div>
-          </div>
-
-          <!-- SEDAN (Dzire / Aura / Etios) -->
-          <div class="oneway-cab-card is-selected" data-car="sedan">
-            <div class="cab-left">
-              <div class="cab-icon-wrap">
-                <img src="sedan.webp" alt="Sedan Dzire" class="cab-thumb" />
-                <span class="fuel-badge fuel-cng">CNG / PETROL</span>
-              </div>
-              <div class="cab-details">
-                <div class="cab-title-row">
-                  <h4 class="cab-name">SEDAN</h4>
-                  <span class="star-badge">★ POPULAR</span>
-                </div>
-                <p class="cab-models">Maruti Dzire, Hyundai Aura, Toyota Etios</p>
-                <div class="cab-specs">
-                  <span>👤 4</span>
-                  <span>🧳 2</span>
-                </div>
-              </div>
-            </div>
-            <div class="cab-right">
-              <div class="cab-pricing">
-                <span class="cab-price-num" id="mPriceSedan">₹2,799</span>
-                <span class="cab-price-sub">All Inclusive</span>
-              </div>
-              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="sedan">Select</button>
-            </div>
-          </div>
-
-          <!-- SEDAN XL (Diesel Only) -->
-          <div class="oneway-cab-card" data-car="sedan_xl">
-            <div class="cab-left">
-              <div class="cab-icon-wrap">
-                <img src="sedan.webp" alt="Sedan XL" class="cab-thumb" />
-                <span class="fuel-badge fuel-diesel">DIESEL</span>
-              </div>
-              <div class="cab-details">
-                <h4 class="cab-name">SEDAN XL</h4>
-                <p class="cab-models">Diesel Only · Swift Dzire, Etios, Honda Amaze</p>
-                <div class="cab-specs">
-                  <span>👤 4</span>
-                  <span>🧳 2</span>
-                </div>
-              </div>
-            </div>
-            <div class="cab-right">
-              <div class="cab-pricing">
-                <span class="cab-price-num" id="mPriceSedanXl">₹2,999</span>
-                <span class="cab-price-sub">All Inclusive</span>
-              </div>
-              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="sedan_xl">Select</button>
-            </div>
-          </div>
-
-          <!-- 24x7 Help Banner -->
-          <div class="oneway-help-strip">
-            <div class="help-left">
-              <svg class="ic" aria-hidden="true" style="width:20px;height:20px;color:#0284C7"><use href="#i-phone"/></svg>
-              <div>
-                <b>Need something special?</b>
-                <span>We're available 24/7 to help: +91 60057 91807</span>
-              </div>
-            </div>
-            <a href="tel:+916005791807" class="btn-help-link">Call Dispatch ➔</a>
-          </div>
-
-          <!-- SUV (Ertiga / Carens) -->
-          <div class="oneway-cab-card" data-car="suv">
-            <div class="cab-left">
-              <div class="cab-icon-wrap">
-                <img src="ertiga.webp" alt="SUV Ertiga" class="cab-thumb" />
-                <span class="fuel-badge fuel-cng">CNG / DIESEL</span>
-              </div>
-              <div class="cab-details">
-                <h4 class="cab-name">SUV</h4>
-                <p class="cab-models">Maruti Ertiga, Kia Carens, Mahindra Marazzo</p>
-                <div class="cab-specs">
-                  <span>👤 6</span>
-                  <span>🧳 4</span>
-                </div>
-              </div>
-            </div>
-            <div class="cab-right">
-              <div class="cab-pricing">
-                <span class="cab-price-num" id="mPriceSuv">₹3,499</span>
-                <span class="cab-price-sub">All Inclusive</span>
-              </div>
-              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="suv">Select</button>
-            </div>
-          </div>
-
-          <!-- SUV VIP (Innova Crysta) -->
-          <div class="oneway-cab-card" data-car="crysta">
-            <div class="cab-left">
-              <div class="cab-icon-wrap">
-                <img src="suv.webp" alt="Innova Crysta" class="cab-thumb" />
-                <span class="fuel-badge fuel-diesel">DIESEL</span>
-              </div>
-              <div class="cab-details">
-                <h4 class="cab-name">INNOVA CRYSTA (VIP)</h4>
-                <p class="cab-models">Toyota Innova Crysta / Hycross · Captain Seats</p>
-                <div class="cab-specs">
-                  <span>👤 7</span>
-                  <span>🧳 4 Large</span>
-                </div>
-              </div>
-            </div>
-            <div class="cab-right">
-              <div class="cab-pricing">
-                <span class="cab-price-num" id="mPriceCrysta">₹4,399</span>
-                <span class="cab-price-sub">All Inclusive</span>
-              </div>
-              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="crysta">Select</button>
-            </div>
-          </div>
-        </div>
 
         <div class="oneway-back-bar">
-          <button type="button" class="btn btn--ghost" id="btnBackToBook">← Back to Ride Details</button>
+          <button type="button" class="btn btn--ghost" id="btnBackToCabs">← Back to Cabs</button>
         </div>
       </div>
 
@@ -819,7 +825,7 @@
           </div>
 
           <div class="oneway-back-bar" style="margin-top:14px">
-            <button type="button" class="btn btn--ghost" id="btnBackToCabsList">← Back to Cabs</button>
+            <button type="button" class="btn btn--ghost" id="btnBackToPassenger">← Back to Passenger Details</button>
           </div>
         </div>
       </div>

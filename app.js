@@ -918,13 +918,23 @@ function goToOnewayStep(stepNum) {
   if (modalBody) modalBody.scrollTop = 0;
 
   // Step specific renders
-  if (stepNum === 2) {
+  if (stepNum === 1) {
     renderOnewayCabs();
+  } else if (stepNum === 2) {
+    renderSelectedCabStrip();
   } else if (stepNum === 2.5) {
     renderConfirmChoice();
   } else if (stepNum === 3) {
     renderOnewaySummary();
   }
+}
+
+function renderSelectedCabStrip() {
+  const lbl = $("#selectedCabLabel");
+  if (!lbl) return;
+  const car = ONEWAY_CARS[onewayState.selectedCar] || ONEWAY_CARS.sedan;
+  const fare = getCarFare(onewayState.selectedCar);
+  lbl.innerHTML = `Selected Cab: <b>${car.name}</b> (${inr(fare)} All-Inclusive)`;
 }
 
 function renderOnewayCabs() {
@@ -1841,14 +1851,6 @@ function initLocalPackage() {
   const bookBtn = $("#btnLocalBook");
   if (bookBtn) {
     bookBtn.addEventListener("click", () => {
-      const fb = window.FirebaseService;
-      if (!fb || !fb.currentUser) {
-        window.pendingBookingAction = () => bookBtn.click();
-        if (typeof window.openAuthModal === "function") {
-          window.openAuthModal("signup", "Please sign in or create an account to book your local package.");
-        }
-        return;
-      }
       const lInput = $("#localCityInput");
       let cityName = (lInput && lInput.value.trim()) || bookState.localCityName;
       if (!cityName) {
@@ -1959,14 +1961,6 @@ function initRoundTrip() {
   const btn = $("#btnRoundBook");
   if (btn) {
     btn.addEventListener("click", () => {
-      const fb = window.FirebaseService;
-      if (!fb || !fb.currentUser) {
-        window.pendingBookingAction = () => btn.click();
-        if (typeof window.openAuthModal === "function") {
-          window.openAuthModal("signup", "Please sign in or create an account to book your round trip.");
-        }
-        return;
-      }
       let from = fromSel ? fromSel.options[fromSel.selectedIndex].text : "Pune";
       if (fromSel && fromSel.value === "custom") {
         const inp = $("#roundFromCustom");
@@ -2318,16 +2312,40 @@ function initBooking() {
 
 function initModalWizardEvents() {
   // 1. Step 1: Check Fare & View Cabs button (/book -> /cabs)
-  const btnGoToCabs = $("#btnGoToCabs");
-  if (btnGoToCabs) {
-    btnGoToCabs.addEventListener("click", () => {
+  // 1. Step 1: Select Cab -> Proceed to Step 2 (Passenger & WhatsApp)
+  $$(".btn-select-cab").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const carKey = btn.dataset.selectCar || "sedan";
+      onewayState.selectedCar = carKey;
+      bookState.selectedCar = (carKey === "hatchback" || carKey === "sedan_xl") ? "sedan" : carKey;
+      goToOnewayStep(2); // Move to Step 2: Passenger Details & WhatsApp
+    });
+  });
+
+  $$(".oneway-cab-card").forEach(card => {
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".btn-select-cab")) return;
+      const carKey = card.dataset.car || "sedan";
+      onewayState.selectedCar = carKey;
+      bookState.selectedCar = (carKey === "hatchback" || carKey === "sedan_xl") ? "sedan" : carKey;
+      goToOnewayStep(2); // Move to Step 2: Passenger Details & WhatsApp
+    });
+  });
+
+  // 2. Step 2: Passenger & WhatsApp OTP Verification -> Proceed to Step 2.5 (Trip Choice)
+  const btnGoToSummary = $("#btnGoToSummary");
+  if (btnGoToSummary) {
+    btnGoToSummary.addEventListener("click", () => {
       const nameIn = $("#mCustName");
       const phoneIn = $("#mCustPhone");
       const pAddrIn = $("#mCustAddress");
+      const dAddrIn = $("#mCustDropAddress");
 
       const name = nameIn ? nameIn.value.trim() : "";
       const phone = phoneIn ? phoneIn.value.trim().replace(/\D/g, "").slice(-10) : "";
       const pickup = pAddrIn ? pAddrIn.value.trim() : "";
+      const drop = dAddrIn ? dAddrIn.value.trim() : "";
 
       if (!name) {
         alert("Please enter passenger full name.");
@@ -2352,10 +2370,20 @@ function initModalWizardEvents() {
         return;
       }
 
-      // Proceed to Step 2: /cabs
-      goToOnewayStep(2);
+      bookState.pickupAddress = pickup;
+      if (drop) bookState.dropAddress = drop;
+
+      // Proceed to Step 2.5: Trip Confirmation Choice (Saver vs Flexi)
+      goToOnewayStep(2.5);
     });
   }
+
+  // Back to Cabs from Step 2
+  const btnBackToCabsTop = $("#btnBackToCabsTop");
+  if (btnBackToCabsTop) btnBackToCabsTop.addEventListener("click", () => goToOnewayStep(1));
+
+  const btnBackToCabs = $("#btnBackToCabs");
+  if (btnBackToCabs) btnBackToCabs.addEventListener("click", () => goToOnewayStep(1));
 
   // WhatsApp OTP Send & Verify buttons
   const btnSendOtp = $("#btnSendOtp");
@@ -2377,33 +2405,7 @@ function initModalWizardEvents() {
     });
   }
 
-  // 2. Step 2: Available Cabs Selection (/cabs)
-  $$(".btn-select-cab").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const carKey = btn.dataset.selectCar || "sedan";
-      onewayState.selectedCar = carKey;
-      bookState.selectedCar = (carKey === "hatchback" || carKey === "sedan_xl") ? "sedan" : carKey;
-      goToOnewayStep(2.5); // Open "Is Your Trip Confirmed?" (Screenshot 3)
-    });
-  });
-
-  $$(".oneway-cab-card").forEach(card => {
-    card.addEventListener("click", (e) => {
-      if (e.target.closest(".btn-select-cab")) return;
-      const carKey = card.dataset.car || "sedan";
-      onewayState.selectedCar = carKey;
-      bookState.selectedCar = (carKey === "hatchback" || carKey === "sedan_xl") ? "sedan" : carKey;
-      goToOnewayStep(2.5);
-    });
-  });
-
-  const btnBackToBook = $("#btnBackToBook");
-  if (btnBackToBook) {
-    btnBackToBook.addEventListener("click", () => goToOnewayStep(1));
-  }
-
-  // 3. Step 2.5: Trip Confirmation Choice (Screenshot 3)
+  // 3. Step 2.5: Trip Confirmation Choice (Saver vs Flexi)
   const btnChooseSaver = $("#btnChooseSaver");
   if (btnChooseSaver) {
     btnChooseSaver.addEventListener("click", () => {
@@ -2420,12 +2422,17 @@ function initModalWizardEvents() {
     });
   }
 
-  const btnBackToCabsList = $("#btnBackToCabsList");
-  if (btnBackToCabsList) {
-    btnBackToCabsList.addEventListener("click", () => goToOnewayStep(2));
+  const btnBackToPassenger = $("#btnBackToPassenger");
+  if (btnBackToPassenger) {
+    btnBackToPassenger.addEventListener("click", () => goToOnewayStep(2));
   }
 
-  // 4. Step 3: Summary & Payment Buttons (Screenshot 4)
+  const btnBackToCabsList = $("#btnBackToCabsList");
+  if (btnBackToCabsList) {
+    btnBackToCabsList.addEventListener("click", () => goToOnewayStep(1));
+  }
+
+  // 4. Step 3: Summary & Payment Buttons
   const btnBackToConfirmChoice = $("#btnBackToConfirmChoice");
   if (btnBackToConfirmChoice) {
     btnBackToConfirmChoice.addEventListener("click", () => goToOnewayStep(2.5));

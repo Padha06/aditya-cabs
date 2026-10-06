@@ -352,24 +352,9 @@ html[lang="mr"] .footer__col h3{letter-spacing:.06em}
 .seg__opt input:checked + span b{color:var(--accent-text)}
 .seg__opt input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
 
-.fare{
-  display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:14px 16px;border-radius:var(--r-ctl);margin-top:2px;
-  background:linear-gradient(135deg,rgba(245,165,36,.14),rgba(245,165,36,.03));
-  border:1px solid rgba(245,165,36,.26);
+#fare, .fare, #panel-oneway .fare, #panel-oneway .field--class {
+  display: none !important;
 }
-.fare__left{display:grid;gap:1px}
-.fare__label{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--text-3)}
-.fare__val{display:flex;align-items:baseline;gap:2px;color:var(--accent-text);font-size:1.7rem;font-weight:800;letter-spacing:-.03em;line-height:1.05}
-.fare__cur{font-size:1.05rem;font-weight:700}
-.fare__meta{font-size:.76rem;color:var(--text-2)}
-.fare__badge{
-  flex:none;font-family:var(--font-d);font-weight:700;font-size:.74rem;letter-spacing:.06em;
-  text-transform:uppercase;padding:7px 12px;border-radius:var(--r-pill);
-  background:var(--accent);color:var(--accent-ink);
-}
-.fare.is-flash{animation:fareFlash .5s var(--ease)}
-@keyframes fareFlash{0%{transform:scale(1)}35%{transform:scale(1.025)}100%{transform:scale(1)}}
 
 .bookform__err{margin:0;font-size:.82rem;color:#FF9A8B;font-weight:600}
 .bookform__actions{display:grid;gap:10px;margin-top:2px}
@@ -1311,13 +1296,9 @@ body.rmodal-open{overflow:hidden}
   .address-status{font-size:.7rem;padding:5px 8px}
 
   /* FARE DISPLAY */
-  .fare{
-    padding:10px 12px;margin-top:0;width:100%;box-sizing:border-box;
+  #fare, .fare, #panel-oneway .fare, #panel-oneway .field--class {
+    display: none !important;
   }
-  .fare__val{font-size:1.45rem}
-  .fare__cur{font-size:.95rem}
-  .fare__meta{font-size:.7rem;line-height:1.25}
-  .fare__badge{font-size:.66rem;padding:5px 9px}
 
   /* CHECK FARE CTA */
   .btn--checkfare{
@@ -2916,6 +2897,18 @@ body.rmodal-open{overflow:hidden}
 .trip-confirm-modal{display:flex;flex-direction:column;gap:14px}
 .trip-confirm-header h3{font-size:1.25rem;font-weight:900;color:#0F172A;margin:0}
 [data-theme="dark"] .trip-confirm-header h3{color:#FFF}
+.selected-cab-strip{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 16px;border-radius:12px;margin-bottom:14px;
+  background:linear-gradient(135deg,rgba(0,136,234,.1),rgba(0,136,234,.03));
+  border:1px solid rgba(0,136,234,.25);color:var(--text);font-size:.9rem;font-weight:600;
+}
+.btn-change-cab{
+  background:transparent;border:1px solid #FFC107;color:#D97706;
+  padding:5px 12px;border-radius:20px;font-size:.78rem;font-weight:700;cursor:pointer;
+  transition:all .18s var(--ease);
+}
+.btn-change-cab:hover{background:#FFC107;color:#0F172A}
 
 .fare-plan-card{
   background:#FFF;border:1.5px solid #E2E8F0;border-radius:16px;padding:16px 18px;
