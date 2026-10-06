@@ -72,10 +72,14 @@ module.exports = async (req, res) => {
     const whatsappToken = process.env.WHATSAPP_TOKEN;
     const whatsappPhoneId = process.env.WHATSAPP_PHONE_ID;
     const templateName = process.env.WHATSAPP_OTP_TEMPLATE || 'otp_verification';
+    const fast2smsKey = process.env.FAST2SMS_API_KEY;
+    const twoFactorKey = process.env.TWOFACTOR_API_KEY;
+    const customOtpUrl = process.env.CUSTOM_OTP_API_URL;
 
-    let whatsappSent = false;
-    let metaResponse = null;
+    let otpDispatched = false;
+    let dispatchChannel = 'simulation';
 
+    // 1. Meta WhatsApp Cloud API
     if (whatsappToken && whatsappPhoneId) {
       try {
         const metaUrl = `https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`;
@@ -113,24 +117,71 @@ module.exports = async (req, res) => {
           })
         });
 
-        metaResponse = await resMeta.json();
         if (resMeta.ok) {
-          whatsappSent = true;
+          otpDispatched = true;
+          dispatchChannel = 'whatsapp';
         } else {
-          console.warn('Meta WhatsApp API Error:', metaResponse);
+          console.warn('Meta WhatsApp API Error:', await resMeta.json());
         }
       } catch (metaErr) {
         console.error('Meta fetch failed:', metaErr);
       }
     }
 
+    // 2. Fast2SMS Indian SMS Gateway
+    if (!otpDispatched && fast2smsKey) {
+      try {
+        const f2Res = await fetch(`https://www.fast2sms.com/dev/bulkV2?authorization=${fast2smsKey}&variables_values=${otp}&route=otp&numbers=${rawPhone.slice(-10)}`);
+        const f2Data = await f2Res.json();
+        if (f2Data && f2Data.return) {
+          otpDispatched = true;
+          dispatchChannel = 'sms_fast2sms';
+        }
+      } catch (fErr) {
+        console.error('Fast2SMS failed:', fErr);
+      }
+    }
+
+    // 3. 2Factor Indian Gateway
+    if (!otpDispatched && twoFactorKey) {
+      try {
+        const tfRes = await fetch(`https://2factor.in/API/V1/${twoFactorKey}/SMS/${rawPhone.slice(-10)}/${otp}/OTP1`);
+        if (tfRes.ok) {
+          otpDispatched = true;
+          dispatchChannel = 'sms_2factor';
+        }
+      } catch (tfErr) {
+        console.error('2Factor failed:', tfErr);
+      }
+    }
+
+    // 4. Custom Client OTP Endpoint
+    if (!otpDispatched && customOtpUrl) {
+      try {
+        const cRes = await fetch(customOtpUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: formattedPhone, otp, name })
+        });
+        if (cRes.ok) {
+          otpDispatched = true;
+          dispatchChannel = 'custom_gateway';
+        }
+      } catch (cErr) {
+        console.error('Custom OTP endpoint failed:', cErr);
+      }
+    }
+
     return res.status(200).json({
       success: true,
-      message: whatsappSent ? 'OTP sent successfully to your WhatsApp.' : 'OTP generated (Ready for verification).',
+      message: otpDispatched 
+        ? `OTP sent successfully to +91 ${rawPhone.slice(-10)}.` 
+        : 'OTP generated (Ready for verification).',
+      channel: dispatchChannel,
       phone: formattedPhone,
       token: token,
-      isTestMode: !whatsappSent,
-      testOtp: !whatsappSent ? otp : undefined
+      isTestMode: !otpDispatched,
+      testOtp: !otpDispatched ? otp : undefined
     });
   } catch (err) {
     console.error('send-whatsapp-otp error:', err);

@@ -2815,6 +2815,41 @@ body.rmodal-open{overflow:hidden}
 }
 [data-theme="dark"] .addr-tag-pill{background:#334155;color:#CBD5E1}
 
+.addr-stop-row{
+  display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;
+  color:#0088EA;cursor:pointer;padding:2px 0;width:fit-content;
+}
+.addr-stop-dot{
+  width:16px;height:16px;border-radius:50%;border:1px dashed #0088EA;
+  display:grid;place-items:center;font-size:.7rem;font-weight:900;
+}
+
+.oneway-optional-accordions{
+  display:flex;flex-direction:column;gap:8px;margin-top:10px;
+}
+.oneway-acc-item{
+  background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;
+}
+[data-theme="dark"] .oneway-acc-item{background:#1E293B;border-color:#334155}
+.oneway-acc-summary{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+  font-size:.84rem;font-weight:600;cursor:pointer;list-style:none;user-select:none;
+}
+.oneway-acc-summary::-webkit-details-marker{display:none}
+.acc-icon-wrap{
+  width:26px;height:26px;border-radius:7px;background:rgba(0,136,234,.1);
+  color:#0088EA;display:grid;place-items:center;font-size:.82rem;flex-shrink:0;
+}
+.acc-sub{color:#94A3B8;font-weight:400;font-size:.76rem}
+.acc-chevron{margin-left:auto;color:#94A3B8;font-size:.75rem}
+.oneway-acc-body{padding:10px 14px 14px;border-top:1px solid #E2E8F0}
+[data-theme="dark"] .oneway-acc-body{border-color:#334155}
+.oneway-acc-body input{
+  width:100%;padding:9px 12px;border:1px solid #CBD5E1;border-radius:8px;
+  font-size:.85rem;background:#FFF;color:inherit;outline:none;
+}
+[data-theme="dark"] .oneway-acc-body input{background:#0F172A;border-color:#334155;color:#FFF}
+
 /* Big Yellow Buttons (OneWay Signature #FFC107) */
 .btn-yellow{
   background:#FFC107 !important;color:#0F172A !important;font-weight:900 !important;

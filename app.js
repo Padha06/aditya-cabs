@@ -1039,15 +1039,10 @@ function renderOnewaySummary() {
 async function sendWhatsAppOtp() {
   const nameIn = $("#mCustName");
   const phoneIn = $("#mCustPhone");
-  const name = nameIn ? nameIn.value.trim() : "";
+  const name = (nameIn && nameIn.value.trim()) || "Valued Customer";
   const rawPhone = phoneIn ? phoneIn.value.trim() : "";
   const cleanPhone = rawPhone.replace(/\D/g, "").slice(-10);
 
-  if (!name) {
-    alert("Please enter passenger full name before sending OTP.");
-    if (nameIn) nameIn.focus();
-    return;
-  }
   if (!cleanPhone || cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
     alert("Please enter a valid 10-digit Indian WhatsApp mobile number.");
     if (phoneIn) phoneIn.focus();

@@ -1303,7 +1303,7 @@
           </div>
         </div>
 
-        <!-- Doorstep Addresses with Connected Dots -->
+        <!-- Doorstep Addresses with Connected Dots (Exact OneWay.cab style) -->
         <div class="oneway-address-container">
           <div class="addr-track-line">
             <div class="addr-dot-pickup"></div>
@@ -1312,14 +1312,44 @@
           </div>
           <div class="addr-inputs-col">
             <div class="addr-input-block">
-              <input id="mCustAddress" type="text" placeholder="Search pickup address (House No, Society, Area)" required />
+              <input id="mCustAddress" type="text" placeholder="Search pickup address" required />
               <span class="addr-tag-pill">PICKUP</span>
             </div>
+            <div class="addr-stop-row" id="btnAddStopRow">
+              <span class="addr-stop-dot">＋</span>
+              <span class="addr-stop-text">Add a stop <span class="acc-sub">(Optional)</span></span>
+            </div>
             <div class="addr-input-block">
-              <input id="mCustDropAddress" type="text" placeholder="Search drop address (Building, Landmark, Area)" />
+              <input id="mCustDropAddress" type="text" placeholder="Search drop address" />
               <span class="addr-tag-pill">DROP</span>
             </div>
           </div>
+        </div>
+
+        <!-- Optional Accordions (Matching Screenshot) -->
+        <div class="oneway-optional-accordions">
+          <details class="oneway-acc-item">
+            <summary class="oneway-acc-summary">
+              <span class="acc-icon-wrap">👤+</span>
+              <span>Add Alternate Mobile No. <span class="acc-sub">(Optional)</span></span>
+              <span class="acc-chevron">▾</span>
+            </summary>
+            <div class="oneway-acc-body">
+              <input id="mCustAltPhone" type="tel" placeholder="10-digit alternate mobile number" maxlength="10" />
+            </div>
+          </details>
+
+          <details class="oneway-acc-item">
+            <summary class="oneway-acc-summary">
+              <span class="acc-icon-wrap">₹</span>
+              <span>Business Traveler? Add GST <span class="acc-sub">(Optional)</span></span>
+              <span class="acc-chevron">▾</span>
+            </summary>
+            <div class="oneway-acc-body">
+              <input id="mCustGstNumber" type="text" placeholder="GSTIN (e.g. 27ABCDE1234F1Z5)" maxlength="15" />
+              <input id="mCustGstCompany" type="text" placeholder="Registered Company Name" style="margin-top:8px" />
+            </div>
+          </details>
         </div>
 
         <!-- Action Button -->
