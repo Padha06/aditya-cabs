@@ -2473,7 +2473,7 @@ function initReviews() {
 
   const paint = () => {
     $$(".review--dyn", grid).forEach(el => el.remove());
-    list.slice().reverse().forEach(r => grid.insertAdjacentHTML("afterbegin", cardHTML(r, myIds.includes(r.id))));
+    list.slice().reverse().forEach(r => grid.insertAdjacentHTML("afterbegin", cardHTML(r, myIds.some(x => x && x.id === r.id))));
     const el = $("#revCount");
     if (el) el.textContent = `${seedCount + list.length} ` + i18nT("reviews from travellers across Maharashtra.");
     revealAll();
@@ -2523,7 +2523,7 @@ function initReviews() {
         });
         if (!res.ok) throw new Error(res.status);
         const item = await res.json();
-        myIds.push(item.id); writeJSON(REVIEW_MINE, myIds);
+        myIds.push({ id: item.id, token: item.deleteToken || "" }); writeJSON(REVIEW_MINE, myIds);
         await load();
       } catch (err) {
         fail("Could not publish right now. Please try again in a moment.");
@@ -2532,7 +2532,7 @@ function initReviews() {
     } else {
       const item = { ...payload, id: "r" + Date.now().toString(36) };
       list.unshift(item);
-      myIds.push(item.id); writeJSON(REVIEW_MINE, myIds);
+      myIds.push({ id: item.id, token: "" }); writeJSON(REVIEW_MINE, myIds);
       writeJSON(REVIEW_KEY, list);
       paint();
     }
@@ -2557,13 +2557,14 @@ function initReviews() {
     const btn = e.target.closest("[data-revremove]");
     if (!btn) return;
     const id = btn.dataset.revremove;
+    const mine = myIds.find(x => x && x.id === id) || {};
     if (shared) {
-      try { await fetch(`${REVIEW_API}?id=${encodeURIComponent(id)}`, { method: "DELETE" }); } catch (err) { /* ignore */ }
-      myIds = myIds.filter(x => x !== id); writeJSON(REVIEW_MINE, myIds);
+      try { await fetch(`${REVIEW_API}?id=${encodeURIComponent(id)}&token=${encodeURIComponent(mine.token || "")}`, { method: "DELETE" }); } catch (err) { /* ignore */ }
+      myIds = myIds.filter(x => x && x.id !== id); writeJSON(REVIEW_MINE, myIds);
       await load();
     } else {
       list = list.filter(r => r.id !== id);
-      myIds = myIds.filter(x => x !== id);
+      myIds = myIds.filter(x => x && x.id !== id);
       writeJSON(REVIEW_KEY, list); writeJSON(REVIEW_MINE, myIds);
       paint();
     }

@@ -145,4 +145,11 @@ async function listOrdered(collectionName, field, direction, limit) {
   return arr.filter((x) => x.document).map((x) => Object.assign({ id: idOf(x.document.name) }, fromFields(x.document.fields || {})));
 }
 
-module.exports = { setDoc, getDoc, addDoc, runQuery, listOrdered, available: () => !!sa() };
+async function deleteDoc(path) {
+  const t = await token();
+  const r = await fetch(`${base()}/${path}`, { method: "DELETE", headers: { Authorization: "Bearer " + t } });
+  if (!r.ok && r.status !== 404) throw new Error("deleteDoc " + r.status + " " + (await r.text()));
+  return true;
+}
+
+module.exports = { setDoc, getDoc, addDoc, runQuery, listOrdered, deleteDoc, available: () => !!sa() };

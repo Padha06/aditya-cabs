@@ -47,9 +47,9 @@
 
       <div class="bf-actions">
         <button type="button" class="bf-btn-primary" id="admSignIn">Sign in</button>
-        <button type="button" class="bf-btn-ghost" id="admCreate">Create admin account</button>
+        <button type="button" class="bf-btn-ghost" id="admReset">Forgot password? Send reset link</button>
       </div>
-      <p class="oneway-terms-note">Only allow-listed admin emails can access the portal.</p>
+      <p class="oneway-terms-note">First time? Just enter your email + a password and tap Sign in — your admin account is created automatically. Only allow-listed emails get access.</p>
     </div>
   </section>
 </main>
@@ -59,7 +59,22 @@
   const $ = (id) => document.getElementById(id);
   const errBox = $('adminErr');
   function err(m) { errBox.hidden = false; errBox.textContent = m; }
-  function busy(b) { $('admSignIn').disabled = b; $('admCreate').disabled = b; }
+  function ok(m) { errBox.hidden = false; errBox.style.color = '#16A34A'; errBox.textContent = m; }
+  function busy(b) { $('admSignIn').disabled = b; $('admReset').disabled = b; }
+
+  function fmtErr(e) {
+    const c = (e && e.code) || '';
+    if (c === 'auth/invalid-credential' || c === 'auth/wrong-password' || c === 'auth/user-not-found') {
+      return 'Incorrect email or password. If you are not sure of the password, tap "Send reset link".';
+    }
+    if (c === 'auth/email-already-in-use') return 'That email already has an account. Use "Send reset link", then sign in with the new password.';
+    if (c === 'auth/weak-password') return 'Password must be at least 6 characters.';
+    if (c === 'auth/invalid-email') return 'Enter a valid email address.';
+    if (c === 'auth/operation-not-allowed') return 'Email/Password sign-in is turned off in Firebase. Enable it in Firebase Console → Authentication → Sign-in method → Email/Password.';
+    if (c === 'auth/too-many-requests') return 'Too many attempts. Please wait a minute and try again.';
+    if (c === 'auth/network-request-failed') return 'Network error. Check your connection and try again.';
+    return (e && e.message) || 'Sign-in failed.';
+  }
 
   async function authorize() {
     const token = await FirebaseService.getIdToken();
@@ -71,25 +86,44 @@
   }
 
   async function doSignIn() {
-    errBox.hidden = true;
+    errBox.hidden = true; errBox.style.color = '';
     const email = $('admEmail').value.trim(), pass = $('admPass').value;
     if (!/^\S+@\S+\.\S+$/.test(email) || !pass) { err('Enter your admin email and password.'); return; }
     busy(true);
-    try { await FirebaseService.loginWithEmail(email, pass); await authorize(); }
-    catch (e) { err((e && e.message) || 'Sign-in failed.'); busy(false); }
+    try {
+      try {
+        await FirebaseService.loginWithEmail(email, pass);
+      } catch (e) {
+        const c = (e && e.code) || '';
+        if (c === 'auth/invalid-credential' || c === 'auth/user-not-found' || c === 'auth/wrong-password') {
+          // Might be a first-time account — create it.
+          try {
+            await FirebaseService.signupWithEmail(email, pass, { name: 'Admin', role: 'rider' });
+          } catch (e2) {
+            if (e2 && e2.code === 'auth/email-already-in-use') {
+              err('This email already has an account. Tap "Send reset link" to set a new password, then sign in.');
+              busy(false); return;
+            }
+            throw e2;
+          }
+        } else { throw e; }
+      }
+      await authorize();
+    } catch (e) { err(fmtErr(e)); busy(false); }
   }
 
-  async function doCreate() {
-    errBox.hidden = true;
-    const email = $('admEmail').value.trim(), pass = $('admPass').value;
-    if (!/^\S+@\S+\.\S+$/.test(email) || pass.length < 6) { err('Enter an email and a password of at least 6 characters.'); return; }
+  async function doReset() {
+    errBox.hidden = true; errBox.style.color = '';
+    const email = $('admEmail').value.trim();
+    if (!/^\S+@\S+\.\S+$/.test(email)) { err('Enter your admin email first, then tap "Send reset link".'); return; }
     busy(true);
-    try { await FirebaseService.signupWithEmail(email, pass, { name: 'Admin', role: 'rider' }); await authorize(); }
-    catch (e) { err((e && e.message) || 'Could not create the account.'); busy(false); }
+    try { await FirebaseService.sendPasswordReset(email); ok('Reset link sent to ' + email + '. Check your inbox (and spam).'); }
+    catch (e) { err(fmtErr(e)); }
+    busy(false);
   }
 
   $('admSignIn').addEventListener('click', doSignIn);
-  $('admCreate').addEventListener('click', doCreate);
+  $('admReset').addEventListener('click', doReset);
   $('admPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSignIn(); });
 </script>
 </body>
