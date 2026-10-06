@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Admin Dashboard | Shivrudra Taxi</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="booking-flow.css" />
+<link rel="icon" href="taxi.svg" type="image/svg+xml" />
+<style>
+  .adm-wrap { max-width: 1080px; margin: 0 auto; padding: 18px 16px 80px; }
+  .adm-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .adm-head h1 { font-size: 1.3rem; margin: 0; }
+  .adm-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+  .adm-stat { background: #FFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 14px; }
+  .adm-stat span { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: #64748B; }
+  .adm-stat b { display: block; font-family: var(--font-d); font-size: 1.5rem; color: #0F172A; margin-top: 2px; }
+  .adm-stat i { font-style: normal; font-size: .74rem; color: #16A34A; font-weight: 700; }
+  .adm-card { background: #FFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 16px 18px; margin-bottom: 18px; }
+  .adm-card h2 { font-size: 1.02rem; margin: 0 0 10px; }
+  .adm-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .adm-tab { border: 1.5px solid #E2E8F0; background: #FFF; border-radius: 999px; padding: 6px 14px; font-size: .8rem; font-weight: 800; cursor: pointer; color: #475569; }
+  .adm-tab.is-on { border-color: #0088EA; background: rgba(0,136,234,.08); color: #0088EA; }
+  table.adm { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  table.adm th, table.adm td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #EEF2F6; white-space: nowrap; }
+  table.adm th { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: #64748B; }
+  table.adm input { width: 100%; min-width: 60px; border: 1px solid #E2E8F0; border-radius: 8px; padding: 6px 8px; font: inherit; background: #F8FAFC; }
+  table.adm input.wide { min-width: 210px; }
+  .adm-scroll { overflow-x: auto; }
+  .adm-rowbtns { display: flex; gap: 6px; }
+  .mini { border: 1px solid #E2E8F0; background: #FFF; border-radius: 8px; padding: 5px 10px; font-size: .76rem; font-weight: 800; cursor: pointer; }
+  .mini.danger { color: #DC2626; border-color: #FECACA; }
+  .adm-save { position: sticky; bottom: 0; background: linear-gradient(180deg, rgba(255,255,255,0), #F4F6F9 40%); padding: 14px 0; display: flex; gap: 12px; align-items: center; }
+  .adm-msg { font-size: .84rem; font-weight: 800; }
+  .adm-collapse > summary { cursor: pointer; font-weight: 800; padding: 8px 0; }
+  @media (max-width: 700px) { .adm-stats { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body class="bf-page">
+
+<header class="bf-nav">
+  <div class="bf-nav__inner" style="max-width:none">
+    <a class="bf-nav__brand" href="/" aria-label="Shivrudra Taxi"><img src="logo.webp" alt="Shivrudra Taxi" width="610" height="409" /></a>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="admWho" class="bf-nav__secure">—</span>
+      <button type="button" class="bf-nav__signin" id="admSignOut">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="adm-wrap">
+  <div id="admGate" class="bf-loading"><div class="bf-spinner"></div>Checking access…</div>
+  <div id="admApp" hidden>
+    <div class="adm-head"><h1>Dashboard</h1><span id="admUpdated" class="bf-sub"></span></div>
+
+    <!-- Booking tracking -->
+    <div class="adm-stats" id="admStats"></div>
+    <div class="adm-card">
+      <h2>Bookings</h2>
+      <div class="adm-tabs" id="admRangeTabs">
+        <button class="adm-tab is-on" data-range="today">Today</button>
+        <button class="adm-tab" data-range="week">Last 7 days</button>
+        <button class="adm-tab" data-range="month">Last 30 days</button>
+        <button class="adm-tab" data-range="all">All</button>
+      </div>
+      <div class="adm-scroll"><table class="adm" id="admBookings"></table></div>
+    </div>
+
+    <!-- Config editors -->
+    <div class="adm-head"><h1 style="font-size:1.15rem">Website settings</h1></div>
+
+    <details class="adm-card adm-collapse" open><summary>Brand &amp; contact</summary>
+      <table class="adm"><tbody id="admBrand"></tbody></table>
+    </details>
+
+    <details class="adm-card adm-collapse"><summary>Cities</summary>
+      <p class="bf-sub">Add a city before using it in a route. The <b>id</b> is a short slug (e.g. <code>pune</code>).</p>
+      <div class="adm-scroll"><table class="adm" id="admCities"></table></div>
+      <button class="mini" id="admAddCity">+ Add city</button>
+    </details>
+
+    <details class="adm-card adm-collapse" open><summary>One-way routes &amp; fares</summary>
+      <div class="adm-scroll"><table class="adm" id="admRoutes"></table></div>
+      <button class="mini" id="admAddRoute">+ Add route</button>
+    </details>
+
+    <details class="adm-card adm-collapse"><summary>Car classes &amp; images</summary>
+      <div class="adm-scroll"><table class="adm" id="admCars"></table></div>
+      <button class="mini" id="admAddCar">+ Add car class</button>
+    </details>
+
+    <details class="adm-card adm-collapse"><summary>Round-trip rates</summary>
+      <table class="adm"><tbody id="admRound"></tbody></table>
+    </details>
+
+    <details class="adm-card adm-collapse"><summary>Local rental packages</summary>
+      <table class="adm"><tbody id="admLocal"></tbody></table>
+    </details>
+
+    <details class="adm-card adm-collapse"><summary>Shared cab routes</summary>
+      <div class="adm-scroll"><table class="adm" id="admShare"></table></div>
+      <button class="mini" id="admAddShare">+ Add shared route</button>
+    </details>
+
+    <div class="adm-save">
+      <button class="bf-btn-primary" id="admSave" style="max-width:220px">Save changes</button>
+      <span class="adm-msg" id="admMsg" hidden></span>
+    </div>
+  </div>
+</main>
+
+<script src="booking-data.js"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var ST = window.STBooking;
+  var C = null; // working config
+  var curRange = "today";
+  var $stats = $("admStats"), $bookings = $("admBookings");
+
+  fetch("/api/admin-session").then(function (r) { return r.json(); }).then(function (d) {
+    if (!d.authenticated) { location.replace("/admin-login"); return; }
+    $("admWho").textContent = d.email || "Admin";
+    $("admGate").hidden = true; $("admApp").hidden = false;
+    ST.ready.then(init);
+  }).catch(function () { location.replace("/admin-login"); });
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  function init() {
+    C = {
+      brand: { brand: ST.CONFIG.brand, phoneDisplay: ST.CONFIG.phoneDisplay, phoneTel: ST.CONFIG.phoneTel, whatsapp: ST.CONFIG.whatsapp },
+      cities: clone(ST.CITIES),
+      routes: clone(ST.ROUTES),
+      cars: clone(ST.ONEWAY_CARS),
+      carOrder: ST.CAR_ORDER.slice(),
+      round: { estKm: ST.ROUND_EST_KM, cars: clone(ST.ROUND_CARS), order: ST.ROUND_ORDER.slice() },
+      local: { packages: clone(ST.LOCAL_PACKAGES), cls: clone(ST.LOCAL_CLS) },
+      share: { routes: clone(ST.SHARE_ROUTES), maxSeats: ST.SHARE_MAX_SEATS }
+    };
+    renderBrand(); renderCities(); renderRoutes(); renderCars(); renderRound(); renderLocal(); renderShare();
+    loadBookings(curRange);
+    wire();
+  }
+
+  // ---------- helpers ----------
+  function field(label, path, type) {
+    return '<tr><td style="width:190px;color:#475569;font-weight:700">' + label + '</td><td><input data-path="' + path + '" type="' + (type || "text") + '" value="' + (getPath(path) == null ? "" : String(getPath(path)).replace(/"/g, "&quot;")) + '"></td></tr>';
+  }
+  function getPath(p) { return p.split(".").reduce(function (o, k) { return o == null ? o : o[k]; }, C); }
+  function hcell(text) { return '<th>' + text + '</th>'; }
+  function inputCell(path, value, wide) { return '<td><input class="' + (wide ? "wide" : "") + '" data-path="' + path + '" value="' + String(value == null ? "" : value).replace(/"/g, "&quot;") + '"></td>'; }
+
+  function readInputs(root) {
+    root.querySelectorAll("[data-path]").forEach(function (el) {
+      var parts = el.dataset.path.split("."), o = C;
+      for (var i = 0; i < parts.length - 1; i++) {
+        var k = parts[i], nextNum = /^\d+$/.test(parts[i + 1]);
+        if (o[k] == null || nextNum !== Array.isArray(o[k])) o[k] = nextNum ? [] : {};
+        o = o[k];
+      }
+      var last = parts[parts.length - 1];
+      o[last] = el.type === "number" ? Number(el.value) : el.value;
+    });
+  }
+
+  // ---------- brand ----------
+  function renderBrand() {
+    $("admBrand").innerHTML =
+      field("Brand name", "brand.brand") +
+      field("Phone (display)", "brand.phoneDisplay") +
+      field("Phone (tel)", "brand.phoneTel") +
+      field("WhatsApp (digits)", "brand.whatsapp");
+  }
+
+  // ---------- cities ----------
+  function renderCities() {
+    var ids = Object.keys(C.cities);
+    var html = "<tr>" + hcell("Id") + hcell("Name") + hcell("Short") + hcell("") + "</tr>";
+    ids.forEach(function (id) {
+      html += "<tr><td style=\"font-weight:700\">" + id + "</td>" +
+        inputCell("cities." + id + ".name", C.cities[id].name, true) +
+        inputCell("cities." + id + ".short", C.cities[id].short) +
+        '<td><button class="mini danger" data-delcity="' + id + '">Remove</button></td></tr>';
+    });
+    $("admCities").innerHTML = html;
+  }
+
+  // ---------- routes ----------
+  function renderRoutes() {
+    var html = "<tr>" + hcell("From (city id)") + hcell("To (city id)") + hcell("Sedan ₹") + hcell("SUV ₹") + hcell("Km") + hcell("Time") + hcell("") + "</tr>";
+    C.routes.forEach(function (r, i) {
+      html += "<tr>" +
+        inputCell("routes." + i + ".a", r.a) +
+        inputCell("routes." + i + ".b", r.b) +
+        '<td><input data-path="routes.' + i + '.sedan" type="number" value="' + r.sedan + '"></td>' +
+        '<td><input data-path="routes.' + i + '.suv" type="number" value="' + r.suv + '"></td>' +
+        '<td><input data-path="routes.' + i + '.km" type="number" value="' + (r.km || 0) + '"></td>' +
+        inputCell("routes." + i + ".time", r.time || "") +
+        '<td><button class="mini danger" data-delroute="' + i + '">Remove</button></td></tr>';
+    });
+    $("admRoutes").innerHTML = html;
+  }
+
+  // ---------- cars ----------
+  function renderCars() {
+    var keys = C.carOrder.filter(function (k) { return C.cars[k]; });
+    var html = "<tr>" + hcell("Key") + hcell("Name") + hcell("Models") + hcell("Fuel") + hcell("Seats") + hcell("Bags") + hcell("Image URL") + hcell("Ratio") + hcell("") + "</tr>";
+    keys.forEach(function (k) {
+      var c = C.cars[k];
+      html += "<tr><td style=\"font-weight:700\">" + k + "</td>" +
+        inputCell("cars." + k + ".name", c.name) +
+        inputCell("cars." + k + ".models", c.models, true) +
+        inputCell("cars." + k + ".fuel", c.fuel) +
+        '<td><input data-path="cars.' + k + '.seats" type="number" value="' + (c.seats || 0) + '"></td>' +
+        '<td><input data-path="cars.' + k + '.bags" type="number" value="' + (c.bags || 0) + '"></td>' +
+        inputCell("cars." + k + ".image", c.image, true) +
+        '<td><input data-path="cars.' + k + '.ratio" type="number" step="0.01" value="' + (c.ratio || 1) + '"></td>' +
+        '<td><button class="mini danger" data-delcar="' + k + '">Remove</button></td></tr>';
+    });
+    $("admCars").innerHTML = html;
+  }
+
+  // ---------- round ----------
+  function renderRound() {
+    var html = field("Estimated round-trip km", "round.estKm", "number");
+    C.round.order.forEach(function (k) {
+      if (C.round.cars[k]) html += field("Rate — " + C.round.cars[k].name + " (₹/km)", "round.cars." + k + ".rate", "number");
+    });
+    $("admRound").innerHTML = html;
+  }
+
+  // ---------- local ----------
+  function renderLocal() {
+    var html = "";
+    Object.keys(C.local.packages).forEach(function (pk) {
+      var p = C.local.packages[pk];
+      html += field(p.label + " — km included", "local.packages." + pk + ".km", "number");
+      html += field(p.label + " — Sedan ₹", "local.packages." + pk + ".sedan", "number");
+      html += field(p.label + " — SUV ₹", "local.packages." + pk + ".suv", "number");
+    });
+    $("admLocal").innerHTML = html;
+  }
+
+  // ---------- share ----------
+  function renderShare() {
+    var html = "<tr>" + hcell("Route id") + hcell("From") + hcell("To") + hcell("₹ / seat") + hcell("") + "</tr>";
+    C.share.routes.forEach(function (r, i) {
+      html += "<tr>" + inputCell("share.routes." + i + ".key", r.key) +
+        inputCell("share.routes." + i + ".a", r.a) +
+        inputCell("share.routes." + i + ".b", r.b) +
+        '<td><input data-path="share.routes.' + i + '.rate" type="number" value="' + r.rate + '"></td>' +
+        '<td><button class="mini danger" data-delshare="' + i + '">Remove</button></td></tr>';
+    });
+    $("admShare").innerHTML = html;
+  }
+
+  // ---------- bookings ----------
+  function inr(n) { return "₹" + Number(n || 0).toLocaleString("en-IN"); }
+  function loadBookings(range) {
+    curRange = range;
+    fetch("/api/admin/bookings?range=" + range).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d.success) return;
+      var s = d.stats;
+      $stats.innerHTML =
+        stat("Today", s.today) + stat("Last 7 days", s.week) + stat("Last 30 days", s.month) + stat("All time", s.all);
+      var rows = "<tr>" + hcell("Booking") + hcell("When") + hcell("Name") + hcell("Phone") + hcell("Route") + hcell("Fare") + hcell("Payment") + "</tr>";
+      if (!d.bookings.length) rows += '<tr><td colspan="7" style="color:#64748B;padding:14px">No bookings in this period.</td></tr>';
+      d.bookings.forEach(function (b) {
+        var when = b.createdAt ? new Date(b.createdAt).toLocaleString("en-IN") : "-";
+        rows += "<tr><td>#" + (b.id || "-") + "</td><td>" + when + "</td><td>" + (b.name || "-") + "</td><td>" + (b.phone || "-") + "</td><td>" + (b.from || "") + " → " + (b.to || "") + (b.type && b.type !== "oneway" ? " (" + b.type + ")" : "") + "</td><td>" + inr(b.totalFare) + "</td><td>" + (b.paymentMode || "") + "</td></tr>";
+      });
+      $bookings.innerHTML = rows;
+    }).catch(function () {});
+  }
+  function stat(label, a) {
+    return '<div class="adm-stat"><span>' + label + '</span><b>' + a.count + '</b><i>' + inr(a.revenue) + ' booked</i></div>';
+  }
+
+  // ---------- wiring ----------
+  function wire() {
+    $("admRangeTabs").addEventListener("click", function (e) {
+      var t = e.target.closest(".adm-tab"); if (!t) return;
+      [].forEach.call($("admRangeTabs").children, function (b) { b.classList.toggle("is-on", b === t); });
+      loadBookings(t.dataset.range);
+    });
+
+    $("admAddRoute").addEventListener("click", function () { readInputs(document); C.routes.push({ a: "pune", b: "mumbai", sedan: 2799, suv: 3499, km: 150, time: "3h" }); renderRoutes(); });
+    $("admAddCity").addEventListener("click", function () { readInputs(document); var id = "city" + (Object.keys(C.cities).length + 1); C.cities[id] = { name: "New City", short: "New" }; renderCities(); });
+    $("admAddCar").addEventListener("click", function () { readInputs(document); var k = "car" + (Object.keys(C.cars).length + 1); C.cars[k] = { name: "New Car", models: "", fuel: "PETROL", seats: 4, bags: 2, image: "sedan-thumb.webp", ratio: 1 }; C.carOrder.push(k); renderCars(); });
+    $("admAddShare").addEventListener("click", function () { readInputs(document); C.share.routes.push({ key: "route" + (C.share.routes.length + 1), a: "pune", b: "mumbai", rate: 800 }); renderShare(); });
+
+    document.addEventListener("click", function (e) {
+      var t = e.target;
+      if (t.dataset.delroute != null) { readInputs(document); C.routes.splice(Number(t.dataset.delroute), 1); renderRoutes(); }
+      else if (t.dataset.delcar != null) { readInputs(document); var k = t.dataset.delcar; delete C.cars[k]; C.carOrder = C.carOrder.filter(function (x) { return x !== k; }); renderCars(); }
+      else if (t.dataset.delshare != null) { readInputs(document); C.share.routes.splice(Number(t.dataset.delshare), 1); renderShare(); }
+      else if (t.dataset.delcity != null) { readInputs(document); delete C.cities[t.dataset.delcity]; renderCities(); }
+    });
+
+    $("admSave").addEventListener("click", save);
+    $("admSignOut").addEventListener("click", function () {
+      fetch("/api/admin-session", { method: "DELETE" }).then(function () { location.href = "/admin-login"; });
+    });
+  }
+
+  function save() {
+    readInputs(document);
+    // strip helper __id/__key entries
+    Object.keys(C.cities).forEach(function (id) { delete C.cities[id].__id; });
+    Object.keys(C.cars).forEach(function (k) { delete C.cars[k].__key; });
+
+    var btn = $("admSave"), msg = $("admMsg");
+    btn.disabled = true; var old = btn.textContent; btn.textContent = "Saving…";
+    fetch("/api/config", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ config: C }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        msg.hidden = false;
+        if (d && d.success) { msg.style.color = "#16A34A"; msg.textContent = "Saved. Changes are live on the site."; }
+        else { msg.style.color = "#DC2626"; msg.textContent = (d && d.error) || "Save failed."; }
+      })
+      .catch(function () { msg.hidden = false; msg.style.color = "#DC2626"; msg.textContent = "Network error saving."; })
+      .then(function () { btn.disabled = false; btn.textContent = old; });
+  }
+})();
+</script>
+</body>
+</html>

@@ -64,7 +64,7 @@
   const CAR_ORDER = ["hatchback", "sedan", "sedan_xl", "suv", "crysta"];
 
   // --- Round trip (per-km) ---
-  const ROUND_EST_KM = 500;
+  let ROUND_EST_KM = 500;
   const ROUND_CARS = {
     sedan:  { key: "sedan",  name: "Sedan",         models: "Dzire / Aura / Etios", rate: 12, seats: 4, bags: 2, image: "sedan-thumb.webp" },
     ertiga: { key: "ertiga", name: "SUV Ertiga",    models: "Maruti Ertiga",        rate: 14, seats: 6, bags: 3, image: "ertiga-thumb.webp" },
@@ -94,7 +94,7 @@
     { key: "pune-shirdi", a: "pune", b: "shirdi", rate: 800 },
     { key: "mumbai-nashik", a: "mumbai", b: "nashik", rate: 700 }
   ];
-  const SHARE_MAX_SEATS = 3;
+  let SHARE_MAX_SEATS = 3;
 
   const inr = (n) => "\u20B9" + Number(n).toLocaleString("en-IN");
 
@@ -316,12 +316,46 @@
     ]
   };
 
+  // Apply admin-edited config over the built-in defaults.
+  function applyConfig(cfg) {
+    if (!cfg || typeof cfg !== "object") return;
+    if (cfg.brand && typeof cfg.brand === "object") Object.assign(CONFIG, cfg.brand);
+    if (cfg.cities && typeof cfg.cities === "object") { Object.keys(CITIES).forEach((k) => delete CITIES[k]); Object.assign(CITIES, cfg.cities); }
+    if (Array.isArray(cfg.routes)) { ROUTES.length = 0; cfg.routes.forEach((r) => ROUTES.push(r)); }
+    if (cfg.cars && typeof cfg.cars === "object") { Object.keys(ONEWAY_CARS).forEach((k) => delete ONEWAY_CARS[k]); Object.assign(ONEWAY_CARS, cfg.cars); }
+    if (Array.isArray(cfg.carOrder) && cfg.carOrder.length) { CAR_ORDER.length = 0; cfg.carOrder.forEach((k) => CAR_ORDER.push(k)); }
+    if (cfg.round) {
+      if (cfg.round.estKm) ROUND_EST_KM = Number(cfg.round.estKm) || ROUND_EST_KM;
+      if (cfg.round.cars && typeof cfg.round.cars === "object") { Object.keys(ROUND_CARS).forEach((k) => delete ROUND_CARS[k]); Object.assign(ROUND_CARS, cfg.round.cars); }
+      if (Array.isArray(cfg.round.order) && cfg.round.order.length) { ROUND_ORDER.length = 0; cfg.round.order.forEach((k) => ROUND_ORDER.push(k)); }
+    }
+    if (cfg.local) {
+      if (cfg.local.packages) { Object.keys(LOCAL_PACKAGES).forEach((k) => delete LOCAL_PACKAGES[k]); Object.assign(LOCAL_PACKAGES, cfg.local.packages); }
+      if (cfg.local.cls) { Object.keys(LOCAL_CLS).forEach((k) => delete LOCAL_CLS[k]); Object.assign(LOCAL_CLS, cfg.local.cls); }
+    }
+    if (cfg.share) {
+      if (Array.isArray(cfg.share.routes)) { SHARE_ROUTES.length = 0; cfg.share.routes.forEach((r) => SHARE_ROUTES.push(r)); }
+      if (cfg.share.maxSeats) SHARE_MAX_SEATS = Number(cfg.share.maxSeats) || SHARE_MAX_SEATS;
+    }
+  }
+
+  // Load admin-edited config (public, best-effort). Pages can await ST.ready.
+  const ready = (async () => {
+    try {
+      const r = await fetch("/api/config", { headers: { Accept: "application/json" } });
+      if (!r.ok) return;
+      const d = await r.json();
+      if (d && d.config) applyConfig(d.config);
+    } catch (e) { /* offline: use built-in defaults */ }
+  })();
+
   window.STBooking = {
     CONFIG, CITIES, CITY_GEO, ROUTES, ONEWAY_CARS, CAR_ORDER, LOCAL_SUGGESTIONS,
     ROUND_CARS, ROUND_ORDER, ROUND_EST_KM, LOCAL_PACKAGES, LOCAL_CLS, SHARE_ROUTES, SHARE_MAX_SEATS,
-    inr, findRoute, cityName, getCarFare, planFare, computeFare, waUrl,
+    inr, findRoute, cityName, getCarFare, planFare, computeFare, waUrl, applyConfig,
     formatDate, formatTime, dateTimeDisplay,
     readFlow, writeFlow, updateFlow, loadFlow, buildUrl,
-    readProfile, saveProfile, saveBooking, syncBookingToServer, newBookingId
+    readProfile, saveProfile, saveBooking, syncBookingToServer, newBookingId,
+    ready
   };
 })();

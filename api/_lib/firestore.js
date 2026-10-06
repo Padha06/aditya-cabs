@@ -125,4 +125,24 @@ async function runQuery(collectionName, field, value) {
   return arr.filter((x) => x.document).map((x) => Object.assign({ id: idOf(x.document.name) }, fromFields(x.document.fields || {})));
 }
 
-module.exports = { setDoc, getDoc, addDoc, runQuery, available: () => !!sa() };
+// Fetch a collection ordered by a field (DESCENDING by default), capped at limit.
+async function listOrdered(collectionName, field, direction, limit) {
+  const t = await token();
+  const body = {
+    structuredQuery: {
+      from: [{ collectionId: collectionName }],
+      orderBy: [{ field: { fieldPath: field || "createdAt" }, direction: direction || "DESCENDING" }],
+      limit: limit || 300
+    }
+  };
+  const r = await fetch(`${base()}:runQuery`, {
+    method: "POST",
+    headers: { Authorization: "Bearer " + t, "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error("listOrdered " + r.status + " " + (await r.text()));
+  const arr = await r.json();
+  return arr.filter((x) => x.document).map((x) => Object.assign({ id: idOf(x.document.name) }, fromFields(x.document.fields || {})));
+}
+
+module.exports = { setDoc, getDoc, addDoc, runQuery, listOrdered, available: () => !!sa() };

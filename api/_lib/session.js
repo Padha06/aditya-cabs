@@ -4,6 +4,7 @@ const crypto = require("crypto");
 
 const SECRET = process.env.SESSION_SECRET || "";
 const COOKIE = "st_session";
+const ADMIN_COOKIE = "st_admin";
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 const b64url = (buf) => Buffer.from(buf).toString("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
@@ -55,4 +56,29 @@ function getSession(req) {
   return verify(parseCookies(req)[COOKIE]);
 }
 
-module.exports = { createSession, clearSession, getSession, COOKIE };
+// Admin sessions use a separate cookie + a role claim.
+function createAdminSession(res, admin) {
+  if (!SECRET) return null;
+  const now = Date.now();
+  const token = sign({ role: "admin", uid: admin.uid || admin.email, email: admin.email, iat: now, exp: now + MAX_AGE * 1000 });
+  res.setHeader("Set-Cookie", `${ADMIN_COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${MAX_AGE}`);
+  return token;
+}
+function clearAdminSession(res) {
+  res.setHeader("Set-Cookie", `${ADMIN_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
+}
+function getAdminSession(req) {
+  const data = verify(parseCookies(req)[ADMIN_COOKIE]);
+  return (data && data.role === "admin") ? data : null;
+}
+
+function adminEmails() {
+  return String(process.env.ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+}
+function isAdminEmail(email) {
+  const list = adminEmails();
+  if (!list.length) return false;
+  return list.indexOf(String(email || "").toLowerCase()) !== -1;
+}
+
+module.exports = { createSession, clearSession, getSession, COOKIE, createAdminSession, clearAdminSession, getAdminSession, isAdminEmail, adminEmails };

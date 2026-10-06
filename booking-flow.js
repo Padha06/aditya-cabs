@@ -29,9 +29,14 @@
   function clearError(el) { if (el) { el.hidden = true; el.textContent = ""; } }
 
   document.addEventListener("DOMContentLoaded", () => {
-    if (page === "cabs") initCabs();
-    else if (page === "book") initBook();
-    else if (page === "summary") initSummary();
+    const start = () => {
+      if (page === "cabs") initCabs();
+      else if (page === "book") initBook();
+      else if (page === "summary") initSummary();
+    };
+    // Wait for admin-edited config before rendering, so fares/routes are current.
+    if (ST.ready && typeof ST.ready.then === "function") ST.ready.then(start).catch(start);
+    else start();
   });
 
   /* =========================================================================

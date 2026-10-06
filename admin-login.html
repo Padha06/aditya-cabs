@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Admin Sign In | Shivrudra Taxi</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="booking-flow.css" />
+<link rel="icon" href="taxi.svg" type="image/svg+xml" />
+</head>
+<body class="bf-page" data-bf-page="admin-login">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 2.6v5.6c0 4.5-3 8-7 9.4-4-1.4-7-4.9-7-9.4V5.6L12 3Z"/><path d="m9 12 2.2 2.2L15.4 10"/></symbol>
+</svg>
+
+<header class="bf-nav">
+  <div class="bf-nav__inner">
+    <a class="bf-nav__brand" href="/" aria-label="Shivrudra Taxi home"><img src="logo.webp" alt="Shivrudra Taxi" width="610" height="409" /></a>
+    <span class="bf-nav__secure"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 2.6v5.6c0 4.5-3 8-7 9.4-4-1.4-7-4.9-7-9.4V5.6L12 3Z" fill="none" stroke="currentColor" stroke-width="2"/></svg> Admin</span>
+  </div>
+</header>
+
+<main class="bf-container" style="max-width:440px">
+  <section class="bf-card" style="margin-top:40px">
+    <div class="bf-card__body">
+      <div style="text-align:center">
+        <div class="bf-confirm__check" style="width:56px;height:56px;margin:0 auto 10px"><svg class="ic" style="width:26px;height:26px" aria-hidden="true"><use href="#i-shield"/></svg></div>
+        <h1 class="bf-title" style="font-size:1.25rem">Admin Portal</h1>
+        <p class="bf-sub">Sign in to manage bookings, fares, cars and routes.</p>
+      </div>
+
+      <div id="adminErr" class="bf-alert bf-alert--warn" role="alert" hidden></div>
+
+      <div class="oneway-field">
+        <label for="admEmail">Email</label>
+        <div class="oneway-input-wrap"><input id="admEmail" type="email" placeholder="you@example.com" autocomplete="email" /></div>
+      </div>
+      <div class="oneway-field">
+        <label for="admPass">Password</label>
+        <div class="oneway-input-wrap"><input id="admPass" type="password" placeholder="••••••••" autocomplete="current-password" /></div>
+      </div>
+
+      <div class="bf-actions">
+        <button type="button" class="bf-btn-primary" id="admSignIn">Sign in</button>
+        <button type="button" class="bf-btn-ghost" id="admCreate">Create admin account</button>
+      </div>
+      <p class="oneway-terms-note">Only allow-listed admin emails can access the portal.</p>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+  import FirebaseService from './firebase-service.js';
+  const $ = (id) => document.getElementById(id);
+  const errBox = $('adminErr');
+  function err(m) { errBox.hidden = false; errBox.textContent = m; }
+  function busy(b) { $('admSignIn').disabled = b; $('admCreate').disabled = b; }
+
+  async function authorize() {
+    const token = await FirebaseService.getIdToken();
+    const r = await fetch('/api/admin-session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: token }) });
+    const d = await r.json();
+    if (r.ok && d.success) { location.href = '/admin'; return; }
+    await FirebaseService.logout();
+    err((d && d.error) || 'Sign-in failed.');
+  }
+
+  async function doSignIn() {
+    errBox.hidden = true;
+    const email = $('admEmail').value.trim(), pass = $('admPass').value;
+    if (!/^\S+@\S+\.\S+$/.test(email) || !pass) { err('Enter your admin email and password.'); return; }
+    busy(true);
+    try { await FirebaseService.loginWithEmail(email, pass); await authorize(); }
+    catch (e) { err((e && e.message) || 'Sign-in failed.'); busy(false); }
+  }
+
+  async function doCreate() {
+    errBox.hidden = true;
+    const email = $('admEmail').value.trim(), pass = $('admPass').value;
+    if (!/^\S+@\S+\.\S+$/.test(email) || pass.length < 6) { err('Enter an email and a password of at least 6 characters.'); return; }
+    busy(true);
+    try { await FirebaseService.signupWithEmail(email, pass, { name: 'Admin', role: 'rider' }); await authorize(); }
+    catch (e) { err((e && e.message) || 'Could not create the account.'); busy(false); }
+  }
+
+  $('admSignIn').addEventListener('click', doSignIn);
+  $('admCreate').addEventListener('click', doCreate);
+  $('admPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSignIn(); });
+</script>
+</body>
+</html>

@@ -89,6 +89,10 @@ const FirebaseService = {
     return cred.user;
   },
 
+  async getIdToken() {
+    return this.currentUser ? this.currentUser.getIdToken() : null;
+  },
+
   async signupWithEmail(email, password, profile = {}) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     const user = cred.user;
