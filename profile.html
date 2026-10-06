@@ -163,6 +163,18 @@
         </button>
       </div>
 
+      <!-- WhatsApp (phone) account banner -->
+      <div class="profile-sync-banner" id="waAuthBanner" style="margin-top:10px">
+        <div class="profile-sync-info">
+          <span class="sync-dot" id="waDot"></span>
+          <span id="waAccountStatus">Sign in with WhatsApp for one-tap booking and synced trips.</span>
+        </div>
+        <button type="button" class="btn btn--sm btn--accent" id="waAuthBtn">
+          <svg class="ic" aria-hidden="true" style="width:14px;height:14px"><use href="#i-wa"/></svg>
+          <span id="waAuthBtnText">Sign in with WhatsApp</span>
+        </button>
+      </div>
+
       <div class="profile-grid">
         <!-- LEFT: RIDER DETAILS & SAVED ADDRESSES -->
         <div class="profile-card--user">
@@ -629,6 +641,55 @@
     savedLine.hidden = false;
     setTimeout(function() { savedLine.hidden = true; }, 3000);
   });
+
+  // WhatsApp (phone) account: session banner + server-side bookings
+  (function initWaAccount() {
+    var dot = document.getElementById("waDot");
+    var status = document.getElementById("waAccountStatus");
+    var btn = document.getElementById("waAuthBtn");
+    var btnText = document.getElementById("waAuthBtnText");
+
+    function signedOut() {
+      if (status) status.textContent = "Sign in with WhatsApp for one-tap booking and synced trips.";
+      if (btnText) btnText.textContent = "Sign in with WhatsApp";
+      if (dot) dot.classList.remove("is-live");
+    }
+    function signedIn(user) {
+      var ph = String(user.phone || "").slice(-10);
+      if (dot) dot.classList.add("is-live");
+      if (status) status.textContent = "✓ Signed in with WhatsApp +91 " + ph + (user.name ? " · " + user.name : "");
+      if (btnText) btnText.textContent = "Sign out";
+      if (ph && !phoneEl.value) { phoneEl.value = ph; dispPhone.textContent = ph; }
+      if (user.name && !nameEl.value) { nameEl.value = user.name; dispName.textContent = user.name; avatar.textContent = user.name.charAt(0).toUpperCase(); }
+    }
+
+    if (btn) btn.addEventListener("click", function () {
+      if (btn.dataset.mode === "in") {
+        fetch("/api/logout", { method: "POST" }).catch(function () {}).then(function () { location.reload(); });
+      } else {
+        location.href = "/login?next=/profile";
+      }
+    });
+
+    fetch("/api/me").then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.authenticated && d.user) {
+        btn.dataset.mode = "in";
+        signedIn(d.user);
+        fetch("/api/bookings").then(function (r) { return r.json(); }).then(function (bd) {
+          if (bd && bd.success && bd.bookings && bd.bookings.length) {
+            var map = new Map();
+            readBookings().forEach(function (b) { map.set(b.id, b); });
+            bd.bookings.forEach(function (b) { map.set(b.id, b); });
+            var all = Array.from(map.values()).sort(function (a, b) { return new Date(b.createdAt || 0) - new Date(a.createdAt || 0); });
+            renderBookingCards(all);
+          }
+        }).catch(function () {});
+      } else {
+        btn.dataset.mode = "out";
+        signedOut();
+      }
+    }).catch(function () { signedOut(); });
+  })();
 })();
 </script>
 </body>

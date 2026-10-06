@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Sign in with WhatsApp | Shivrudra Taxi</title>
+<meta name="description" content="Sign in to Shivrudra Taxi with your mobile number and a WhatsApp verification code." />
+<meta name="robots" content="noindex, follow" />
+<meta name="theme-color" content="#07080B" />
+<link rel="canonical" href="https://shivrudrataxi.com/login" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="booking-flow.css" />
+<link rel="icon" href="taxi.svg" type="image/svg+xml" />
+<link rel="icon" href="favicon.png" sizes="64x64" type="image/png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+</head>
+<body class="bf-page" data-bf-page="login">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 3h2.2l1.6 4-2 1.3a12 12 0 0 0 6.3 6.3l1.3-2 4 1.6v2.2a2.6 2.6 0 0 1-2.9 2.6A17 17 0 0 1 4 6.9 2.6 2.6 0 0 1 6.6 3Z"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M12 2a9.9 9.9 0 0 0-8.5 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 1.8a8.2 8.2 0 0 1 6.9 12.6l-.3.5.8 2.9-3-.8-.5.3A8.2 8.2 0 1 1 12 3.8Zm-3.4 4c-.2 0-.5.1-.7.4-.3.3-.9 1-.9 2.2s.9 2.4 1 2.6c.1.2 1.7 2.8 4.3 3.8 2.1.8 2.6.7 3 .6.5 0 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2l-.5-.3-1.7-.8c-.2-.1-.4-.1-.6.1l-.7.9c-.1.2-.3.2-.5.1a6.6 6.6 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.7c-.1-.2 0-.4.1-.5l.4-.5.3-.5v-.5l-.7-1.7c-.2-.5-.4-.4-.6-.4h-.4Z"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5.4 20c.8-3.6 3.4-5.4 6.6-5.4s5.8 1.8 6.6 5.4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></symbol>
+</svg>
+
+<header class="bf-nav">
+  <div class="bf-nav__inner">
+    <a class="bf-nav__brand" href="/" aria-label="Shivrudra Taxi home">
+      <img src="logo.webp" alt="Shivrudra Taxi" width="610" height="409" />
+    </a>
+    <span class="bf-nav__secure">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 2.6v5.6c0 4.5-3 8-7 9.4-4-1.4-7-4.9-7-9.4V5.6L12 3Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      100% secure
+    </span>
+  </div>
+</header>
+
+<main class="bf-container">
+  <h1 class="visually-hidden">Sign in with WhatsApp</h1>
+  <section class="bf-card">
+    <div class="bf-card__body">
+      <div>
+        <h2 class="bf-title">Sign in with WhatsApp</h2>
+        <p class="bf-sub">Enter your mobile number — we'll send a one-time code on WhatsApp. No password needed.</p>
+      </div>
+
+      <div id="loginError" class="bf-alert bf-alert--warn" role="alert" hidden></div>
+
+      <div class="oneway-field">
+        <label for="loginPhone">MOBILE (WHATSAPP)</label>
+        <div class="oneway-input-wrap oneway-input-wrap--phone">
+          <span class="phone-prefix"><b>+91</b></span>
+          <input id="loginPhone" type="tel" placeholder="10-digit number" maxlength="10" inputmode="numeric" autocomplete="tel" required />
+          <button type="button" class="btn-verify-wa-inline" id="btnLoginSendOtp">
+            <svg class="ic" aria-hidden="true" style="width:16px;height:16px"><use href="#i-wa"/></svg>
+            <span id="btnLoginSendText">Send OTP</span>
+          </button>
+        </div>
+        <span class="field-subnote">We'll message the code to this WhatsApp number.</span>
+      </div>
+
+      <div class="oneway-otp-box" id="loginOtpBox" hidden>
+        <div class="otp-box-header">
+          <span>Enter the 6-digit code sent to <strong id="loginOtpTarget">+91 —</strong></span>
+        </div>
+        <div class="bf-demo" id="loginDemo" hidden>
+          <span class="bf-demo__badge">TEST</span>
+          <span id="loginDemoText">Demo OTP: <b>------</b></span>
+        </div>
+        <div class="otp-input-row">
+          <input type="text" id="loginOtp" class="input-otp-code" maxlength="6" inputmode="numeric" autocomplete="one-time-code" aria-label="6-digit WhatsApp verification code" placeholder="● ● ● ● ● ●" />
+          <button type="button" class="btn btn-yellow btn-otp-confirm" id="btnLoginVerify">
+            <span>Verify &amp; Sign in</span>
+            <svg class="ic" aria-hidden="true" style="width:16px;height:16px"><use href="#i-arrow"/></svg>
+          </button>
+        </div>
+        <div class="otp-resend-row">
+          <span id="loginTimer">Resend in <b id="loginSeconds">30s</b></span>
+          <button type="button" class="btn-resend-link" id="btnLoginResend" disabled>Resend code</button>
+        </div>
+      </div>
+
+      <div class="oneway-verified-card" id="loginVerified" role="status" hidden>
+        <span class="verified-icon"><svg class="ic" aria-hidden="true" style="width:12px;height:12px"><use href="#i-check"/></svg></span>
+        <div><b>Signed in</b><span id="loginVerifiedPhone">+91 —</span></div>
+      </div>
+
+      <p class="oneway-terms-note">By continuing you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>. New here? Signing in creates your account automatically.</p>
+
+      <a class="bf-btn-ghost" href="/" style="text-decoration:none;text-align:center">← Back to home</a>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { token: null, phone: "", timer: null, seconds: 30 };
+  var next = new URLSearchParams(location.search).get("next") || "/profile";
+
+  function showErr(msg) { var e = $("loginError"); e.hidden = false; e.textContent = msg; }
+  function clearErr() { var e = $("loginError"); e.hidden = true; e.textContent = ""; }
+
+  // already signed in? skip ahead
+  fetch("/api/me").then(function (r) { return r.json(); }).then(function (d) {
+    if (d && d.authenticated) location.replace(next);
+  }).catch(function () {});
+
+  function digits(v) { return String(v || "").replace(/\D/g, "").slice(-10); }
+  $("loginPhone").addEventListener("input", function () {
+    var d = digits(this.value);
+    if (this.value !== d) this.value = d;
+  });
+
+  function countdown() {
+    clearInterval(state.timer);
+    state.seconds = 30;
+    $("btnLoginResend").disabled = true;
+    $("loginTimer").hidden = false;
+    $("loginSeconds").textContent = "30s";
+    state.timer = setInterval(function () {
+      state.seconds--;
+      $("loginSeconds").textContent = state.seconds + "s";
+      if (state.seconds <= 0) { clearInterval(state.timer); $("btnLoginResend").disabled = false; $("loginTimer").hidden = true; }
+    }, 1000);
+  }
+
+  function sendOtp() {
+    var phone = digits($("loginPhone").value);
+    if (!/^[6-9]\d{9}$/.test(phone)) { showErr("Please enter a valid 10-digit mobile number."); $("loginPhone").focus(); return; }
+    clearErr();
+    var btn = $("btnLoginSendOtp"), txt = $("btnLoginSendText");
+    btn.disabled = true; txt.textContent = "Sending…";
+    fetch("/api/send-whatsapp-otp", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: phone })
+    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        var d = res.d;
+        if (!res.ok || !d.success) { showErr("Could not send OTP: " + (d.error || "please try again.")); btn.disabled = false; txt.textContent = "Send OTP"; return; }
+        state.token = d.token; state.phone = phone;
+        $("loginOtpTarget").textContent = "+91 " + phone;
+        $("loginOtpBox").hidden = false;
+        if (d.isTestMode && d.testOtp) { $("loginDemo").hidden = false; $("loginDemoText").innerHTML = "Demo OTP: <b>" + d.testOtp + "</b>"; $("loginOtp").value = d.testOtp; }
+        else { $("loginDemo").hidden = true; }
+        countdown();
+        $("loginOtp").focus();
+        txt.textContent = "Code sent";
+      }).catch(function () { showErr("Network error sending OTP. Please check your connection."); btn.disabled = false; txt.textContent = "Send OTP"; });
+  }
+
+  function verify() {
+    var otp = ($("loginOtp").value || "").replace(/\D/g, "");
+    if (otp.length !== 6) { showErr("Enter the 6-digit code sent on WhatsApp."); return; }
+    clearErr();
+    var btn = $("btnLoginVerify");
+    btn.disabled = true; btn.querySelector("span").textContent = "Verifying…";
+    fetch("/api/verify-whatsapp-otp", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: state.phone, otp: otp, token: state.token })
+    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        var d = res.d;
+        if (!res.ok || !d.verified) { showErr(d.error || "Incorrect code. Please try again."); btn.disabled = false; btn.querySelector("span").textContent = "Verify & Sign in"; return; }
+        clearInterval(state.timer);
+        $("loginOtpBox").hidden = true;
+        $("loginVerified").hidden = false;
+        $("loginVerifiedPhone").textContent = "+91 " + state.phone;
+        setTimeout(function () { location.replace(next); }, 700);
+      }).catch(function () { showErr("Network error verifying OTP."); btn.disabled = false; btn.querySelector("span").textContent = "Verify & Sign in"; });
+  }
+
+  $("btnLoginSendOtp").addEventListener("click", sendOtp);
+  $("btnLoginResend").addEventListener("click", sendOtp);
+  $("btnLoginVerify").addEventListener("click", verify);
+  $("loginOtp").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); verify(); } });
+})();
+</script>
+</body>
+</html>

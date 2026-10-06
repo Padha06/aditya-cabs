@@ -1,5 +1,9 @@
 // Vercel Serverless Function: /api/bookings
-// Manages bookings, persists data, and optionally syncs to Google Sheets or Webhooks.
+// POST: persists a booking to Firestore (tied to the signed-in account or phone)
+//       and optionally forwards to a webhook.
+// GET:  returns the signed-in account's bookings.
+const { getSession } = require('./_lib/session');
+const { addDoc, runQuery } = require('./_lib/firestore');
 
 async function parseBody(req) {
   if (req.body) {
@@ -17,59 +21,75 @@ async function parseBody(req) {
   });
 }
 
+const cleanPhone = (p) => String(p || '').replace(/\D/g, '').slice(-10);
+
 module.exports = async (req, res) => {
-  // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
+  const session = getSession(req);
+
+  // ---- list this account's bookings ----
   if (req.method === 'GET') {
-    return res.status(200).json({
-      status: 'ok',
-      service: 'Shivrudra Taxi Booking API',
-      timestamp: new Date().toISOString()
-    });
+    if (!session) return res.status(200).json({ success: true, bookings: [] });
+    try {
+      const bookings = await runQuery('bookings', 'userId', session.uid);
+      bookings.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+      return res.status(200).json({ success: true, bookings });
+    } catch (err) {
+      console.error('bookings GET error:', err);
+      return res.status(500).json({ success: false, error: 'Could not load bookings.', bookings: [] });
+    }
   }
 
+  // ---- create a booking ----
   if (req.method === 'POST') {
     try {
       const data = await parseBody(req);
-
       if (!data || !data.from || !data.to || !data.phone) {
-        return res.status(400).json({
-          success: false,
-          error: 'Missing required booking fields (from, to, phone)'
-        });
+        return res.status(400).json({ success: false, error: 'Missing required booking fields (from, to, phone)' });
       }
 
-      // Generate verified booking reference ID if not provided
       const bookingId = data.id || `SR-${Math.floor(10000 + Math.random() * 90000)}`;
+      const phone10 = cleanPhone(data.phone);
+      const userId = (session && session.uid) ? session.uid : ('phone_' + phone10);
+
       const bookingRecord = {
         id: bookingId,
         createdAt: data.createdAt || new Date().toISOString(),
         from: data.from,
         to: data.to,
-        date: data.date,
-        time: data.time,
+        date: data.date || '',
+        time: data.time || '',
         car: data.car || 'sedan',
-        totalFare: data.totalFare || data.fare || 0,
-        advance: data.advance || 0,
-        balance: data.balance || 0,
+        totalFare: Number(data.totalFare || data.fare || 0),
+        advance: Number(data.advance || 0),
+        balance: Number(data.balance || 0),
         paymentMode: data.paymentMode || 'advance',
-        utr: data.utr || '',
+        paymentStatus: data.paymentStatus || '',
+        razorpayPaymentId: data.razorpayPaymentId || null,
         name: data.name || 'Valued Passenger',
-        phone: data.phone,
+        phone: phone10,
         pickupAddress: data.pickupAddress || '',
         dropAddress: data.dropAddress || '',
+        gst: data.gst || '',
         urgent: !!data.urgent,
-        status: 'confirmed'
+        status: 'confirmed',
+        userId: userId,
+        accountType: (session && session.uid) ? 'phone' : 'guest'
       };
 
-      // Optional Google Sheets / Webhook Sync (e.g. Google App Script Webhook or Zapier/Make)
+      // Persist to Firestore (best-effort; a booking still succeeds if the DB is down)
+      try {
+        await addDoc('bookings', bookingRecord);
+      } catch (dbErr) {
+        console.error('bookings: firestore write failed:', dbErr.message);
+      }
+
+      // Optional Google Sheets / Webhook sync
       const webhookUrl = process.env.BOOKING_WEBHOOK_URL;
       if (webhookUrl) {
         try {
@@ -80,7 +100,6 @@ module.exports = async (req, res) => {
           });
         } catch (webhookErr) {
           console.error('Webhook sync error:', webhookErr);
-          // Non-blocking: booking still succeeds
         }
       }
 
@@ -92,10 +111,7 @@ module.exports = async (req, res) => {
       });
     } catch (err) {
       console.error('Booking API Error:', err);
-      return res.status(500).json({
-        success: false,
-        error: err.message || 'Failed to process booking.'
-      });
+      return res.status(500).json({ success: false, error: err.message || 'Failed to process booking.' });
     }
   }
 

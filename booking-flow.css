@@ -59,6 +59,16 @@
   border-radius: 999px;
 }
 .bf-nav__secure svg { width: 14px; height: 14px; }
+.bf-nav__signin {
+  font-size: .82rem;
+  font-weight: 800;
+  color: #0F172A;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.bf-nav__signin:hover { background: #F1F5F9; color: #0088EA; }
 
 /* ---- breadcrumb ---- */
 .bf-breadcrumb {

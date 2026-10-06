@@ -1,6 +1,9 @@
 // Vercel Serverless Function: /api/verify-whatsapp-otp
-// Verifies 6-digit verification OTP against cryptographic token or simulation.
+// Verifies 6-digit verification OTP against cryptographic token or simulation,
+// then creates/finds the rider account and sets a signed session cookie.
 const crypto = require('crypto');
+const { setDoc, getDoc } = require('./_lib/firestore');
+const { createSession } = require('./_lib/session');
 
 const OTP_SECRET = process.env.OTP_SECRET || 'sahyadri-cabs-otp-sec-token-2026';
 
@@ -87,10 +90,44 @@ module.exports = async (req, res) => {
       });
     }
 
+    // Create / find the rider account (phone-first identity) and start a session.
+    const id = formattedPhone; // e.g. 919876543210
+    const now = new Date().toISOString();
+    const providedName = String(body.name || '').trim().slice(0, 80);
+    let user = null;
+    let isNew = false;
+    try {
+      const existing = await getDoc('users/' + id);
+      if (existing) {
+        user = Object.assign({}, existing, {
+          name: existing.name || providedName || 'Valued Rider',
+          phone: id,
+          lastLogin: now
+        });
+      } else {
+        isNew = true;
+        user = { id, phone: id, name: providedName || 'Valued Rider', role: 'rider', createdAt: now, lastLogin: now };
+      }
+      await setDoc('users/' + id, {
+        phone: id,
+        name: user.name,
+        role: user.role || 'rider',
+        createdAt: user.createdAt || now,
+        lastLogin: now
+      });
+    } catch (fbErr) {
+      console.warn('verify: firestore upsert failed:', fbErr.message);
+      user = { id, phone: id, name: providedName || 'Valued Rider' };
+    }
+
+    try { createSession(res, user); } catch (sErr) { console.warn('verify: session failed:', sErr.message); }
+
     return res.status(200).json({
       success: true,
       verified: true,
-      phone: formattedPhone,
+      phone: id,
+      isNew: isNew,
+      user: { id: user.id, name: user.name, phone: user.phone },
       message: 'Mobile number verified successfully via WhatsApp!'
     });
   } catch (err) {
