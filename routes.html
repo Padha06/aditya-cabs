@@ -462,429 +462,518 @@
   </div>
 </footer>
 
-<!-- ============ FLEET SELECTION & PAYMENT CHECKOUT MODAL (OneWay.Cab 3-Step Funnel) ============ -->
-<div class="fmodal" id="fleetModal" role="dialog" aria-modal="true" aria-labelledby="fmodalTitle" hidden>
-  <div class="fmodal__panel">
-    <div class="fmodal__header">
+<!-- ============ FLEET SELECTION & PAYMENT CHECKOUT MODAL (Exact OneWay.Cab Flow) ============ -->
+<div class="fmodal oneway-flow-modal" id="fleetModal" role="dialog" aria-modal="true" aria-labelledby="fmodalTitle" hidden>
+  <div class="fmodal__panel oneway-panel">
+    <!-- Header -->
+    <div class="fmodal__header oneway-header">
       <div class="fmodal__title">
-        <h2 id="fmodalTitle">Book Your Cab Online</h2>
-        <p id="fmodalSub">Pune → Mumbai · 150 km · ~3h 30m · Doorstep Pickup & Drop</p>
+        <h2 id="fmodalTitle">Book Your Ride</h2>
+        <p id="fmodalSub">Fast, reliable & comfortable cab services across Maharashtra</p>
       </div>
       <button type="button" class="fmodal__close" id="fmodalClose" aria-label="Close booking modal">
         <svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>
       </button>
     </div>
 
-    <!-- 3-STEP WIZARD PROGRESS BAR (OneWay.Cab Style) -->
-    <div class="fmodal-steps-bar" id="fmodalStepsBar">
-      <div class="fmodal-step is-active" data-step="1" id="fstepTab1">
-        <div class="fmodal-step__circle">
-          <span class="fmodal-step__num">1</span>
-          <span class="fmodal-step__check">✓</span>
-        </div>
-        <div class="fmodal-step__info">
-          <span class="fmodal-step__sub">Step 1</span>
-          <span class="fmodal-step__title">Choose Vehicle</span>
-        </div>
+    <!-- Wizard Steps Breadcrumb -->
+    <div class="oneway-breadcrumb" id="fmodalStepsBar">
+      <div class="oneway-crumb is-active" data-step="1" id="fstepTab1">
+        <span class="crumb-num">1</span>
+        <span class="crumb-label">Ride & WhatsApp</span>
       </div>
-      <div class="fmodal-step__connector"></div>
-      <div class="fmodal-step" data-step="2" id="fstepTab2">
-        <div class="fmodal-step__circle">
-          <span class="fmodal-step__num">2</span>
-          <span class="fmodal-step__check">✓</span>
-        </div>
-        <div class="fmodal-step__info">
-          <span class="fmodal-step__sub">Step 2</span>
-          <span class="fmodal-step__title">Verify WhatsApp</span>
-        </div>
+      <div class="crumb-arrow">›</div>
+      <div class="oneway-crumb" data-step="2" id="fstepTab2">
+        <span class="crumb-num">2</span>
+        <span class="crumb-label">Select Cab</span>
       </div>
-      <div class="fmodal-step__connector"></div>
-      <div class="fmodal-step" data-step="3" id="fstepTab3">
-        <div class="fmodal-step__circle">
-          <span class="fmodal-step__num">3</span>
-          <span class="fmodal-step__check">✓</span>
-        </div>
-        <div class="fmodal-step__info">
-          <span class="fmodal-step__sub">Step 3</span>
-          <span class="fmodal-step__title">Address & Confirm</span>
-        </div>
+      <div class="crumb-arrow">›</div>
+      <div class="oneway-crumb" data-step="3" id="fstepTab3">
+        <span class="crumb-num">3</span>
+        <span class="crumb-label">Trip Summary & Pay</span>
       </div>
     </div>
 
-    <div class="fmodal__body">
-      <!-- ================= STEP 1: VEHICLE SELECTION ================= -->
-      <div class="fmodal-pane is-active" id="stepPane1">
-        <div class="fmodal-pane-header">
-          <div>
-            <h3 class="fmodal-pane-title">1. Select Your Preferred Cab</h3>
-            <p class="fmodal-pane-desc">Compare vehicle types and all-inclusive transparent fares with zero hidden surcharges.</p>
+    <div class="fmodal__body oneway-body">
+      <!-- ================= SCREEN 1: /book (Ride Details, WhatsApp OTP & Addresses) ================= -->
+      <div class="oneway-step is-active" id="stepPane1">
+        <!-- Route Strip (Screenshot 1) -->
+        <div class="oneway-route-pill">
+          <div class="oneway-route-line">
+            <span class="dot-blue"></span>
+            <b id="bookFromCity">Pune</b>
+            <span class="line-connector"></span>
+            <span class="pin-blue">📍</span>
+            <b id="bookToCity">Mumbai</b>
           </div>
-          <span class="fmodal-pill-guarantee">🛡️ Fixed Fare Guarantee</span>
-        </div>
-
-        <div class="fmodal-cars" id="fmodalCars">
-          <!-- Sedan -->
-          <div class="fmodal-car is-selected" data-car="sedan">
-            <div class="fmodal-car__top">
-              <img class="fmodal-car__img" src="sedan.webp" alt="Sedan Dzire" />
-              <span class="fmodal-car__check" aria-hidden="true">
-                <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
-              </span>
-            </div>
-            <div class="fmodal-car__body">
-              <div class="fmodal-car__header">
-                <div>
-                  <h4>Sedan (AC)</h4>
-                  <p class="fmodal-car__models">Maruti Dzire · Hyundai Aura · Toyota Etios</p>
-                </div>
-                <div class="fmodal-car__price">
-                  <div class="fmodal-car__amount" id="mPriceSedan">₹2,799</div>
-                  <div class="fmodal-car__taxnote">Tolls & Taxes Included</div>
-                </div>
-              </div>
-              <div class="fmodal-car__badges">
-                <span class="fmodal-car__badge">4 Seats</span>
-                <span class="fmodal-car__badge">2 Bags</span>
-                <span class="fmodal-car__badge">Chilled AC</span>
-                <span class="fmodal-car__badge fmodal-car__badge--km">Extra: ₹11/km</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- SUV Ertiga -->
-          <div class="fmodal-car" data-car="suv">
-            <div class="fmodal-car__top">
-              <img class="fmodal-car__img fmodal-car__img--photo" src="ertiga.webp" alt="SUV Ertiga" />
-              <span class="fmodal-car__check" aria-hidden="true">
-                <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
-              </span>
-            </div>
-            <div class="fmodal-car__body">
-              <div class="fmodal-car__header">
-                <div>
-                  <h4>SUV Ertiga (AC)</h4>
-                  <p class="fmodal-car__models">Maruti Ertiga · 6 Seater Spacious</p>
-                </div>
-                <div class="fmodal-car__price">
-                  <div class="fmodal-car__amount" id="mPriceSuv">₹3,499</div>
-                  <div class="fmodal-car__taxnote">Tolls & Taxes Included</div>
-                </div>
-              </div>
-              <div class="fmodal-car__badges">
-                <span class="fmodal-car__badge">6 Seats</span>
-                <span class="fmodal-car__badge">3 Bags</span>
-                <span class="fmodal-car__badge">Rear AC</span>
-                <span class="fmodal-car__badge fmodal-car__badge--km">Extra: ₹14/km</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- SUV Kia Carens -->
-          <div class="fmodal-car" data-car="carens">
-            <div class="fmodal-car__top">
-              <img class="fmodal-car__img fmodal-car__img--photo" src="carens.webp" alt="SUV Kia Carens" />
-              <span class="fmodal-car__check" aria-hidden="true">
-                <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
-              </span>
-            </div>
-            <div class="fmodal-car__body">
-              <div class="fmodal-car__header">
-                <div>
-                  <h4>SUV Kia Carens (AC)</h4>
-                  <p class="fmodal-car__models">Kia Carens · 6-7 Seater Executive Luxury</p>
-                </div>
-                <div class="fmodal-car__price">
-                  <div class="fmodal-car__amount" id="mPriceCarens">₹3,899</div>
-                  <div class="fmodal-car__taxnote">Tolls & Taxes Included</div>
-                </div>
-              </div>
-              <div class="fmodal-car__badges">
-                <span class="fmodal-car__badge">6-7 Seats</span>
-                <span class="fmodal-car__badge">3 Bags</span>
-                <span class="fmodal-car__badge">Captain Luxury</span>
-                <span class="fmodal-car__badge fmodal-car__badge--km">Extra: ₹15/km</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Premium Innova Crysta -->
-          <div class="fmodal-car" data-car="crysta">
-            <div class="fmodal-car__top">
-              <img class="fmodal-car__img" src="suv.webp" alt="Innova Crysta" />
-              <span class="fmodal-car__check" aria-hidden="true">
-                <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
-              </span>
-            </div>
-            <div class="fmodal-car__body">
-              <div class="fmodal-car__header">
-                <div>
-                  <h4>Innova Crysta (AC)</h4>
-                  <p class="fmodal-car__models">Toyota Innova Crysta / Hycross · VIP Travel</p>
-                </div>
-                <div class="fmodal-car__price">
-                  <div class="fmodal-car__amount" id="mPriceCrysta">₹4,399</div>
-                  <div class="fmodal-car__taxnote">Tolls & Taxes Included</div>
-                </div>
-              </div>
-              <div class="fmodal-car__badges">
-                <span class="fmodal-car__badge">7 Seats</span>
-                <span class="fmodal-car__badge">4 Large Bags</span>
-                <span class="fmodal-car__badge">VIP Comfort</span>
-                <span class="fmodal-car__badge fmodal-car__badge--km">Extra: ₹17/km</span>
-              </div>
-            </div>
+          <div class="oneway-route-schedule">
+            <svg class="ic" aria-hidden="true" style="width:15px;height:15px"><use href="#i-cal"/></svg>
+            <span id="bookDateTimeDisplay">Today · 08:00 AM</span>
           </div>
         </div>
 
-        <!-- Inclusions Strip (OneWayCab highlights) -->
-        <div class="fmodal-inclusions">
-          <div class="fmodal-inc-tag">✓ Tolls & State Tax Included</div>
-          <div class="fmodal-inc-tag">✓ Doorstep Pickup & Drop</div>
-          <div class="fmodal-inc-tag">✓ Clean Commercial AC Fleet</div>
-          <div class="fmodal-inc-tag">✓ 24x7 Customer Support</div>
-        </div>
-
-        <div class="fmodal-step-actions">
-          <button type="button" class="btn btn--primary btn-step-continue" id="btnGoToStep2">
-            <span>Select Vehicle & Verify Mobile ➔</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- ================= STEP 2: WHATSAPP OTP VERIFICATION ================= -->
-      <div class="fmodal-pane" id="stepPane2" hidden>
-        <!-- Recap banner of chosen car -->
-        <div class="fmodal-recap">
-          <div class="fmodal-recap__left">
-            <span class="fmodal-recap__tag">Selected Cab</span>
-            <h4 class="fmodal-recap__name" id="step2CarName">Sedan (Dzire / Aura)</h4>
-            <span class="fmodal-recap__price" id="step2CarPrice">₹2,799 All-Inclusive</span>
-          </div>
-          <button type="button" class="btn-step-edit" id="btnBackToStep1">Change Cab</button>
-        </div>
-
-        <div class="fmodal-otp-box">
-          <div class="fmodal-pane-header">
-            <div>
-              <h3 class="fmodal-pane-title">2. Enter Passenger Details & Verify Mobile</h3>
-              <p class="fmodal-pane-desc">We will send a 6-digit verification code to your WhatsApp for booking authentication.</p>
+        <!-- Name & Mobile with WhatsApp OTP Verification -->
+        <div class="oneway-form-grid">
+          <div class="oneway-field">
+            <label for="mCustName">NAME</label>
+            <div class="oneway-input-wrap">
+              <svg class="ic" aria-hidden="true" style="width:18px;height:18px;color:#94A3B8"><use href="#i-user"/></svg>
+              <input id="mCustName" type="text" placeholder="Your full name" autocomplete="name" required />
             </div>
+            <span class="field-subnote">Auto-filled from your profile</span>
           </div>
 
-          <div class="fmodal-fields">
-            <div class="field">
-              <label for="mCustName">Passenger Full Name <span class="req" style="color:#EF4444">*</span></label>
-              <div class="select">
-                <input id="mCustName" type="text" placeholder="e.g. Aditya Deshmukh" autocomplete="name" required />
-              </div>
-            </div>
-            <div class="field">
-              <label for="mCustPhone">WhatsApp / Mobile Number <span class="req" style="color:#EF4444">*</span></label>
-              <div class="select">
-                <input id="mCustPhone" type="tel" placeholder="10-digit mobile number" maxlength="14" autocomplete="tel" required />
-              </div>
-            </div>
-          </div>
-
-          <!-- Send OTP Button Row -->
-          <div class="otp-send-wrap" id="otpSendRow">
-            <button type="button" class="btn btn-wa-send-otp" id="btnSendOtp">
-              <svg class="ic" aria-hidden="true" style="width:20px;height:20px;fill:currentColor"><use href="#i-wa"/></svg>
-              <span id="btnSendOtpText">Send 6-Digit WhatsApp OTP</span>
-            </button>
-            <div class="otp-hint-note">🔒 Fast verification via WhatsApp · Safe & confidential</div>
-          </div>
-
-          <!-- OTP Input & Verify Section (Shown after Send OTP is clicked) -->
-          <div class="otp-input-area" id="otpInputArea" hidden>
-            <div class="otp-prompt">
-              <span>Enter 6-digit OTP sent on WhatsApp to:</span>
-              <strong id="otpTargetPhone">+91 —</strong>
-            </div>
-
-            <!-- Demo Mode Alert Banner -->
-            <div class="otp-demo-notice" id="otpDemoNotice" hidden>
-              <span class="otp-demo-badge">DEMO SIMULATION</span>
-              <span id="otpDemoText">WhatsApp OTP is: <b>123456</b></span>
-            </div>
-
-            <div class="otp-form-row">
-              <input type="text" id="mCustOtp" class="input-otp-code" maxlength="6" inputmode="numeric" placeholder="● ● ● ● ● ●" autocomplete="one-time-code" />
-              <button type="button" class="btn btn--primary btn-otp-verify" id="btnVerifyOtp">
-                <span>Verify OTP ➔</span>
+          <div class="oneway-field">
+            <label for="mCustPhone">MOBILE (WHATSAPP)</label>
+            <div class="oneway-input-wrap oneway-input-wrap--phone">
+              <span class="phone-prefix">IN <b>+91</b></span>
+              <input id="mCustPhone" type="tel" placeholder="10-digit number" maxlength="10" autocomplete="tel" required />
+              <button type="button" class="btn-verify-wa-inline" id="btnSendOtp">
+                <svg class="ic" aria-hidden="true" style="width:16px;height:16px;fill:currentColor"><use href="#i-wa"/></svg>
+                <span id="btnSendOtpText">Verify OTP</span>
               </button>
             </div>
+            <span class="field-subnote" id="phoneVerifyStatusNote">WhatsApp verification code sent to this number</span>
+          </div>
+        </div>
 
-            <div class="otp-resend-bar">
-              <span id="otpTimerCount">Resend available in <b id="otpSeconds">30s</b></span>
-              <button type="button" class="btn-resend-link" id="btnResendOtp" disabled>Resend WhatsApp OTP</button>
+        <!-- WhatsApp OTP Box (Shown upon clicking Verify) -->
+        <div class="oneway-otp-box" id="otpInputArea" hidden>
+          <div class="otp-box-header">
+            <span>Enter 6-digit WhatsApp OTP sent to <strong id="otpTargetPhone">+91 —</strong>:</span>
+          </div>
+
+          <!-- Dev Test Notice -->
+          <div class="otp-demo-notice" id="otpDemoNotice" hidden>
+            <span class="otp-demo-badge">TEST SIMULATION</span>
+            <span id="otpDemoText">WhatsApp OTP is: <b>123456</b></span>
+          </div>
+
+          <div class="otp-input-row">
+            <input type="text" id="mCustOtp" class="input-otp-code" maxlength="6" inputmode="numeric" placeholder="● ● ● ● ● ●" />
+            <button type="button" class="btn btn-yellow btn-otp-confirm" id="btnVerifyOtp">
+              <span>Verify OTP ➔</span>
+            </button>
+          </div>
+
+          <div class="otp-resend-row">
+            <span id="otpTimerCount">Resend in <b id="otpSeconds">30s</b></span>
+            <button type="button" class="btn-resend-link" id="btnResendOtp" disabled>Resend Code</button>
+          </div>
+        </div>
+
+        <!-- Verified Badge -->
+        <div class="oneway-verified-card" id="otpSuccessBanner" hidden>
+          <span class="verified-icon">✓</span>
+          <div>
+            <b>Mobile Verified via WhatsApp</b>
+            <span id="otpSuccessPhone">+91 —</span>
+          </div>
+        </div>
+
+        <!-- Doorstep Addresses with Connected Dots (Screenshot 1) -->
+        <div class="oneway-address-container">
+          <div class="addr-track-line">
+            <div class="addr-dot-pickup"></div>
+            <div class="addr-line-segment"></div>
+            <div class="addr-dot-drop"></div>
+          </div>
+          <div class="addr-inputs-col">
+            <div class="addr-input-block">
+              <input id="mCustAddress" type="text" placeholder="Search pickup address (House No, Society, Wakad, Pune)" required />
+              <span class="addr-tag-pill">PICKUP</span>
+            </div>
+            <div class="addr-input-block">
+              <input id="mCustDropAddress" type="text" placeholder="Search drop address (Building, Mindspace, Malad, Mumbai)" />
+              <span class="addr-tag-pill">DROP</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button (Screenshot 1 Big Yellow Button) -->
+        <button type="button" class="btn btn-yellow btn-oneway-checkfare" id="btnGoToCabs">
+          <span>Check Fare & View Cabs ➔</span>
+        </button>
+        <p class="oneway-terms-note">By continuing, you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a></p>
+      </div>
+
+      <!-- ================= SCREEN 2: /cabs (Select Cab - Screenshot 2) ================= -->
+      <div class="oneway-step" id="stepPane2" hidden>
+        <!-- Blue Guarantee Banner (Screenshot 2) -->
+        <div class="oneway-blue-guarantee">
+          <div class="guarantee-icon">
+            <svg viewBox="0 0 24 24" class="ic"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" fill="currentColor"/></svg>
+          </div>
+          <div class="guarantee-text">
+            <div class="guarantee-title">
+              <span>WHAT YOU SEE IS WHAT YOU PAY</span>
+              <span class="guarantee-badge">GUARANTEED</span>
+            </div>
+            <p>This fare includes everything: tolls, driver allowance, GST, state permit, even night charges.</p>
+          </div>
+        </div>
+
+        <!-- Cabs List (Exact Screenshot 2 Layout) -->
+        <div class="oneway-cabs-list" id="fmodalCars">
+          <!-- HATCHBACK -->
+          <div class="oneway-cab-card" data-car="hatchback">
+            <div class="cab-left">
+              <div class="cab-icon-wrap">
+                <img src="sedan.webp" alt="Hatchback" class="cab-thumb" />
+                <span class="fuel-badge fuel-cng">CNG</span>
+              </div>
+              <div class="cab-details">
+                <h4 class="cab-name">HATCHBACK</h4>
+                <p class="cab-models">WagonR, i20, Celerio, Swift, etc.</p>
+                <div class="cab-specs">
+                  <span>👤 4</span>
+                  <span>🧳 1</span>
+                </div>
+              </div>
+            </div>
+            <div class="cab-right">
+              <div class="cab-pricing">
+                <span class="cab-price-num" id="mPriceHatch">₹2,499</span>
+                <span class="cab-price-sub">All Inclusive</span>
+              </div>
+              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="hatchback">Select</button>
             </div>
           </div>
 
-          <!-- Verified Success Badge -->
-          <div class="otp-success-banner" id="otpSuccessBanner" hidden>
-            <div class="otp-success-icon">✓</div>
-            <div class="otp-success-info">
-              <b>WhatsApp Number Verified!</b>
-              <span id="otpSuccessPhone">+91 —</span>
+          <!-- SEDAN (Dzire / Aura / Etios) -->
+          <div class="oneway-cab-card is-selected" data-car="sedan">
+            <div class="cab-left">
+              <div class="cab-icon-wrap">
+                <img src="sedan.webp" alt="Sedan Dzire" class="cab-thumb" />
+                <span class="fuel-badge fuel-cng">CNG / PETROL</span>
+              </div>
+              <div class="cab-details">
+                <div class="cab-title-row">
+                  <h4 class="cab-name">SEDAN</h4>
+                  <span class="star-badge">★ POPULAR</span>
+                </div>
+                <p class="cab-models">Maruti Dzire, Hyundai Aura, Toyota Etios</p>
+                <div class="cab-specs">
+                  <span>👤 4</span>
+                  <span>🧳 2</span>
+                </div>
+              </div>
             </div>
-            <button type="button" class="btn btn--primary btn-step-continue" id="btnGoToStep3" style="margin-left:auto">
-              <span>Proceed to Step 3 (Address & Pay) ➔</span>
-            </button>
+            <div class="cab-right">
+              <div class="cab-pricing">
+                <span class="cab-price-num" id="mPriceSedan">₹2,799</span>
+                <span class="cab-price-sub">All Inclusive</span>
+              </div>
+              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="sedan">Select</button>
+            </div>
+          </div>
+
+          <!-- SEDAN XL (Diesel Only) -->
+          <div class="oneway-cab-card" data-car="sedan_xl">
+            <div class="cab-left">
+              <div class="cab-icon-wrap">
+                <img src="sedan.webp" alt="Sedan XL" class="cab-thumb" />
+                <span class="fuel-badge fuel-diesel">DIESEL</span>
+              </div>
+              <div class="cab-details">
+                <h4 class="cab-name">SEDAN XL</h4>
+                <p class="cab-models">Diesel Only · Swift Dzire, Etios, Honda Amaze</p>
+                <div class="cab-specs">
+                  <span>👤 4</span>
+                  <span>🧳 2</span>
+                </div>
+              </div>
+            </div>
+            <div class="cab-right">
+              <div class="cab-pricing">
+                <span class="cab-price-num" id="mPriceSedanXl">₹2,999</span>
+                <span class="cab-price-sub">All Inclusive</span>
+              </div>
+              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="sedan_xl">Select</button>
+            </div>
+          </div>
+
+          <!-- 24x7 Help Banner -->
+          <div class="oneway-help-strip">
+            <div class="help-left">
+              <svg class="ic" aria-hidden="true" style="width:20px;height:20px;color:#0284C7"><use href="#i-phone"/></svg>
+              <div>
+                <b>Need something special?</b>
+                <span>We're available 24/7 to help: +91 60057 91807</span>
+              </div>
+            </div>
+            <a href="tel:+916005791807" class="btn-help-link">Call Dispatch ➔</a>
+          </div>
+
+          <!-- SUV (Ertiga / Carens) -->
+          <div class="oneway-cab-card" data-car="suv">
+            <div class="cab-left">
+              <div class="cab-icon-wrap">
+                <img src="ertiga.webp" alt="SUV Ertiga" class="cab-thumb" />
+                <span class="fuel-badge fuel-cng">CNG / DIESEL</span>
+              </div>
+              <div class="cab-details">
+                <h4 class="cab-name">SUV</h4>
+                <p class="cab-models">Maruti Ertiga, Kia Carens, Mahindra Marazzo</p>
+                <div class="cab-specs">
+                  <span>👤 6</span>
+                  <span>🧳 4</span>
+                </div>
+              </div>
+            </div>
+            <div class="cab-right">
+              <div class="cab-pricing">
+                <span class="cab-price-num" id="mPriceSuv">₹3,499</span>
+                <span class="cab-price-sub">All Inclusive</span>
+              </div>
+              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="suv">Select</button>
+            </div>
+          </div>
+
+          <!-- SUV VIP (Innova Crysta) -->
+          <div class="oneway-cab-card" data-car="crysta">
+            <div class="cab-left">
+              <div class="cab-icon-wrap">
+                <img src="suv.webp" alt="Innova Crysta" class="cab-thumb" />
+                <span class="fuel-badge fuel-diesel">DIESEL</span>
+              </div>
+              <div class="cab-details">
+                <h4 class="cab-name">INNOVA CRYSTA (VIP)</h4>
+                <p class="cab-models">Toyota Innova Crysta / Hycross · Captain Seats</p>
+                <div class="cab-specs">
+                  <span>👤 7</span>
+                  <span>🧳 4 Large</span>
+                </div>
+              </div>
+            </div>
+            <div class="cab-right">
+              <div class="cab-pricing">
+                <span class="cab-price-num" id="mPriceCrysta">₹4,399</span>
+                <span class="cab-price-sub">All Inclusive</span>
+              </div>
+              <button type="button" class="btn btn-yellow btn-select-cab" data-select-car="crysta">Select</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="oneway-back-bar">
+          <button type="button" class="btn btn--ghost" id="btnBackToBook">← Back to Ride Details</button>
+        </div>
+      </div>
+
+      <!-- ================= SCREEN 2.5: Is Your Trip Confirmed? (Screenshot 3) ================= -->
+      <div class="oneway-step" id="stepPaneConfirmChoice" hidden>
+        <div class="trip-confirm-modal">
+          <div class="trip-confirm-header">
+            <h3>Is Your Trip Confirmed?</h3>
+          </div>
+
+          <div class="oneway-blue-guarantee" style="margin-bottom:14px">
+            <div class="guarantee-icon">
+              <svg viewBox="0 0 24 24" class="ic"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" fill="currentColor"/></svg>
+            </div>
+            <div class="guarantee-text">
+              <div class="guarantee-title">
+                <span>WHAT YOU SEE IS WHAT YOU PAY - GUARANTEED!</span>
+              </div>
+              <p>This fare includes everything: tolls, driver allowance, GST, state taxes, even night charges.</p>
+            </div>
+          </div>
+
+          <!-- Option A: Saver Fare (Advance) -->
+          <div class="fare-plan-card fare-plan-saver is-selected" id="planSaverCard">
+            <div class="plan-header">
+              <span class="plan-badge-saver">SAVE ₹100</span>
+              <h4 class="plan-title">Yes : Saver Fare</h4>
+            </div>
+            <ul class="plan-bullets">
+              <li>Minimum Advance Required : <b>₹500</b> (Pay balance to driver)</li>
+              <li>Cancellation : ₹30 - ₹500 ℹ️</li>
+            </ul>
+            <div class="plan-bottom">
+              <div>
+                <span class="plan-amount" id="saverPlanAmount">₹2,799</span>
+                <span class="plan-taxnote">All Inclusive</span>
+              </div>
+              <button type="button" class="btn btn-yellow btn-choose-plan" id="btnChooseSaver">SELECT</button>
+            </div>
+          </div>
+
+          <!-- Option B: Flexi Fare (Cash on Cab / ₹0 Advance) -->
+          <div class="fare-plan-card fare-plan-flexi" id="planFlexiCard">
+            <div class="plan-header">
+              <span class="plan-badge-flexi">FLEXIBLE</span>
+              <h4 class="plan-title">No : Flexi Fare</h4>
+            </div>
+            <ul class="plan-bullets">
+              <li>Minimum Advance Required : <b>₹0</b></li>
+              <li>Cancellation Charge : <b>₹0</b></li>
+            </ul>
+            <div class="plan-bottom">
+              <div>
+                <span class="plan-amount" id="flexiPlanAmount">₹2,899</span>
+                <span class="plan-taxnote">All Inclusive (Pay Driver on Drop)</span>
+              </div>
+              <button type="button" class="btn btn-yellow btn-choose-plan" id="btnChooseFlexi">SELECT</button>
+            </div>
+          </div>
+
+          <div class="oneway-back-bar" style="margin-top:14px">
+            <button type="button" class="btn btn--ghost" id="btnBackToCabsList">← Back to Cabs</button>
           </div>
         </div>
       </div>
 
-      <!-- ================= STEP 3: DOORSTEP ADDRESSES & PAYMENT ================= -->
-      <div class="fmodal-pane" id="stepPane3" hidden>
-        <!-- Recap Strip -->
-        <div class="fmodal-recap-strip">
-          <div class="fmodal-recap-strip__col">
-            <span>TRIP & CAB</span>
-            <b id="step3TripSummary">Pune → Mumbai · Sedan (Dzire)</b>
-          </div>
-          <div class="fmodal-recap-strip__col">
-            <span>VERIFIED PASSENGER</span>
-            <b id="step3PassengerSummary">Aditya Deshmukh (+91 9876543210)</b>
-          </div>
-          <button type="button" class="btn-step-edit-sm" id="btnBackToStep2">Edit</button>
-        </div>
-
-        <!-- Doorstep Address Input -->
-        <div class="fmodal-address-box">
-          <div class="fmodal-pay__title" style="margin-bottom:8px">
-            <span>3. EXACT DOORSTEP ADDRESSES</span>
-            <span style="font-size:.72rem;color:#0284C7;font-weight:700">📍 Direct Cab Arrival</span>
-          </div>
-          <div class="fmodal-fields">
-            <div class="field">
-              <label for="mCustAddress">Exact Pickup Address / Landmark <span class="req" style="color:#EF4444">*</span></label>
-              <div class="select">
-                <input id="mCustAddress" type="text" placeholder="e.g. Flat 402, Rohan Heights, Wakad, Pune" required />
-              </div>
-            </div>
-            <div class="field">
-              <label for="mCustDropAddress">Exact Drop Address / Destination Landmark</label>
-              <div class="select">
-                <input id="mCustDropAddress" type="text" placeholder="e.g. Building 4, Mindspace, Malad West, Mumbai" />
-              </div>
+      <!-- ================= SCREEN 3: /summary (Trip Summary & Checkout - Screenshot 4) ================= -->
+      <div class="oneway-step" id="stepPane3" hidden>
+        <!-- Route & Fixed Fare Box (Screenshot 4) -->
+        <div class="summary-top-card">
+          <div class="summary-route-title" id="summaryRouteTitle">Pune to Mumbai</div>
+          <div class="summary-fare-strip">
+            <span>All Inclusive Fixed Fare</span>
+            <div class="fare-val-wrap">
+              <b id="summaryFareNum">₹2,799</b>
+              <span class="info-circle" title="Tolls, driver allowance & GST included">ℹ</span>
             </div>
           </div>
-        </div>
 
-        <!-- Payment Options (Requirement #1) -->
-        <div class="fmodal-pay">
-          <div class="fmodal-pay__title">
-            <span>4. SELECT PAYMENT OPTION</span>
-            <span style="font-size:.72rem;color:#0B8045;font-weight:700">✓ 100% Secure Guarantee</span>
-          </div>
-          <div class="fmodal-pay__opts">
-            <label class="fmodal-pay-opt is-selected" id="payOptAdvance">
-              <div class="fmodal-pay-opt__left">
-                <input type="radio" name="modalPayment" value="advance" checked />
-                <div class="fmodal-pay-opt__label">
-                  <span>Pay ₹500 Advance & Rest to Driver</span>
-                  <span class="fmodal-pay-opt__desc">Reserve & confirm cab instantly. Pay balance directly to driver at drop point.</span>
+          <div class="summary-itinerary-grid">
+            <div class="itinerary-left">
+              <div class="itinerary-row">
+                <span class="itin-dot">⭕</span>
+                <div>
+                  <span class="itin-label">Pickup from:</span>
+                  <b id="summaryPickupAddr">Pune Doorstep Pickup</b>
                 </div>
               </div>
-              <span class="fmodal-pay-opt__badge">Most Popular</span>
-            </label>
-
-            <label class="fmodal-pay-opt" id="payOptFull">
-              <div class="fmodal-pay-opt__left">
-                <input type="radio" name="modalPayment" value="full" />
-                <div class="fmodal-pay-opt__label">
-                  <span>Pay Full Online</span>
-                  <span class="fmodal-pay-opt__desc">100% advance via UPI / GPay / PhonePe / Card. Hassle-free drop.</span>
+              <div class="itinerary-row">
+                <span class="itin-dot">📍</span>
+                <div>
+                  <span class="itin-label">Drop off at:</span>
+                  <b id="summaryDropAddr">Mumbai Destination Point</b>
                 </div>
               </div>
-            </label>
-
-            <label class="fmodal-pay-opt" id="payOptDrop">
-              <div class="fmodal-pay-opt__left">
-                <input type="radio" name="modalPayment" value="cash" />
-                <div class="fmodal-pay-opt__label">
-                  <span>Pay After Drop / Cash on Cab</span>
-                  <span class="fmodal-pay-opt__desc">Pay zero advance now. Settle full amount directly with driver on arrival.</span>
+              <div class="itinerary-row">
+                <span class="itin-dot">🕒</span>
+                <div>
+                  <span class="itin-label">Pickup Time:</span>
+                  <b id="summaryPickupTime">Today · 08:00 AM</b>
                 </div>
               </div>
-            </label>
-          </div>
-
-          <div class="fmodal-breakdown" id="fmodalBreakdown">
-            <div>Advance Payable Now: <b id="mBreakAdvance">₹500</b></div>
-            <div>Balance on Drop: <b id="mBreakBalance">₹2,299</b></div>
-          </div>
-        </div>
-
-        <!-- Secure Online Payment (Razorpay Checkout) -->
-        <div class="fmodal-upi" id="fmodalUpiSection">
-          <div class="fmodal-upi__header">
-            <div class="fmodal-upi__title-wrap">
-              <span class="fmodal-upi__tag">🔒 100% Secure & Verified Payment</span>
-              <h3 class="fmodal-upi__h3">Pay <span id="mUpiAmount">₹500</span> via Razorpay</h3>
             </div>
-            <div class="fmodal-upi__badge">Instant Auto-Verification</div>
+
+            <div class="itinerary-right">
+              <div class="summary-cab-box">
+                <img src="sedan.webp" alt="Cab" id="summaryCabImg" class="summary-cab-icon" />
+                <b id="summaryCabName">SEDAN</b>
+                <div class="summary-cab-spec" id="summaryCabSpec">🧳 2 | 👤 4</div>
+              </div>
+            </div>
           </div>
 
-          <!-- Official Razorpay Pay Card -->
-          <div class="razorpay-card" id="razorpayCard">
-            <button type="button" class="btn-razorpay-pay" id="btnRazorpayPay">
-              <div class="btn-razorpay-pay__left">
-                <span class="btn-razorpay-pay__badge">AUTO-VERIFIED CHECKOUT</span>
-                <span class="btn-razorpay-pay__title">
-                  <svg class="ic-rzp-lock" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-                  Pay <span id="mRzpAmount">₹500</span> via Razorpay
-                </span>
-                <span class="btn-razorpay-pay__sub">UPI (Google Pay, PhonePe, Paytm, CRED), Cards & NetBanking</span>
-              </div>
-              <div class="btn-razorpay-pay__right">
-                <span class="btn-razorpay-pay__action">Pay Now ➔</span>
-              </div>
-            </button>
-
-            <!-- Verified Banner (Shown when Razorpay payment succeeds) -->
-            <div class="rzp-verified-banner" id="rzpVerifiedBanner" hidden>
-              <div class="rzp-verified-banner__icon">✓</div>
-              <div class="rzp-verified-banner__info">
-                <b>Payment Authenticated & Verified by Razorpay!</b>
-                <span id="rzpPaymentRef">Payment ID: —</span>
-              </div>
+          <div class="summary-fare-badge-row">
+            <span class="plan-badge-saver" id="summaryPlanBadge">SAVE ₹100 Saver Fare</span>
+            <div class="summary-plan-meta">
+              <span id="summaryAdvanceLabel">Advance: ₹500</span>
+              <span>· Free Cancellation</span>
             </div>
           </div>
         </div>
 
-        <!-- Cash on Cab notice (shown when Cash on Cab is selected) -->
-        <div class="fmodal-cash-notice" id="fmodalCashNotice" hidden>
-          <div class="fmodal-cash-notice__icon">
-            <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
+        <!-- Coupon Code Box (Screenshot 4) -->
+        <div class="oneway-coupon-card">
+          <label for="couponInput">🏷️ Have a coupon code?</label>
+          <div class="coupon-input-wrap">
+            <input type="text" id="couponInput" placeholder="ENTER COUPON CODE" uppercase />
+            <button type="button" class="btn btn-apply-coupon" id="btnApplyCoupon">Apply</button>
           </div>
-          <div class="fmodal-cash-notice__text">
-            <h4>Zero Advance Payment Required</h4>
-            <p>Your cab booking is reserved instantly. Pay the full fare directly to your driver after reaching your destination via Cash or UPI.</p>
-          </div>
+          <div class="coupon-msg" id="couponMsg" hidden></div>
         </div>
 
-        <!-- Final Confirmation Actions -->
-        <div class="fmodal-step-actions fmodal-step-actions--between">
-          <button type="button" class="btn btn--ghost" id="btnBackToStep2From3">
-            <span>← Back to Step 2</span>
+        <!-- Inclusions Checklist (Screenshot 4) -->
+        <div class="oneway-inclusions-card">
+          <h4 class="inc-title">Included / Excluded</h4>
+          <ul class="inc-list">
+            <li class="inc-item is-yes">
+              <span class="check-green">✓</span>
+              <span>Pickup and Drop - Anywhere within City Limits</span>
+            </li>
+            <li class="inc-item is-yes">
+              <span class="check-green">✓</span>
+              <span>GST, Toll Taxes & State Permits Included</span>
+            </li>
+            <li class="inc-item is-yes">
+              <span class="check-green">✓</span>
+              <span>Commercial Chilled AC Fleet</span>
+            </li>
+            <li class="inc-item is-no">
+              <span class="cross-red">✕</span>
+              <span>Any Airport Parking Fee (If applicable)</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Hidden legacy inputs for background payment syncing -->
+        <div hidden>
+          <input type="radio" name="modalPayment" id="payOptAdvanceRadio" value="advance" checked />
+          <input type="radio" name="modalPayment" id="payOptFullRadio" value="full" />
+          <input type="radio" name="modalPayment" id="payOptDropRadio" value="cash" />
+          <span id="mBreakAdvance">₹500</span>
+          <span id="mBreakBalance">₹2,299</span>
+          <span id="mUpiAmount">₹500</span>
+          <span id="mRzpAmount">₹500</span>
+          <div id="fmodalUpiSection"></div>
+          <div id="fmodalCashNotice"></div>
+          <div id="rzpVerifiedBanner" hidden><span id="rzpPaymentRef"></span></div>
+        </div>
+
+        <!-- Payment Actions (Screenshot 4 Yellow & Border Buttons) -->
+        <div class="oneway-payment-actions" id="summaryPaymentActions">
+          <!-- Button 1: Pay Advance (Opens Razorpay) -->
+          <button type="button" class="btn btn-yellow btn-pay-advance" id="btnPayAdvanceRzp">
+            <div class="pay-btn-content">
+              <span class="pay-btn-main">💳 Pay <span id="btnPayAdvAmt">₹500</span></span>
+              <span class="pay-btn-sub">And Rest to Driver on Drop</span>
+            </div>
           </button>
-          <button type="button" class="btn--book-wa" id="mConfirmWa">
-            <svg class="ic" aria-hidden="true" style="width:22px;height:22px"><use href="#i-wa"/></svg>
-            <span>Confirm & Book on WhatsApp</span>
+
+          <!-- Button 2: Pay Full Online (Razorpay) -->
+          <button type="button" class="btn btn-white-border btn-pay-full" id="btnPayFullRzp">
+            <div class="pay-btn-content">
+              <span class="pay-btn-main">💳 Pay <span id="btnPayFullAmt">₹2,799</span></span>
+              <span class="pay-btn-sub">No Hassle to Pay Driver</span>
+            </div>
           </button>
+
+          <!-- Button 3: Cash on Cab (For Flexi Fare) -->
+          <button type="button" class="btn btn-yellow btn-pay-cash" id="btnPayCashCab" hidden>
+            <div class="pay-btn-content">
+              <span class="pay-btn-main">🚖 Confirm Booking</span>
+              <span class="pay-btn-sub">Pay Full Fare to Driver on Drop</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Primary WhatsApp Confirm Trigger -->
+        <button type="button" class="btn--book-wa" id="mConfirmWa" style="display:none">
+          <svg class="ic" aria-hidden="true" style="width:22px;height:22px"><use href="#i-wa"/></svg>
+          <span>Confirm on WhatsApp</span>
+        </button>
+
+        <div class="oneway-back-bar" style="margin-top:14px">
+          <button type="button" class="btn btn--ghost" id="btnBackToConfirmChoice">← Change Vehicle / Fare Plan</button>
         </div>
       </div>
     </div>
 
-    <div class="fmodal__footer">
-      <a class="btn btn--ghost" href="tel:+916005791807" data-phone-link>
+    <!-- Modal Footer -->
+    <div class="fmodal__footer oneway-footer">
+      <a class="btn btn--ghost btn--sm" href="tel:+916005791807" data-phone-link>
         <svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>
         <span>Call 24x7 Dispatch (+91 60057 91807)</span>
       </a>
       <div class="fmodal-footer-badge">
-        <span>🛡️ Commercial Insured Fleet · 24x7 GPS Tracking</span>
+        <span>🛡️ OneWay.Cab Guarantee · Zero Return Fare</span>
       </div>
     </div>
   </div>

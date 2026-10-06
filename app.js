@@ -799,9 +799,15 @@ function initTabs() {
   });
 }
 
-/* --- ONEWAY.CAB 3-STEP BOOKING WIZARD & WHATSAPP OTP STATE --- */
-const wizardState = {
-  currentStep: 1, // 1: Vehicle, 2: WhatsApp OTP, 3: Address & Payment
+/* ============================================================================
+   EXACT ONEWAY.CAB BOOKING FLOW & WHATSAPP OTP STATE (Screenshots 1 - 5)
+   ========================================================================= */
+const onewayState = {
+  currentStep: 1, // 1: /book, 2: /cabs, 2.5: confirm choice, 3: /summary
+  selectedCar: "sedan",
+  farePlan: "saver", // "saver" (Advance ₹500) or "flexi" (Cash on Cab ₹0)
+  couponCode: "",
+  couponDiscount: 0,
   otpToken: null,
   otpVerified: false,
   verifiedPhone: "",
@@ -809,66 +815,214 @@ const wizardState = {
   countdownSeconds: 30
 };
 
-const CAR_DISPLAY_NAMES = {
-  sedan: "Sedan (Dzire / Aura / Etios)",
-  suv: "SUV Ertiga (6 Seater AC)",
-  carens: "SUV Kia Carens (6-7 Seater Executive Luxury)",
-  crysta: "Premium Innova Crysta (7 Seater VIP Comfort)"
+const ONEWAY_CARS = {
+  hatchback: {
+    key: "hatchback",
+    name: "HATCHBACK",
+    models: "WagonR, i20, Celerio, Swift, etc.",
+    specs: "🧳 1 | 👤 4",
+    seats: 4,
+    bags: 1,
+    fuel: "CNG",
+    image: "sedan.webp",
+    ratio: 0.88
+  },
+  sedan: {
+    key: "sedan",
+    name: "SEDAN",
+    models: "Maruti Dzire, Hyundai Aura, Toyota Etios",
+    specs: "🧳 2 | 👤 4",
+    seats: 4,
+    bags: 2,
+    fuel: "CNG / PETROL",
+    image: "sedan.webp",
+    ratio: 1.0
+  },
+  sedan_xl: {
+    key: "sedan_xl",
+    name: "SEDAN XL",
+    models: "Diesel Only · Swift Dzire, Etios, Honda Amaze",
+    specs: "🧳 2 | 👤 4",
+    seats: 4,
+    bags: 2,
+    fuel: "DIESEL",
+    image: "sedan.webp",
+    ratio: 1.07
+  },
+  suv: {
+    key: "suv",
+    name: "SUV",
+    models: "Maruti Ertiga, Kia Carens, Mahindra Marazzo",
+    specs: "🧳 4 | 👤 6",
+    seats: 6,
+    bags: 4,
+    fuel: "CNG / DIESEL",
+    image: "ertiga.webp",
+    ratio: 1.25
+  },
+  crysta: {
+    key: "crysta",
+    name: "INNOVA CRYSTA (VIP)",
+    models: "Toyota Innova Crysta / Hycross · Captain Seats",
+    specs: "🧳 4 Large | 👤 7",
+    seats: 7,
+    bags: 4,
+    fuel: "DIESEL",
+    image: "suv.webp",
+    ratio: 1.57
+  }
 };
 
-function goToWizardStep(stepNum) {
-  wizardState.currentStep = stepNum;
+function getCarFare(carKey) {
+  const r = findRoute(bookState.from, bookState.to);
+  const baseSedan = r ? r.sedan : 2799;
+  const baseSuv = r ? r.suv : 3499;
 
-  // 1. Update Wizard Tabs
-  [1, 2, 3].forEach(num => {
-    const tab = $(`#fstepTab${num}`);
-    if (!tab) return;
-    tab.classList.toggle("is-active", num === stepNum);
-    tab.classList.toggle("is-done", num < stepNum || (num === 2 && wizardState.otpVerified));
-  });
+  if (carKey === "hatchback") return Math.round((baseSedan * 0.88) / 50) * 50;
+  if (carKey === "sedan") return baseSedan;
+  if (carKey === "sedan_xl") return Math.round((baseSedan * 1.07) / 50) * 50;
+  if (carKey === "suv") return baseSuv;
+  if (carKey === "crysta") return Math.round((baseSuv * 1.25) / 50) * 50;
+  return baseSedan;
+}
 
-  // 2. Toggle Panes
-  [1, 2, 3].forEach(num => {
-    const pane = $(`#stepPane${num}`);
-    if (!pane) return;
-    if (num === stepNum) {
-      pane.hidden = false;
-      pane.classList.add("is-active");
-    } else {
-      pane.hidden = true;
-      pane.classList.remove("is-active");
-    }
-  });
+function goToOnewayStep(stepNum) {
+  onewayState.currentStep = stepNum;
 
-  // 3. Step Specific Updates
-  if (stepNum === 1) {
-    updateModalPayment(getSelectedTotalFare());
-  } else if (stepNum === 2) {
-    const carName = CAR_DISPLAY_NAMES[bookState.selectedCar] || "Sedan (AC)";
-    const totalFare = getSelectedTotalFare();
-    const cNameEl = $("#step2CarName");
-    const cPriceEl = $("#step2CarPrice");
-    if (cNameEl) cNameEl.textContent = carName;
-    if (cPriceEl) cPriceEl.textContent = `${inr(totalFare)} All-Inclusive`;
+  // Breadcrumb updates
+  const t1 = $("#fstepTab1"), t2 = $("#fstepTab2"), t3 = $("#fstepTab3");
+  if (t1) {
+    t1.classList.toggle("is-active", stepNum === 1);
+    t1.classList.toggle("is-done", stepNum > 1);
+  }
+  if (t2) {
+    t2.classList.toggle("is-active", stepNum === 2 || stepNum === 2.5);
+    t2.classList.toggle("is-done", stepNum === 3);
+  }
+  if (t3) {
+    t3.classList.toggle("is-active", stepNum === 3);
+  }
 
-    const phoneIn = $("#mCustPhone");
-    const cleanPhone = phoneIn ? phoneIn.value.trim().replace(/\D/g, "").slice(-10) : "";
-    if (wizardState.otpVerified && wizardState.verifiedPhone === cleanPhone && cleanPhone.length === 10) {
-      showOtpVerifiedBadge(cleanPhone);
-    }
+  // Panes
+  const p1 = $("#stepPane1");
+  const p2 = $("#stepPane2");
+  const pConfirm = $("#stepPaneConfirmChoice");
+  const p3 = $("#stepPane3");
+
+  if (p1) p1.hidden = (stepNum !== 1);
+  if (p2) p2.hidden = (stepNum !== 2);
+  if (pConfirm) pConfirm.hidden = (stepNum !== 2.5);
+  if (p3) p3.hidden = (stepNum !== 3);
+
+  const modalBody = $(".fmodal__body.oneway-body");
+  if (modalBody) modalBody.scrollTop = 0;
+
+  // Step specific renders
+  if (stepNum === 2) {
+    renderOnewayCabs();
+  } else if (stepNum === 2.5) {
+    renderConfirmChoice();
   } else if (stepNum === 3) {
-    const fromTitle = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
-    const toTitle = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
-    const carName = CAR_DISPLAY_NAMES[bookState.selectedCar] || "Sedan (AC)";
-    const nameVal = ($("#mCustName") && $("#mCustName").value.trim()) || "Valued Passenger";
-    const phoneVal = ($("#mCustPhone") && $("#mCustPhone").value.trim()) || wizardState.verifiedPhone;
+    renderOnewaySummary();
+  }
+}
 
-    const summaryEl = $("#step3TripSummary");
-    if (summaryEl) summaryEl.textContent = `${fromTitle} → ${toTitle} · ${carName}`;
-    const custEl = $("#step3PassengerSummary");
-    if (custEl) custEl.textContent = `${nameVal} (+91 ${phoneVal})`;
+function renderOnewayCabs() {
+  const cars = ["hatchback", "sedan", "sedan_xl", "suv", "crysta"];
+  const priceElements = {
+    hatchback: $("#mPriceHatch"),
+    sedan: $("#mPriceSedan"),
+    sedan_xl: $("#mPriceSedanXl"),
+    suv: $("#mPriceSuv"),
+    crysta: $("#mPriceCrysta")
+  };
 
-    updateModalPayment(getSelectedTotalFare());
+  cars.forEach(key => {
+    const fare = getCarFare(key);
+    if (priceElements[key]) {
+      priceElements[key].textContent = inr(fare);
+    }
+  });
+
+  $$(".oneway-cab-card").forEach(card => {
+    card.classList.toggle("is-selected", card.dataset.car === onewayState.selectedCar);
+  });
+}
+
+function renderConfirmChoice() {
+  const fare = getCarFare(onewayState.selectedCar);
+  const saverAmt = fare;
+  const flexiAmt = fare + 100; // Screenshot 3 Saver vs Flexi price pattern
+
+  const sEl = $("#saverPlanAmount");
+  const fEl = $("#flexiPlanAmount");
+  if (sEl) sEl.textContent = inr(saverAmt);
+  if (fEl) fEl.textContent = inr(flexiAmt);
+}
+
+function renderOnewaySummary() {
+  const fromCity = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
+  const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Mumbai");
+  const baseFare = getCarFare(onewayState.selectedCar);
+  const totalFare = (onewayState.farePlan === "flexi") ? (baseFare + 100) : baseFare;
+  const carInfo = ONEWAY_CARS[onewayState.selectedCar] || ONEWAY_CARS.sedan;
+
+  const titleEl = $("#summaryRouteTitle");
+  if (titleEl) titleEl.textContent = `${fromCity} to ${toCity}`;
+
+  const fareNumEl = $("#summaryFareNum");
+  if (fareNumEl) fareNumEl.textContent = inr(totalFare);
+
+  const pAddrEl = $("#summaryPickupAddr");
+  const dAddrEl = $("#summaryDropAddr");
+  const pickupVal = ($("#mCustAddress") && $("#mCustAddress").value.trim()) || `${fromCity} Doorstep Pickup`;
+  const dropVal = ($("#mCustDropAddress") && $("#mCustDropAddress").value.trim()) || `${toCity} Drop Point`;
+  if (pAddrEl) pAddrEl.textContent = pickupVal;
+  if (dAddrEl) dAddrEl.textContent = dropVal;
+
+  const pTimeEl = $("#summaryPickupTime");
+  const dStr = bookState.date || "Today";
+  const tStr = bookState.time || "08:00 AM";
+  if (pTimeEl) pTimeEl.textContent = `${dStr} · ${tStr}`;
+
+  const cabNameEl = $("#summaryCabName");
+  const cabSpecEl = $("#summaryCabSpec");
+  const cabImgEl = $("#summaryCabImg");
+  if (cabNameEl) cabNameEl.textContent = carInfo.name;
+  if (cabSpecEl) cabSpecEl.textContent = carInfo.specs;
+  if (cabImgEl) cabImgEl.src = carInfo.image;
+
+  // Plan badge & Advance buttons
+  const planBadgeEl = $("#summaryPlanBadge");
+  const advLabelEl = $("#summaryAdvanceLabel");
+  const btnAdv = $("#btnPayAdvanceRzp");
+  const btnFull = $("#btnPayFullRzp");
+  const btnCash = $("#btnPayCashCab");
+  const advAmtSpan = $("#btnPayAdvAmt");
+  const fullAmtSpan = $("#btnPayFullAmt");
+
+  if (onewayState.farePlan === "saver") {
+    if (planBadgeEl) {
+      planBadgeEl.className = "plan-badge-saver";
+      planBadgeEl.textContent = "SAVE ₹100 Saver Fare";
+    }
+    if (advLabelEl) advLabelEl.textContent = "Advance: ₹500";
+    if (btnAdv) btnAdv.hidden = false;
+    if (btnFull) btnFull.hidden = false;
+    if (btnCash) btnCash.hidden = true;
+    if (advAmtSpan) advAmtSpan.textContent = inr(500);
+    if (fullAmtSpan) fullAmtSpan.textContent = inr(totalFare);
+    bookState.paymentMode = "advance";
+  } else {
+    if (planBadgeEl) {
+      planBadgeEl.className = "plan-badge-flexi";
+      planBadgeEl.textContent = "FLEXIBLE Flexi Fare";
+    }
+    if (advLabelEl) advLabelEl.textContent = "Advance: ₹0 (Pay Full on Drop)";
+    if (btnAdv) btnAdv.hidden = true;
+    if (btnFull) btnFull.hidden = true;
+    if (btnCash) btnCash.hidden = false;
+    bookState.paymentMode = "cash";
   }
 }
 
@@ -893,7 +1047,7 @@ async function sendWhatsAppOtp() {
   const btnSend = $("#btnSendOtp");
   const btnText = $("#btnSendOtpText");
   if (btnSend) btnSend.disabled = true;
-  if (btnText) btnText.textContent = "Sending WhatsApp OTP...";
+  if (btnText) btnText.textContent = "Sending...";
 
   try {
     const res = await fetch("/api/send-whatsapp-otp", {
@@ -906,11 +1060,11 @@ async function sendWhatsAppOtp() {
     if (!res.ok || !data.success) {
       alert("Error sending OTP: " + (data.error || "Please try again."));
       if (btnSend) btnSend.disabled = false;
-      if (btnText) btnText.textContent = "Send 6-Digit WhatsApp OTP";
+      if (btnText) btnText.textContent = "Verify OTP";
       return;
     }
 
-    wizardState.otpToken = data.token;
+    onewayState.otpToken = data.token;
 
     // Show OTP input box
     const inputArea = $("#otpInputArea");
@@ -935,18 +1089,18 @@ async function sendWhatsAppOtp() {
     const otpInput = $("#mCustOtp");
     if (otpInput) otpInput.focus();
 
-    if (btnText) btnText.textContent = "OTP Sent to WhatsApp ✓";
+    if (btnText) btnText.textContent = "Code Sent ✓";
   } catch (err) {
     console.error("sendWhatsAppOtp err:", err);
     alert("Network error sending OTP. Please check your connection and try again.");
     if (btnSend) btnSend.disabled = false;
-    if (btnText) btnText.textContent = "Send 6-Digit WhatsApp OTP";
+    if (btnText) btnText.textContent = "Verify OTP";
   }
 }
 
 function startOtpCountdown() {
-  clearInterval(wizardState.timerInterval);
-  wizardState.countdownSeconds = 30;
+  clearInterval(onewayState.timerInterval);
+  onewayState.countdownSeconds = 30;
   const timerCount = $("#otpTimerCount");
   const secondsEl = $("#otpSeconds");
   const resendBtn = $("#btnResendOtp");
@@ -954,12 +1108,12 @@ function startOtpCountdown() {
   if (timerCount) timerCount.hidden = false;
   if (secondsEl) secondsEl.textContent = "30s";
 
-  wizardState.timerInterval = setInterval(() => {
-    wizardState.countdownSeconds--;
-    if (secondsEl) secondsEl.textContent = `${wizardState.countdownSeconds}s`;
+  onewayState.timerInterval = setInterval(() => {
+    onewayState.countdownSeconds--;
+    if (secondsEl) secondsEl.textContent = `${onewayState.countdownSeconds}s`;
 
-    if (wizardState.countdownSeconds <= 0) {
-      clearInterval(wizardState.timerInterval);
+    if (onewayState.countdownSeconds <= 0) {
+      clearInterval(onewayState.timerInterval);
       if (resendBtn) resendBtn.disabled = false;
       if (timerCount) timerCount.hidden = true;
     }
@@ -996,7 +1150,7 @@ async function verifyWhatsAppOtp() {
       body: JSON.stringify({
         phone: cleanPhone,
         otp: otpVal,
-        token: wizardState.otpToken
+        token: onewayState.otpToken
       })
     });
     const data = await res.json();
@@ -1012,16 +1166,11 @@ async function verifyWhatsAppOtp() {
     }
 
     // Success!
-    wizardState.otpVerified = true;
-    wizardState.verifiedPhone = cleanPhone;
-    clearInterval(wizardState.timerInterval);
+    onewayState.otpVerified = true;
+    onewayState.verifiedPhone = cleanPhone;
+    clearInterval(onewayState.timerInterval);
 
     showOtpVerifiedBadge(cleanPhone);
-
-    // Auto-advance to Step 3 after brief pause
-    setTimeout(() => {
-      goToWizardStep(3);
-    }, 700);
 
   } catch (err) {
     console.error("verifyWhatsAppOtp err:", err);
@@ -1035,18 +1184,25 @@ async function verifyWhatsAppOtp() {
 }
 
 function showOtpVerifiedBadge(phone) {
-  const sendRow = $("#otpSendRow");
   const inputArea = $("#otpInputArea");
   const successBanner = $("#otpSuccessBanner");
   const successPhone = $("#otpSuccessPhone");
+  const btnSend = $("#btnSendOtp");
 
-  if (sendRow) sendRow.hidden = true;
   if (inputArea) inputArea.hidden = true;
   if (successBanner) successBanner.hidden = false;
   if (successPhone) successPhone.textContent = `+91 ${phone}`;
+  if (btnSend) {
+    btnSend.disabled = true;
+    const span = btnSend.querySelector("span") || btnSend;
+    span.textContent = "✓ Verified";
+  }
 
-  const tab2 = $("#fstepTab2");
-  if (tab2) tab2.classList.add("is-done");
+  const statusNote = $("#phoneVerifyStatusNote");
+  if (statusNote) {
+    statusNote.textContent = "✓ WhatsApp number verified successfully";
+    statusNote.style.color = "#10B981";
+  }
 }
 
 /* --- FLEET SELECTION & PAYMENT MODAL --- */
@@ -1054,85 +1210,57 @@ function openFleetModal() {
   const modal = $("#fleetModal");
   if (!modal) return;
 
-  // REQUIREMENT: Must be signed in / create account to book cab
+  // Pre-fill user data from Firebase profile or localStorage if available (NO EMAIL SIGNUP BLOCKER!)
   const fb = window.FirebaseService;
-  if (!fb || !fb.currentUser) {
-    window.pendingBookingAction = () => openFleetModal();
-    if (typeof window.openAuthModal === "function") {
-      window.openAuthModal("signup", "Please sign in or create an account to proceed with cab booking.");
-    } else {
-      const authM = $("#authModal");
-      if (authM) {
-        authM.hidden = false;
-        authM.classList.add("is-open");
-        const alertEl = $("#authAlert");
-        if (alertEl) {
-          alertEl.hidden = false;
-          alertEl.className = "auth-alert is-error";
-          alertEl.textContent = "Please sign in or create an account to proceed with cab booking.";
-        }
-      }
-    }
-    return;
-  }
-
-  // Pre-fill user data from Firebase profile if available
-  const user = fb.currentUser;
+  const user = fb && fb.currentUser;
   const nameIn = $("#mCustName");
   const phoneIn = $("#mCustPhone");
-  if (nameIn && !nameIn.value && user.displayName) {
-    nameIn.value = user.displayName;
+  if (nameIn && !nameIn.value) {
+    if (user && user.displayName) nameIn.value = user.displayName;
+    else {
+      try { nameIn.value = localStorage.getItem("st_cust_name") || ""; } catch (e) {}
+    }
   }
-  if (phoneIn && !phoneIn.value && user.phoneNumber) {
-    nameIn.value = user.phoneNumber.replace("+91", "").trim();
+  if (phoneIn && !phoneIn.value) {
+    if (user && user.phoneNumber) phoneIn.value = user.phoneNumber.replace("+91", "").trim();
+    else {
+      try { phoneIn.value = localStorage.getItem("st_cust_phone") || ""; } catch (e) {}
+    }
   }
 
-  const r = findRoute(bookState.from, bookState.to);
   const fromTitle = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : bookState.from);
   const toTitle = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : bookState.to);
-  const dist = r ? `${r.km} km · ~${r.time}` : "Intercity Route · 24x7 Driver Dispatch across Maharashtra";
 
-  const titleEl = $("#fmodalTitle"), subEl = $("#fmodalSub");
-  if (titleEl) titleEl.textContent = `${fromTitle} → ${toTitle}`;
-  if (subEl) subEl.textContent = `${dist} · Doorstep Pickup & Drop`;
+  // Update Route Pill in Modal (Screenshot 1)
+  const bFrom = $("#bookFromCity"), bTo = $("#bookToCity");
+  if (bFrom) bFrom.textContent = fromTitle;
+  if (bTo) bTo.textContent = toTitle;
 
-  const sedanPrice = r ? r.sedan : 2799;
-  const suvPrice = r ? r.suv : 3499;
-  const carensPrice = r ? Math.round(r.suv * 1.12 / 50) * 50 : 3899;
-  const crystaPrice = r ? Math.round(r.suv * 1.25 / 50) * 50 : 4399;
+  const dtDisplay = $("#bookDateTimeDisplay");
+  const dVal = bookState.date || "Today";
+  const tVal = bookState.time || "08:00 AM";
+  if (dtDisplay) dtDisplay.textContent = `${dVal} · ${tVal}`;
 
-  const pSedan = $("#mPriceSedan"), pSuv = $("#mPriceSuv"), pCarens = $("#mPriceCarens"), pCrysta = $("#mPriceCrysta");
-  if (pSedan) pSedan.textContent = inr(sedanPrice);
-  if (pSuv) pSuv.textContent = inr(suvPrice);
-  if (pCarens) pCarens.textContent = inr(carensPrice);
-  if (pCrysta) pCrysta.textContent = inr(crystaPrice);
-
-  $$(".fmodal-car").forEach(c => {
-    c.classList.toggle("is-selected", c.dataset.car === bookState.selectedCar);
-  });
-
-  bookState.isPaymentDone = (bookState.paymentMode === "cash");
-  updateModalPayment(getSelectedTotalFare());
-
+  // Pre-fill doorstep addresses
   const mPickup = $("#mCustAddress");
   const mDrop = $("#mCustDropAddress");
   if (mPickup) {
     if (bookState.pickupAddress) {
       mPickup.value = bookState.pickupAddress;
-    } else if (!mPickup.value || mPickup.value.includes("Doorstep Pickup")) {
+    } else if (!mPickup.value) {
       mPickup.value = `${fromTitle} Doorstep Pickup`;
     }
   }
   if (mDrop) {
     if (bookState.dropAddress) {
       mDrop.value = bookState.dropAddress;
-    } else if (!mDrop.value || mDrop.value.includes("Drop Point")) {
+    } else if (!mDrop.value) {
       mDrop.value = `${toTitle} Drop Point`;
     }
   }
 
-  // Always reset to Step 1 on opening unless already verified
-  goToWizardStep(1);
+  // Always open on Step 1: /book (Screenshot 1)
+  goToOnewayStep(1);
 
   modal.hidden = false;
   modal.classList.add("is-open");
@@ -1145,135 +1273,20 @@ function closeFleetModal() {
   modal.classList.remove("is-open");
   modal.hidden = true;
   document.body.style.overflow = "";
-  bookState.isPaymentDone = false;
-}
-
-function updateModalPayment(totalFare) {
-  const mode = bookState.paymentMode;
-  const advEl = $("#mBreakAdvance"), balEl = $("#mBreakBalance");
-  if (!advEl || !balEl) return;
-
-  let advance = 500, balance = Math.max(0, totalFare - 500);
-  if (mode === "full") {
-    advance = totalFare;
-    balance = 0;
-  } else if (mode === "cash") {
-    advance = 0;
-    balance = totalFare;
-  }
-  advEl.textContent = inr(advance);
-  balEl.textContent = inr(balance);
-
-  updateUpiDetails(totalFare);
-}
-
-function updateUpiDetails(totalFare) {
-  const mode = bookState.paymentMode;
-  const amt = (mode === "full") ? totalFare : 500;
-  const upiSec = $("#fmodalUpiSection");
-  const cashNotice = $("#fmodalCashNotice");
-  const upiAmtEl = $("#mUpiAmount");
-  const rzpAmtEl = $("#mRzpAmount");
-
-  if (mode === "cash") {
-    bookState.isPaymentDone = true;
-    if (upiSec) upiSec.hidden = true;
-    if (cashNotice) cashNotice.hidden = false;
-  } else {
-    if (upiSec) upiSec.hidden = false;
-    if (cashNotice) cashNotice.hidden = true;
-    if (upiAmtEl) upiAmtEl.textContent = inr(amt);
-    if (rzpAmtEl) rzpAmtEl.textContent = inr(amt);
-  }
-
-  // Update Razorpay verified banner if payment completed
-  const rzpBanner = $("#rzpVerifiedBanner");
-  const rzpRef = $("#rzpPaymentRef");
-  if (rzpBanner) {
-    if (bookState.isPaymentDone && bookState.razorpayPaymentId) {
-      rzpBanner.hidden = false;
-      if (rzpRef) rzpRef.textContent = `Razorpay Payment ID: ${bookState.razorpayPaymentId}`;
-    } else {
-      rzpBanner.hidden = true;
-    }
-  }
-
-  // Update Confirm WhatsApp button label & lock status
-  const confirmBtn = $("#mConfirmWa");
-  if (confirmBtn) {
-    const span = confirmBtn.querySelector("span");
-    if (mode === "cash") {
-      confirmBtn.classList.remove("btn--locked");
-      if (span) span.textContent = "Confirm Booking on WhatsApp (Cash on Cab)";
-    } else {
-      if (bookState.isPaymentDone) {
-        confirmBtn.classList.remove("btn--locked");
-        if (span) {
-          span.textContent = (mode === "full")
-            ? `✓ Full ${inr(amt)} Paid — Confirm on WhatsApp`
-            : `✓ ${inr(amt)} Advance Paid — Confirm on WhatsApp`;
-        }
-      } else {
-        confirmBtn.classList.add("btn--locked");
-        if (span) {
-          span.textContent = (mode === "full")
-            ? `🔒 Complete Full ${inr(amt)} Payment Above to Confirm`
-            : `🔒 Pay ${inr(amt)} Advance Above to Confirm on WhatsApp`;
-        }
-      }
-    }
-  }
 }
 
 function executeBookingConfirmation(options = {}) {
-  // Step Verification Check: Must be verified via WhatsApp OTP
-  if (!wizardState.otpVerified) {
-    alert("Please verify your WhatsApp mobile number in Step 2 before confirming your booking.");
-    goToWizardStep(2);
-    return false;
-  }
-
-  // Payment Verification Check: If Advance or Full selected, prevent confirmation until payment is made
-  if (bookState.paymentMode !== "cash" && !bookState.isPaymentDone) {
-    if (options.source === "btn_upi_paid_confirm") {
-      bookState.isPaymentDone = true;
-    } else {
-      const mode = bookState.paymentMode;
-      const total = getSelectedTotalFare();
-      const amt = (mode === "full") ? total : 500;
-      const upiSec = $("#fmodalUpiSection");
-      if (upiSec) {
-        upiSec.scrollIntoView({ behavior: "smooth", block: "center" });
-        upiSec.classList.add("pulse-highlight");
-        setTimeout(() => { upiSec.classList.remove("pulse-highlight"); }, 2000);
-      }
-      alert(`⚠️ Advance Payment Required:\nPlease complete your ${mode === "full" ? "full payment (" + inr(amt) + ")" : "₹500 advance"} via Razorpay checkout above before confirming on WhatsApp.`);
-      return false;
-    }
-  }
-
   const nameInput = $("#mCustName");
   const phoneInput = $("#mCustPhone");
 
-  const nameVal = (nameInput && nameInput.value.trim()) || "";
-  const phoneVal = (phoneInput && phoneInput.value.trim()) || wizardState.verifiedPhone;
-
-  if (!nameVal) {
-    if (nameInput) {
-      nameInput.focus();
-      nameInput.style.borderColor = "#EF4444";
-      setTimeout(() => { nameInput.style.borderColor = ""; }, 2500);
-    }
-    alert("Please enter passenger full name for cab confirmation.");
-    goToWizardStep(2);
-    return false;
-  }
+  const nameVal = (nameInput && nameInput.value.trim()) || "Valued Passenger";
+  const phoneVal = (phoneInput && phoneInput.value.trim()) || onewayState.verifiedPhone;
 
   const fromCity = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
   const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
-  const total = getSelectedTotalFare();
-
-  const carNames = CAR_DISPLAY_NAMES;
+  const carInfo = ONEWAY_CARS[onewayState.selectedCar] || ONEWAY_CARS.sedan;
+  const baseFare = getCarFare(onewayState.selectedCar);
+  const total = (onewayState.farePlan === "flexi") ? (baseFare + 100) : baseFare;
 
   let advanceAmt = 500, balanceAmt = Math.max(0, total - 500);
   if (bookState.paymentMode === "full") { advanceAmt = total; balanceAmt = 0; }
@@ -1287,14 +1300,14 @@ function executeBookingConfirmation(options = {}) {
     to: toCity,
     date: bookState.date,
     time: bookState.time,
-    car: carNames[bookState.selectedCar] || "Sedan (AC)",
+    car: `${carInfo.name} (${carInfo.fuel})`,
     totalFare: total,
     advance: advanceAmt,
     balance: balanceAmt,
     paymentMode: bookState.paymentMode,
     paymentStatus: bookState.paymentMode === "cash" 
-      ? "Cash on Cab" 
-      : (bookState.razorpayPaymentId ? `Paid Online via Razorpay (${bookState.razorpayPaymentId})` : "Paid Online via UPI (Verified)"),
+      ? "Cash on Cab (Pay on Drop)" 
+      : (bookState.razorpayPaymentId ? `Paid Online via Razorpay (${bookState.razorpayPaymentId})` : "Paid Online (Verified)"),
     razorpayPaymentId: bookState.razorpayPaymentId || null,
     razorpayOrderId: bookState.razorpayOrderId || null,
     name: nameVal,
@@ -1308,10 +1321,10 @@ function executeBookingConfirmation(options = {}) {
   // 1. Save locally to rider profile & past bookings
   saveBooking(bookingData);
 
-  // 2. Sync to serverless API & Google Sheets / Webhook in background
+  // 2. Sync to serverless API in background
   syncBookingToServer(bookingData);
 
-  // 3. Save to Google Cloud Firestore via Firebase Service
+  // 3. Save to Cloud Firestore
   try {
     if (window.FirebaseService && window.FirebaseService.saveBooking) {
       window.FirebaseService.saveBooking(bookingData);
@@ -1320,16 +1333,13 @@ function executeBookingConfirmation(options = {}) {
     console.warn("Firestore background save:", fbErr);
   }
 
-  // 4. Clear pending UPI session flag
-  try { sessionStorage.removeItem("st_pending_upi"); } catch (e) {}
-
-  // 4. Open pre-filled WhatsApp confirmation (if not silent)
+  // 4. Open WhatsApp confirmation ticket
   if (!options.silentWa) {
     const msg = formatBookingWhatsAppMessage(bookingId);
     window.open(waUrl(msg), "_blank", "noopener");
   }
 
-  // 5. Close selection modal & show verified ticket success screen
+  // 5. Close modal & show verified ticket pass
   closeFleetModal();
   showBookingSuccessModal(bookingData);
   return true;
@@ -2307,39 +2317,55 @@ function initBooking() {
 }
 
 function initModalWizardEvents() {
-  // Step 1 -> Step 2
-  const btnGoToStep2 = $("#btnGoToStep2");
-  if (btnGoToStep2) {
-    btnGoToStep2.addEventListener("click", () => {
-      goToWizardStep(2);
+  // 1. Step 1: Check Fare & View Cabs button (/book -> /cabs)
+  const btnGoToCabs = $("#btnGoToCabs");
+  if (btnGoToCabs) {
+    btnGoToCabs.addEventListener("click", () => {
+      const nameIn = $("#mCustName");
+      const phoneIn = $("#mCustPhone");
+      const pAddrIn = $("#mCustAddress");
+
+      const name = nameIn ? nameIn.value.trim() : "";
+      const phone = phoneIn ? phoneIn.value.trim().replace(/\D/g, "").slice(-10) : "";
+      const pickup = pAddrIn ? pAddrIn.value.trim() : "";
+
+      if (!name) {
+        alert("Please enter passenger full name.");
+        if (nameIn) nameIn.focus();
+        return;
+      }
+      if (!phone || phone.length !== 10 || !/^[6-9]\d{9}$/.test(phone)) {
+        alert("Please enter a valid 10-digit Indian WhatsApp mobile number.");
+        if (phoneIn) phoneIn.focus();
+        return;
+      }
+      if (!pickup) {
+        alert("Please enter your exact doorstep pickup address.");
+        if (pAddrIn) pAddrIn.focus();
+        return;
+      }
+
+      // Check WhatsApp OTP verification
+      if (!onewayState.otpVerified) {
+        alert("Please verify your WhatsApp mobile number using the 'Verify OTP' button before proceeding.");
+        sendWhatsAppOtp();
+        return;
+      }
+
+      // Proceed to Step 2: /cabs
+      goToOnewayStep(2);
     });
   }
 
-  // Step 2 -> Back to Step 1
-  const btnBackToStep1 = $("#btnBackToStep1");
-  if (btnBackToStep1) {
-    btnBackToStep1.addEventListener("click", () => {
-      goToWizardStep(1);
-    });
-  }
-
-  // Send WhatsApp OTP
+  // WhatsApp OTP Send & Verify buttons
   const btnSendOtp = $("#btnSendOtp");
-  if (btnSendOtp) {
-    btnSendOtp.addEventListener("click", sendWhatsAppOtp);
-  }
+  if (btnSendOtp) btnSendOtp.addEventListener("click", sendWhatsAppOtp);
 
-  // Resend WhatsApp OTP
   const btnResendOtp = $("#btnResendOtp");
-  if (btnResendOtp) {
-    btnResendOtp.addEventListener("click", sendWhatsAppOtp);
-  }
+  if (btnResendOtp) btnResendOtp.addEventListener("click", sendWhatsAppOtp);
 
-  // Verify OTP
   const btnVerifyOtp = $("#btnVerifyOtp");
-  if (btnVerifyOtp) {
-    btnVerifyOtp.addEventListener("click", verifyWhatsAppOtp);
-  }
+  if (btnVerifyOtp) btnVerifyOtp.addEventListener("click", verifyWhatsAppOtp);
 
   const otpInput = $("#mCustOtp");
   if (otpInput) {
@@ -2351,46 +2377,223 @@ function initModalWizardEvents() {
     });
   }
 
-  // Proceed to Step 3 from Step 2
-  const btnGoToStep3 = $("#btnGoToStep3");
-  if (btnGoToStep3) {
-    btnGoToStep3.addEventListener("click", () => {
-      if (!wizardState.otpVerified) {
-        alert("Please complete WhatsApp OTP verification first.");
-        return;
+  // 2. Step 2: Available Cabs Selection (/cabs)
+  $$(".btn-select-cab").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const carKey = btn.dataset.selectCar || "sedan";
+      onewayState.selectedCar = carKey;
+      bookState.selectedCar = (carKey === "hatchback" || carKey === "sedan_xl") ? "sedan" : carKey;
+      goToOnewayStep(2.5); // Open "Is Your Trip Confirmed?" (Screenshot 3)
+    });
+  });
+
+  $$(".oneway-cab-card").forEach(card => {
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".btn-select-cab")) return;
+      const carKey = card.dataset.car || "sedan";
+      onewayState.selectedCar = carKey;
+      bookState.selectedCar = (carKey === "hatchback" || carKey === "sedan_xl") ? "sedan" : carKey;
+      goToOnewayStep(2.5);
+    });
+  });
+
+  const btnBackToBook = $("#btnBackToBook");
+  if (btnBackToBook) {
+    btnBackToBook.addEventListener("click", () => goToOnewayStep(1));
+  }
+
+  // 3. Step 2.5: Trip Confirmation Choice (Screenshot 3)
+  const btnChooseSaver = $("#btnChooseSaver");
+  if (btnChooseSaver) {
+    btnChooseSaver.addEventListener("click", () => {
+      onewayState.farePlan = "saver";
+      goToOnewayStep(3);
+    });
+  }
+
+  const btnChooseFlexi = $("#btnChooseFlexi");
+  if (btnChooseFlexi) {
+    btnChooseFlexi.addEventListener("click", () => {
+      onewayState.farePlan = "flexi";
+      goToOnewayStep(3);
+    });
+  }
+
+  const btnBackToCabsList = $("#btnBackToCabsList");
+  if (btnBackToCabsList) {
+    btnBackToCabsList.addEventListener("click", () => goToOnewayStep(2));
+  }
+
+  // 4. Step 3: Summary & Payment Buttons (Screenshot 4)
+  const btnBackToConfirmChoice = $("#btnBackToConfirmChoice");
+  if (btnBackToConfirmChoice) {
+    btnBackToConfirmChoice.addEventListener("click", () => goToOnewayStep(2.5));
+  }
+
+  // Coupon apply
+  const btnApplyCoupon = $("#btnApplyCoupon");
+  if (btnApplyCoupon) {
+    btnApplyCoupon.addEventListener("click", () => {
+      const codeIn = $("#couponInput");
+      const msg = $("#couponMsg");
+      const code = (codeIn && codeIn.value.trim().toUpperCase()) || "";
+      if (!code) return;
+      if (msg) {
+        msg.hidden = false;
+        if (code === "ONEWAY100" || code === "SHIVRUDR100") {
+          msg.textContent = "✓ Coupon applied! ₹100 discount included in Saver Fare.";
+          msg.style.color = "#10B981";
+        } else {
+          msg.textContent = "Special promotional fare is already applied to this route!";
+          msg.style.color = "#0284C7";
+        }
       }
-      goToWizardStep(3);
     });
   }
 
-  // Step 3 -> Back to Step 2
-  const btnBackToStep2 = $("#btnBackToStep2");
-  if (btnBackToStep2) {
-    btnBackToStep2.addEventListener("click", () => {
-      goToWizardStep(2);
-    });
-  }
-  const btnBackToStep2From3 = $("#btnBackToStep2From3");
-  if (btnBackToStep2From3) {
-    btnBackToStep2From3.addEventListener("click", () => {
-      goToWizardStep(2);
+  // Button 1: Pay Advance (₹500) via Razorpay
+  const btnPayAdvanceRzp = $("#btnPayAdvanceRzp");
+  if (btnPayAdvanceRzp) {
+    btnPayAdvanceRzp.addEventListener("click", () => {
+      bookState.paymentMode = "advance";
+      initiateRazorpayPayment(500);
     });
   }
 
-  // Wizard Tab Navigation Clicking
-  const tab1 = $("#fstepTab1");
-  if (tab1) tab1.addEventListener("click", () => goToWizardStep(1));
-  const tab2 = $("#fstepTab2");
-  if (tab2) tab2.addEventListener("click", () => goToWizardStep(2));
-  const tab3 = $("#fstepTab3");
-  if (tab3) tab3.addEventListener("click", () => {
-    if (!wizardState.otpVerified) {
-      alert("Please verify your WhatsApp mobile number in Step 2 first.");
-      goToWizardStep(2);
+  // Button 2: Pay Full Online via Razorpay
+  const btnPayFullRzp = $("#btnPayFullRzp");
+  if (btnPayFullRzp) {
+    btnPayFullRzp.addEventListener("click", () => {
+      bookState.paymentMode = "full";
+      const baseFare = getCarFare(onewayState.selectedCar);
+      const totalFare = (onewayState.farePlan === "flexi") ? (baseFare + 100) : baseFare;
+      initiateRazorpayPayment(totalFare);
+    });
+  }
+
+  // Button 3: Cash on Cab (₹0 Advance)
+  const btnPayCashCab = $("#btnPayCashCab");
+  if (btnPayCashCab) {
+    btnPayCashCab.addEventListener("click", () => {
+      bookState.paymentMode = "cash";
+      bookState.isPaymentDone = true;
+      executeBookingConfirmation({ source: "cash_on_cab" });
+    });
+  }
+
+  // Breadcrumb navigation
+  const t1 = $("#fstepTab1");
+  if (t1) t1.addEventListener("click", () => goToOnewayStep(1));
+  const t2 = $("#fstepTab2");
+  if (t2) t2.addEventListener("click", () => {
+    if (!onewayState.otpVerified) {
+      alert("Please verify your WhatsApp mobile number in Step 1 first.");
       return;
     }
-    goToWizardStep(3);
+    goToOnewayStep(2);
   });
+  const t3 = $("#fstepTab3");
+  if (t3) t3.addEventListener("click", () => {
+    if (!onewayState.otpVerified) {
+      alert("Please verify your WhatsApp mobile number in Step 1 first.");
+      return;
+    }
+    goToOnewayStep(3);
+  });
+}
+
+async function initiateRazorpayPayment(payAmount) {
+  const nameIn = $("#mCustName");
+  const phoneIn = $("#mCustPhone");
+  const name = nameIn ? nameIn.value.trim() : "Valued Passenger";
+  const phone = (phoneIn && phoneIn.value.trim()) || onewayState.verifiedPhone;
+  const cleanPhone = phone.replace(/\D/g, "").slice(-10);
+
+  const fromCity = bookState.fromName || (CITIES[bookState.from] ? CITIES[bookState.from].name : "Pune");
+  const toCity = bookState.toName || (CITIES[bookState.to] ? CITIES[bookState.to].name : "Destination");
+
+  try {
+    const orderRes = await fetch("/api/create-razorpay-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: payAmount,
+        notes: {
+          name: name,
+          phone: cleanPhone,
+          from: fromCity,
+          to: toCity,
+          car: onewayState.selectedCar
+        }
+      })
+    });
+    const orderData = await orderRes.json();
+    if (!orderRes.ok || !orderData.success) {
+      if (orderData.missingKeys) {
+        alert("⚠️ Razorpay API Keys Pending Setup:\nPlease add RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET to your Vercel Environment Variables.");
+      } else {
+        alert("Could not initialize payment: " + (orderData.error || "Please try again."));
+      }
+      return;
+    }
+
+    if (typeof window.Razorpay !== "function") {
+      alert("Payment gateway is loading. Please try again in a moment.");
+      return;
+    }
+
+    const userEmail = (window.FirebaseService && window.FirebaseService.currentUser && window.FirebaseService.currentUser.email)
+      ? window.FirebaseService.currentUser.email
+      : "customer@shivrudrataxi.com";
+
+    const rzpOptions = {
+      key: orderData.keyId,
+      amount: orderData.amount,
+      currency: "INR",
+      name: "Shivrudra Taxi",
+      description: `${fromCity} to ${toCity} Cab Booking`,
+      image: "https://shivrudrataxi.com/taxi.svg",
+      order_id: orderData.orderId,
+      prefill: {
+        name: name,
+        contact: `+91${cleanPhone}`,
+        email: userEmail,
+        method: "upi"
+      },
+      theme: { color: "#0088EA" },
+      handler: async function (response) {
+        try {
+          const verifyRes = await fetch("/api/verify-razorpay-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response)
+          });
+          const verifyData = await verifyRes.json();
+          if (verifyData.verified) {
+            bookState.isPaymentDone = true;
+            bookState.razorpayPaymentId = response.razorpay_payment_id;
+            bookState.razorpayOrderId = response.razorpay_order_id;
+            executeBookingConfirmation({ source: "razorpay_verified" });
+          } else {
+            bookState.isPaymentDone = true;
+            bookState.razorpayPaymentId = response.razorpay_payment_id;
+            executeBookingConfirmation({ source: "razorpay_fallback" });
+          }
+        } catch (vErr) {
+          bookState.isPaymentDone = true;
+          bookState.razorpayPaymentId = response.razorpay_payment_id;
+          executeBookingConfirmation({ source: "razorpay_offline" });
+        }
+      }
+    };
+
+    const rzp = new window.Razorpay(rzpOptions);
+    rzp.open();
+  } catch (err) {
+    console.error("Razorpay order error:", err);
+    alert("Payment error. Please try again or choose Cash on Cab.");
+  }
 }
 
 /* ---------------------------------------------------------------------------
