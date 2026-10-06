@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Passenger &amp; WhatsApp Verification | Shivrudra Taxi One-Way Booking</title>
+<meta name="description" content="Add your passenger details and verify your WhatsApp number to confirm your one-way cab booking." />
+<meta name="robots" content="noindex, follow" />
+<meta name="theme-color" content="#07080B" />
+<link rel="canonical" href="https://shivrudrataxi.com/book" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="dns-prefetch" href="https://photon.komoot.io" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="booking-flow.css" />
+<link rel="icon" href="taxi.svg" type="image/svg+xml" />
+<link rel="icon" href="favicon.png" sizes="64x64" type="image/png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+</head>
+<body class="bf-page" data-bf-page="book">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 3h2.2l1.6 4-2 1.3a12 12 0 0 0 6.3 6.3l1.3-2 4 1.6v2.2a2.6 2.6 0 0 1-2.9 2.6A17 17 0 0 1 4 6.9 2.6 2.6 0 0 1 6.6 3Z"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M12 2a9.9 9.9 0 0 0-8.5 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 1.8a8.2 8.2 0 0 1 6.9 12.6l-.3.5.8 2.9-3-.8-.5.3A8.2 8.2 0 1 1 12 3.8Zm-3.4 4c-.2 0-.5.1-.7.4-.3.3-.9 1-.9 2.2s.9 2.4 1 2.6c.1.2 1.7 2.8 4.3 3.8 2.1.8 2.6.7 3 .6.5 0 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2l-.5-.3-1.7-.8c-.2-.1-.4-.1-.6.1l-.7.9c-.1.2-.3.2-.5.1a6.6 6.6 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.7c-.1-.2 0-.4.1-.5l.4-.5.3-.5v-.5l-.7-1.7c-.2-.5-.4-.4-.6-.4h-.4Z"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5.4 20c.8-3.6 3.4-5.4 6.6-5.4s5.8 1.8 6.6 5.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11.2 12 4l8 7.2"/><path d="M6.2 9.8V20h11.6V9.8"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M20 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+</svg>
+
+<header class="bf-nav">
+  <div class="bf-nav__inner">
+    <a class="bf-nav__brand" href="/" aria-label="Shivrudra Taxi home">
+      <img src="logo.webp" alt="Shivrudra Taxi" width="610" height="409" />
+    </a>
+    <span class="bf-nav__secure">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 2.6v5.6c0 4.5-3 8-7 9.4-4-1.4-7-4.9-7-9.4V5.6L12 3Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      Secure booking
+    </span>
+  </div>
+</header>
+
+<main class="bf-container">
+  <h1 class="visually-hidden">Passenger details and WhatsApp verification</h1>
+  <nav class="bf-breadcrumb" aria-label="Booking steps">
+    <a class="oneway-crumb is-done" href="/cabs" id="bfBackToCabsCrumb"><span class="crumb-num">1</span><span class="crumb-label">Select Cab</span></a>
+    <span class="bf-crumb-sep" aria-hidden="true">›</span>
+    <span class="oneway-crumb is-active" aria-current="step"><span class="crumb-num">2</span><span class="crumb-label">Passenger &amp; WhatsApp</span></span>
+    <span class="bf-crumb-sep" aria-hidden="true">›</span>
+    <span class="oneway-crumb"><span class="crumb-num">3</span><span class="crumb-label">Summary &amp; Pay</span></span>
+  </nav>
+
+  <section class="bf-card">
+    <div class="bf-card__body">
+
+      <div class="selected-cab-strip">
+        <span id="selectedCabLabel">Selected Cab: <b>SEDAN</b></span>
+        <button type="button" class="btn-change-cab" id="btnChangeCab">Change Cab</button>
+      </div>
+
+      <!-- NAME & MOBILE + WHATSAPP OTP -->
+      <div class="oneway-form-grid">
+        <div class="oneway-field">
+          <label for="mCustName">NAME</label>
+          <div class="oneway-input-wrap">
+            <svg class="ic" aria-hidden="true" style="width:18px;height:18px;color:#94A3B8"><use href="#i-user"/></svg>
+            <input id="mCustName" type="text" placeholder="Your full name" autocomplete="name" maxlength="80" required />
+          </div>
+        </div>
+
+        <div class="oneway-field">
+          <label for="mCustPhone">MOBILE (WHATSAPP)</label>
+          <div class="oneway-input-wrap oneway-input-wrap--phone">
+            <span class="phone-prefix"><b>+91</b></span>
+            <input id="mCustPhone" type="tel" placeholder="10-digit number" maxlength="10" inputmode="numeric" autocomplete="tel" required />
+            <button type="button" class="btn-verify-wa-inline" id="btnSendOtp">
+              <svg class="ic" aria-hidden="true" style="width:16px;height:16px"><use href="#i-wa"/></svg>
+              <span id="btnSendOtpText">Verify OTP</span>
+            </button>
+          </div>
+          <span class="field-subnote" id="phoneVerifyStatusNote" aria-live="polite">We'll send a one-time code on WhatsApp to verify it's you.</span>
+        </div>
+      </div>
+
+      <div id="bfOtpError" class="bf-alert bf-alert--warn" role="alert" hidden></div>
+
+      <!-- OTP BOX -->
+      <div class="oneway-otp-box" id="otpInputArea" hidden>
+        <div class="otp-box-header">
+          <span>Enter the 6-digit WhatsApp OTP sent to <strong id="otpTargetPhone">+91 —</strong></span>
+        </div>
+        <div class="bf-demo" id="otpDemoNotice" hidden>
+          <span class="bf-demo__badge">TEST</span>
+          <span id="otpDemoText">Demo OTP: <b>------</b></span>
+        </div>
+        <div class="otp-input-row">
+          <input type="text" id="mCustOtp" class="input-otp-code" maxlength="6" inputmode="numeric" autocomplete="one-time-code" aria-label="6-digit WhatsApp verification code" placeholder="● ● ● ● ● ●" />
+          <button type="button" class="btn btn-yellow btn-otp-confirm" id="btnVerifyOtp"><span>Verify OTP</span><svg class="ic" aria-hidden="true" style="width:16px;height:16px"><use href="#i-arrow"/></svg></button>
+        </div>
+        <div class="otp-resend-row">
+          <span id="otpTimerCount">Resend in <b id="otpSeconds">30s</b></span>
+          <button type="button" class="btn-resend-link" id="btnResendOtp" disabled>Resend Code</button>
+        </div>
+      </div>
+
+      <!-- VERIFIED BADGE -->
+      <div class="oneway-verified-card" id="otpSuccessBanner" role="status" hidden>
+        <span class="verified-icon"><svg class="ic" aria-hidden="true" style="width:12px;height:12px"><use href="#i-check"/></svg></span>
+        <div>
+          <b>Mobile verified via WhatsApp</b>
+          <span id="otpSuccessPhone">+91 —</span>
+        </div>
+      </div>
+
+      <!-- DOORSTEP ADDRESSES -->
+      <div>
+        <span class="bf-section-label">Doorstep addresses</span>
+        <div class="oneway-address-container" style="margin-top:10px">
+          <div class="addr-track-line">
+            <div class="addr-dot-pickup"></div>
+            <div class="addr-line-segment"></div>
+            <div class="addr-dot-drop"></div>
+          </div>
+          <div class="addr-inputs-col">
+            <div class="addr-input-block">
+              <input id="mCustAddress" type="text" placeholder="Start typing pickup area, landmark, hotel…" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mCustAddressDropdown" aria-haspopup="listbox" aria-label="Pickup address — flat or house number, area, or landmark" maxlength="120" required />
+              <div class="autocomplete-dropdown address-suggestions" id="mCustAddressDropdown" role="listbox"></div>
+              <span class="addr-tag-pill">PICKUP</span>
+            </div>
+            <div class="address-quick-tags">
+              <button type="button" class="addr-tag addr-tag--gps" id="btnBookPickupGps" title="Detect my current location">Use my current location</button>
+            </div>
+            <div class="address-status" id="bookPickupStatus" hidden></div>
+            <div class="addr-input-block">
+              <input id="mCustDropAddress" type="text" placeholder="Start typing drop area, landmark, hotel…" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mCustDropAddressDropdown" aria-haspopup="listbox" aria-label="Drop address — building, area, or landmark" maxlength="120" />
+              <div class="autocomplete-dropdown address-suggestions" id="mCustDropAddressDropdown" role="listbox"></div>
+              <span class="addr-tag-pill">DROP</span>
+            </div>
+            <div class="address-status" id="bookDropStatus" hidden></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPTIONAL ACCORDIONS -->
+      <div class="oneway-optional-accordions">
+        <details class="oneway-acc-item">
+          <summary class="oneway-acc-summary">
+            <span class="acc-icon-wrap"><svg class="ic" aria-hidden="true" style="width:16px;height:16px"><use href="#i-user"/></svg></span>
+            <span>Add alternate mobile no. <span class="acc-sub">(Optional)</span></span>
+            <svg class="ic acc-chevron" aria-hidden="true" style="width:16px;height:16px"><use href="#i-chev"/></svg>
+          </summary>
+          <div class="oneway-acc-body">
+            <input id="mCustAltPhone" type="tel" placeholder="10-digit alternate mobile number" maxlength="10" inputmode="numeric" aria-label="Alternate mobile number (optional)" />
+          </div>
+        </details>
+        <details class="oneway-acc-item">
+          <summary class="oneway-acc-summary">
+            <span class="acc-icon-wrap">₹</span>
+            <span>Business traveller? Add GST <span class="acc-sub">(Optional)</span></span>
+            <svg class="ic acc-chevron" aria-hidden="true" style="width:16px;height:16px"><use href="#i-chev"/></svg>
+          </summary>
+          <div class="oneway-acc-body">
+            <input id="mCustGstNumber" type="text" placeholder="GSTIN (e.g. 27ABCDE1234F1Z5)" maxlength="15" aria-label="GSTIN (optional)" />
+            <input id="mCustGstCompany" type="text" placeholder="Registered company name" style="margin-top:8px" maxlength="80" aria-label="Registered company name (optional)" />
+          </div>
+        </details>
+      </div>
+
+      <div class="bf-actions">
+        <button type="button" class="bf-btn-primary" id="btnGoToSummary">
+          Continue to Booking Summary <svg class="ic" aria-hidden="true" style="width:16px;height:16px"><use href="#i-arrow"/></svg>
+        </button>
+        <button type="button" class="bf-btn-ghost" id="btnBackToCabs"><svg class="ic" aria-hidden="true" style="width:16px;height:16px"><use href="#i-arrow-left"/></svg> Back to Cabs</button>
+      </div>
+      <p class="oneway-terms-note">By continuing you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>. We create a lightweight account for you using this WhatsApp number.</p>
+
+    </div>
+  </section>
+</main>
+
+<script src="booking-data.js"></script>
+<script src="booking-flow.js"></script>
+</body>
+</html>

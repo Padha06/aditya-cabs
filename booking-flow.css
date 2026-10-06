@@ -1,0 +1,430 @@
+/* ============================================================================
+   SHIVRUDRA TAXI - booking-flow.css
+   Page chrome for the dedicated one-way booking funnel (/cabs, /book, /summary).
+   Reuses the .oneway-* component classes already defined in styles.css.
+   ========================================================================= */
+
+.bf-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 500px at 80% -10%, rgba(0, 136, 234, .08), transparent 60%),
+    radial-gradient(900px 460px at 0% 0%, rgba(245, 165, 36, .10), transparent 55%),
+    #F4F6F9;
+}
+
+.bf-container {
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 18px 16px 64px;
+}
+
+/* ---- top bar ---- */
+.bf-nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(255, 255, 255, .92);
+  backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid #E2E8F0;
+}
+.bf-nav__inner {
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.bf-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 900;
+  color: #0F172A;
+  text-decoration: none;
+  letter-spacing: -.01em;
+}
+.bf-nav__brand img { height: 30px; width: auto; display: block; }
+.bf-nav__secure {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .72rem;
+  font-weight: 800;
+  color: #0B8045;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+.bf-nav__secure svg { width: 14px; height: 14px; }
+
+/* ---- breadcrumb ---- */
+.bf-breadcrumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 6px 4px;
+  flex-wrap: wrap;
+}
+.bf-breadcrumb .oneway-crumb { text-decoration: none; }
+.bf-crumb-sep { color: #CBD5E1; font-weight: 900; }
+
+/* ---- card shell ---- */
+.bf-card {
+  background: #FAFBFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 22px;
+  box-shadow: 0 25px 60px -22px rgba(15, 23, 42, .30);
+  overflow: visible; /* let address dropdowns escape the card */
+}
+.bf-card__body {
+  padding: 18px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bf-title {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #0F172A;
+  letter-spacing: -.01em;
+  margin: 0;
+}
+.bf-sub { font-size: .8rem; color: #64748B; margin: 2px 0 0; }
+
+.bf-section-label {
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: #94A3B8;
+}
+
+/* ---- misc rows ---- */
+.bf-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bf-note { font-size: .74rem; color: #64748B; line-height: 1.5; }
+
+.bf-alert {
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: .82rem;
+  font-weight: 600;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.bf-alert--warn { background: #FFF7ED; border: 1px solid #FED7AA; color: #9A3412; }
+.bf-alert--ok { background: #ECFDF5; border: 1px solid #A7F3D0; color: #065F46; }
+
+/* ---- OTP test/demo notice ---- */
+.bf-demo {
+  background: #EFF6FF;
+  border: 1px dashed #93C5FD;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: .78rem;
+  color: #1E40AF;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.bf-demo b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .12em; }
+.bf-demo__badge {
+  font-size: .6rem;
+  font-weight: 900;
+  background: #1E40AF;
+  color: #FFF;
+  padding: 2px 6px;
+  border-radius: 5px;
+  letter-spacing: .06em;
+}
+
+/* ---- sticky action bar ---- */
+.bf-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  background: linear-gradient(180deg, rgba(250, 251, 252, 0), #FAFBFC 32%);
+  padding: 14px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bf-btn-primary {
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  padding: 15px 18px;
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  color: #1A1206;
+  background: linear-gradient(135deg, #FFC107 0%, #F59E0B 100%);
+  box-shadow: 0 10px 24px -10px rgba(245, 158, 11, .6);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.bf-btn-primary:hover { transform: translateY(-1px); }
+.bf-btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.bf-btn-ghost {
+  width: 100%;
+  border: 1.5px solid #E2E8F0;
+  background: #FFF;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-size: .88rem;
+  font-weight: 800;
+  color: #0F172A;
+  cursor: pointer;
+}
+.bf-btn-ghost:hover { border-color: #0088EA; }
+
+/* ---- loading / error ---- */
+.bf-loading { text-align: center; padding: 60px 20px; color: #64748B; font-weight: 700; }
+.bf-spinner {
+  width: 34px; height: 34px; margin: 0 auto 14px;
+  border: 3px solid #E2E8F0; border-top-color: #0088EA; border-radius: 50%;
+  animation: bf-spin .8s linear infinite;
+}
+@keyframes bf-spin { to { transform: rotate(360deg); } }
+
+/* ---- confirmation ---- */
+.bf-confirm { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 8px 0; }
+.bf-confirm__check {
+  width: 74px; height: 74px; border-radius: 50%;
+  background: #ECFDF5; border: 2px solid #A7F3D0;
+  display: grid; place-items: center; color: #16A34A; font-size: 2rem; font-weight: 900;
+}
+.bf-confirm h2 { font-size: 1.35rem; font-weight: 900; color: #0F172A; margin: 0; }
+.bf-confirm__id { font-size: .9rem; color: #64748B; font-weight: 700; }
+.bf-ticket {
+  width: 100%;
+  background: #FFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  text-align: left;
+}
+.bf-ticket__row { display: flex; justify-content: space-between; gap: 12px; font-size: .84rem; }
+.bf-ticket__row span { color: #64748B; font-weight: 700; }
+.bf-ticket__row b { color: #0F172A; text-align: right; }
+
+/* ---- fill gaps in reused oneway-* components ---- */
+.guarantee-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.coupon-msg { font-size: .78rem; font-weight: 800; margin-top: 2px; }
+.itinerary-right { justify-self: end; }
+
+/* ---- payment actions: offline option full-width below the two online ones ---- */
+.oneway-payment-actions .btn-pay-cash { grid-column: 1 / -1; }
+
+/* ---- address autocomplete polish ---- */
+.autocomplete-dropdown {
+  z-index: 1200;
+  animation: bfDdIn .16s ease-out;
+}
+@keyframes bfDdIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.autocomplete-dropdown::-webkit-scrollbar { width: 8px; }
+.autocomplete-dropdown::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 8px; }
+.autocomplete-dropdown::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+.autocomplete-item { gap: 10px; }
+.autocomplete-item mark { background: #FEF08A; color: inherit; border-radius: 3px; padding: 0 1px; }
+.autocomplete-item.is-selected { background: rgba(2, 132, 199, .1); }
+.autocomplete-item--custom { border-top: 1px dashed #E2E8F0; margin-top: 2px; }
+.addr-item-content { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.addr-item-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.addr-item-detail { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.autocomplete-tag { flex-shrink: 0; }
+.autocomplete-loading {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; font-size: .8rem; font-weight: 700; color: #94A3B8;
+}
+.ac-spinner {
+  width: 14px; height: 14px; flex-shrink: 0;
+  border: 2px solid #E2E8F0; border-top-color: #0088EA; border-radius: 50%;
+  animation: bf-spin .7s linear infinite;
+}
+
+@media (max-width: 480px) {
+  .bf-container { padding: 14px 12px 56px; }
+  .bf-card__body { padding: 16px 14px 18px; }
+}
+
+/* =========================================================================
+   Hardening — contrast, form legibility, resilience
+   ========================================================================= */
+
+/* P1 contrast: white text needs ≥4.5:1 — use the brand green (5.01:1 vs the
+   bright WhatsApp green's 1.98:1). */
+.bf-page .btn-verify-wa-inline {
+  background: linear-gradient(135deg, #0B8045 0%, #096B39 100%);
+  box-shadow: 0 2px 6px rgba(11, 128, 69, .28);
+}
+
+/* P1 contrast: #94A3B8 fails (2.56:1). Promote secondary text to the token. */
+.bf-page .field-subnote,
+.bf-page .cab-price-sub,
+.bf-page .autocomplete-loading,
+.bf-page .oneway-crumb:not(.is-active):not(.is-done) { color: #5F6672; }
+
+/* Placeholder text must also clear AA. */
+.bf-page input::placeholder { color: #64748B; opacity: 1; }
+
+/* Long / adversarial text must not break layout. */
+.bf-page .summary-route-title,
+.bf-page .cab-models,
+.bf-page .bf-ticket__row b,
+.bf-page .oneway-verified-card b { overflow-wrap: anywhere; }
+
+/* Clear disabled affordance for all controls. */
+.bf-page .btn:disabled,
+.bf-page .bf-btn-primary:disabled,
+.bf-page .bf-btn-ghost:disabled { opacity: .6; cursor: not-allowed; }
+
+/* iOS Safari force-zooms inputs under 16px and wrecks the layout — hold the floor. */
+@media (max-width: 640px) {
+  .bf-page .oneway-input-wrap input,
+  .bf-page .addr-input-block input,
+  .bf-page .oneway-acc-body input,
+  .bf-page .coupon-input-wrap input { font-size: 16px; }
+}
+
+/* =========================================================================
+   Device adaptation — touch targets, safe areas, input method
+   ========================================================================= */
+
+/* Safe areas: notch / home indicator (meta viewport already sets viewport-fit=cover) */
+.bf-container {
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+}
+.bf-nav__inner {
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+}
+.bf-actions { padding-bottom: max(4px, env(safe-area-inset-bottom)); }
+
+/* Touch: every control meets the 44px minimum on coarse pointers */
+@media (pointer: coarse) {
+  .bf-page .oneway-crumb { min-height: 44px; }
+  .bf-page .bf-crumb-sep { min-height: 44px; display: flex; align-items: center; }
+  .bf-page .btn-verify-wa-inline { min-height: 44px; padding: 10px 14px; }
+  .bf-page .addr-tag { min-height: 44px; padding: 10px 14px; font-size: .74rem; }
+  .bf-page .btn-select-cab { min-height: 46px; }
+  .bf-page .btn-choose-plan { min-height: 44px; }
+  .bf-page .btn-otp-confirm { min-height: 46px; }
+  .bf-page .btn-apply-coupon { min-height: 44px; }
+  .bf-page .btn-change-cab { min-height: 38px; }
+  .bf-page .bf-btn-ghost { min-height: 46px; }
+  .bf-page .autocomplete-item { min-height: 48px; }
+  .bf-page .bf-nav__brand { min-height: 44px; }
+  .bf-page .oneway-acc-summary { min-height: 48px; }
+  .bf-page .btn-help-link { min-height: 44px; display: inline-flex; align-items: center; }
+}
+
+/* Touch devices: sticky :hover transforms are hostile — drop them */
+@media (hover: none) {
+  .bf-page .oneway-cab-card:hover { transform: none; box-shadow: 0 2px 8px rgba(0, 0, 0, .03); border-color: #E2E8F0; }
+  .bf-page .btn-select-cab:hover,
+  .bf-page .btn-yellow:hover,
+  .bf-page .bf-btn-primary:hover,
+  .bf-page .btn-verify-wa-inline:hover { transform: none; }
+}
+
+/* Short landscape phones: don't let the sticky action bar eat the viewport */
+@media (max-height: 480px) and (orientation: landscape) {
+  .bf-page .bf-actions { position: static; background: none; }
+}
+
+/* Very small screens (320–360px) */
+@media (max-width: 360px) {
+  .bf-page .bf-nav__brand img { height: 26px; }
+  .bf-page .oneway-crumb { font-size: .74rem; }
+  .bf-page .cab-thumb { width: 56px; height: 38px; }
+  .bf-page .cab-price-num { font-size: 1.15rem; }
+  .bf-page .btn-verify-wa-inline { padding: 9px 10px; }
+  .bf-page .btn-verify-wa-inline span { font-size: .68rem; }
+  .bf-page .oneway-route-schedule { font-size: .72rem; }
+}
+
+/* =========================================================================
+   Drawn-icon support + browser surfaces
+   ========================================================================= */
+.ic--fill { fill: currentColor; stroke: none; }
+.bf-page .star-badge { display: inline-flex; align-items: center; gap: 4px; }
+.bf-page input,
+.bf-page textarea { caret-color: #0088EA; }
+.bf-page .check-green .ic,
+.bf-page .cross-red .ic { stroke-width: 3; }
+
+/* =========================================================================
+   Icons used in the funnel
+   ========================================================================= */
+.route-pin { width: 16px; height: 16px; color: #0088EA; }
+.itin-dot--pickup, .itin-dot--drop { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.itin-dot--pickup { background: #0088EA; box-shadow: 0 0 0 3px rgba(0, 136, 234, .15); }
+.itin-dot--drop { background: #EF4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, .15); }
+.itinerary-ic { width: 16px; height: 16px; color: #94A3B8; flex-shrink: 0; margin-top: 1px; }
+
+/* =========================================================================
+   Mobile optimisation — prevent overflow, stack tight rows
+   ========================================================================= */
+.bf-page .oneway-input-wrap input { min-width: 0; }
+.bf-page .cab-details { min-width: 0; }
+.bf-page .cab-models { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bf-page .addr-item-content { min-width: 0; }
+.bf-page .oneway-acc-summary > span:nth-child(2) { flex: 1; min-width: 0; }
+
+@media (max-width: 620px) {
+  /* cab cards stack so the model text + price + button never overflow */
+  .bf-page .oneway-cab-card { flex-direction: column; align-items: stretch; gap: 12px; padding: 14px; }
+  .bf-page .cab-left { width: 100%; }
+  .bf-page .cab-right { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; }
+  .bf-page .cab-pricing { text-align: left; }
+  .bf-page .cab-price-num { font-size: 1.25rem; }
+  .bf-page .btn-select-cab { padding: 10px 20px !important; }
+
+  .bf-page .oneway-help-strip { flex-wrap: wrap; }
+  .bf-page .selected-cab-strip { flex-wrap: wrap; }
+  .bf-page .guarantee-title { flex-wrap: wrap; }
+  .bf-page .guarantee-icon { width: 30px; height: 30px; }
+
+  .bf-page .oneway-input-wrap--phone { gap: 8px; padding-left: 8px; padding-right: 8px; }
+  .bf-page .phone-prefix { padding-right: 6px; }
+  .bf-page .btn-verify-wa-inline { padding: 7px 9px; font-size: .7rem; }
+
+  .bf-page .otp-input-row { flex-wrap: wrap; }
+  .bf-page .input-otp-code { flex: 1 1 120px; max-width: none; letter-spacing: 6px; font-size: 1.25rem; }
+  .bf-page .btn-otp-confirm { flex: 1 1 100%; justify-content: center; }
+
+  .bf-page .summary-top-card,
+  .bf-page .oneway-inclusions-card,
+  .bf-page .oneway-coupon-card { padding: 14px; }
+}
+
+@media (max-width: 520px) {
+  .bf-page .oneway-breadcrumb { padding: 10px 8px; }
+  .bf-page .oneway-crumb { font-size: .8rem; gap: 6px; }
+  .bf-page .crumb-label { display: none; }
+  .bf-page .oneway-crumb .crumb-num { width: 24px; height: 24px; }
+
+  .bf-page .summary-itinerary-grid { grid-template-columns: 1fr; gap: 10px; }
+  .bf-page .summary-cab-box { flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; min-width: 0; width: 100%; text-align: left; }
+  .bf-page .summary-cab-icon { width: 54px; height: 36px; }
+  .bf-page .itinerary-row b { word-break: break-word; }
+
+  .bf-page .bf-ticket__row { flex-wrap: wrap; }
+  .bf-page .bf-ticket__row b { text-align: left; }
+
+  .bf-page .oneway-route-pill { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .bf-page .oneway-route-line { flex-wrap: wrap; }
+  .bf-page .oneway-route-schedule { font-size: .76rem; }
+  .bf-page .bf-nav__secure { display: none; }
+}
