@@ -3312,4 +3312,25 @@ function initFirebaseAuth() {
   checkService();
 }
 
+/* ---------- ADMIN-EDITABLE SITE IMAGES (logo, hero, fleet, favicon) ---------- */
+(function initSiteImages() {
+  try {
+    fetch("/api/config", { headers: { Accept: "application/json" }, cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var imgs = d && d.config && d.config.images;
+        if (!imgs) return;
+        if (imgs.logo) { document.querySelectorAll(".brand__logo, .bf-nav__brand img").forEach(function (el) { el.src = imgs.logo; }); }
+        if (imgs.hero) { var h = document.querySelector(".hero__photo img"); if (h) h.src = imgs.hero; }
+        ["sedan", "ertiga", "carens", "crysta"].forEach(function (k) {
+          var url = imgs["fleet_" + k]; if (!url) return;
+          var el = document.querySelector('[data-si="fleet_' + k + '"]'); if (el) el.src = url;
+        });
+        if (imgs.cta) { var c = document.querySelector('[data-si="cta"]'); if (c) c.src = imgs.cta; }
+        if (imgs.favicon) { var l = document.querySelector('link[rel="icon"]'); if (l) l.href = imgs.favicon; }
+      })
+      .catch(function () {});
+  } catch (e) {}
+})();
+
 

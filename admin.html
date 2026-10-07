@@ -172,6 +172,11 @@
         <div class="field"><label>WhatsApp number (digits only, with 91)</label><input class="inp" data-path="brand.whatsapp" placeholder="916005791807"></div>
       </div>
       <div class="card">
+        <h3>Site images</h3>
+        <p class="hint">Change your logo, homepage photos and tab icon. Paste a <b>direct image link</b> (ends in <code>.jpg</code>, <code>.png</code> or <code>.webp</code>). The preview updates as you type.</p>
+        <div id="admSiteImages"></div>
+      </div>
+      <div class="card">
         <h3>Cities</h3>
         <p class="hint">Add each city or town you serve. These appear in the pickup/drop choices on a route.</p>
         <div class="scrollx"><table class="tbl" id="admCities"></table></div>
@@ -217,7 +222,8 @@
       carOrder: ST.CAR_ORDER.slice(),
       round: { estKm: ST.ROUND_EST_KM, cars: clone(ST.ROUND_CARS), order: ST.ROUND_ORDER.slice() },
       local: { packages: clone(ST.LOCAL_PACKAGES), cls: clone(ST.LOCAL_CLS) },
-      share: { routes: clone(ST.SHARE_ROUTES), maxSeats: ST.SHARE_MAX_SEATS }
+      share: { routes: clone(ST.SHARE_ROUTES), maxSeats: ST.SHARE_MAX_SEATS },
+      images: clone(ST.SITE_IMAGES || {})
     };
     renderAll();
     loadBookings(curRange);
@@ -225,7 +231,7 @@
   }
 
   function renderAll() {
-    renderBrand(); renderCities(); renderRoutes(); renderCars(); renderRound(); renderLocal(); renderShare();
+    renderBrand(); renderSiteImages(); renderCities(); renderRoutes(); renderCars(); renderRound(); renderLocal(); renderShare();
   }
 
   // ---- helpers ----
@@ -254,6 +260,28 @@
   // ---- brand ----
   function renderBrand() {
     $$('[data-path^="brand."]').forEach(function (el) { el.value = val(el.dataset.path); });
+  }
+
+  // ---- site images ----
+  var SITE_IMG_FIELDS = [
+    ["logo", "Logo (header & footer)"],
+    ["hero", "Homepage hero photo"],
+    ["fleet_sedan", "Fleet — Sedan"],
+    ["fleet_ertiga", "Fleet — SUV Ertiga"],
+    ["fleet_carens", "Fleet — Kia Carens"],
+    ["fleet_crysta", "Fleet — Innova Crysta"],
+    ["cta", "Homepage call-to-action photo"],
+    ["favicon", "Browser tab icon (favicon)"]
+  ];
+  function renderSiteImages() {
+    var html = "";
+    SITE_IMG_FIELDS.forEach(function (f) {
+      var k = f[0];
+      html += '<div class="cardrow" style="grid-template-columns:120px 1fr">' +
+        '<img class="carimg" data-sip="' + k + '" src="' + esc(C.images[k] || "") + '" alt="" style="width:120px;height:78px" onerror="this.style.opacity=.3">' +
+        '<div><label>' + esc(f[1]) + '</label><input class="inp" data-path="images.' + k + '" data-sipin="' + k + '" value="' + esc(C.images[k] || "") + '" placeholder="https://…"></div></div>';
+    });
+    $("#admSiteImages").innerHTML = html;
   }
 
   // ---- cities ----
@@ -288,7 +316,7 @@
       var c = C.cars[k]; if (!c) return;
       html += '<div class="cardrow">' +
         '<div><img class="carimg" src="' + esc(c.image || "sedan-thumb.webp") + '" alt="' + esc(c.name) + '" onerror="this.style.opacity=.3">' +
-        '<input class="inp" type="text" data-path="cars.' + k + '.image" value="' + esc(c.image || "") + '" placeholder="Image link (https://…)" style="font-size:.76rem"></div>' +
+        '<input class="inp" type="text" data-path="cars.' + k + '.image" value="' + esc(c.image || "") + '" placeholder="Image link (https://…)" style="font-size:.76rem" title="Paste a direct image link that ends in .jpg / .png / .webp"></div>' +
         '<div><div class="carbox">' +
         '<div><label>Name</label>' + input("cars." + k + ".name") + '</div>' +
         '<div><label>Models</label>' + input("cars." + k + ".models") + '</div>' +
@@ -376,7 +404,12 @@
     $("#admSignOut").addEventListener("click", function () { fetch("/api/admin-session", { method: "DELETE" }).then(function () { location.href = "/admin-login"; }); });
 
     // live image preview
-    document.addEventListener("input", function (e) { if (e.target && e.target.dataset && /\.image$/.test(e.target.dataset.path || "")) { var row = e.target.closest(".cardrow"); var img = row && row.querySelector(".carimg"); if (img) { img.src = e.target.value || "sedan-thumb.webp"; img.style.opacity = 1; } } });
+    // live image preview (cars + site images)
+    document.addEventListener("input", function (e) {
+      var el = e.target; if (!el || !el.dataset) return;
+      if (el.dataset.sipin) { var si = document.querySelector('[data-sip="' + el.dataset.sipin + '"]'); if (si) { si.src = el.value; si.style.opacity = 1; } }
+      else if (/\.image$/.test(el.dataset.path || "")) { var row = el.closest(".cardrow"); var img = row && row.querySelector(".carimg"); if (img) { img.src = el.value || "sedan-thumb.webp"; img.style.opacity = 1; } }
+    });
 
     $("#admAddRoute").addEventListener("click", function () { readInputs(); var ids = Object.keys(C.cities); C.routes.push({ a: ids[0] || "pune", b: ids[1] || "mumbai", sedan: 2799, suv: 3499, km: 150, time: "3h" }); renderRoutes(); });
     $("#admAddCity").addEventListener("click", function () { readInputs(); var id = uniqueId(slug("City" + (Object.keys(C.cities).length + 1)), C.cities); C.cities[id] = { name: "New city", short: "New" }; renderCities(); renderRoutes(); renderShare(); });

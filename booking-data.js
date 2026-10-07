@@ -314,10 +314,27 @@
     ]
   };
 
+  // Site-wide images (logo, hero, fleet, favicon) — editable from the admin.
+  const SITE_IMAGES = { logo: "logo.webp", hero: "hero.webp", fleet_sedan: "sedan.webp", fleet_ertiga: "ertiga.webp", fleet_carens: "carens.webp", fleet_crysta: "suv.webp", cta: "cta.webp", favicon: "favicon.png" };
+
+  function applySiteImages(imgs) {
+    if (!imgs) return;
+    if (imgs.logo) document.querySelectorAll(".brand__logo, .bf-nav__brand img, .brand img").forEach((el) => { el.src = imgs.logo; });
+    if (imgs.hero) { const h = document.querySelector(".hero__photo img, .hero__media img"); if (h) h.src = imgs.hero; }
+    ["sedan", "ertiga", "carens", "crysta"].forEach((k) => {
+      if (!imgs["fleet_" + k]) return;
+      const el = document.querySelector('[data-si="fleet_' + k + '"]');
+      if (el) el.src = imgs["fleet_" + k];
+    });
+    if (imgs.cta) { const c = document.querySelector('[data-si="cta"]'); if (c) c.src = imgs.cta; }
+    if (imgs.favicon) { const l = document.querySelector('link[rel="icon"]'); if (l) l.href = imgs.favicon; }
+  }
+
   // Apply admin-edited config over the built-in defaults.
   function applyConfig(cfg) {
     if (!cfg || typeof cfg !== "object") return;
     if (cfg.brand && typeof cfg.brand === "object") Object.assign(CONFIG, cfg.brand);
+    if (cfg.images && typeof cfg.images === "object") { Object.assign(SITE_IMAGES, cfg.images); applySiteImages(SITE_IMAGES); }
     if (cfg.cities && typeof cfg.cities === "object") { Object.keys(CITIES).forEach((k) => delete CITIES[k]); Object.assign(CITIES, cfg.cities); }
     if (Array.isArray(cfg.routes)) { ROUTES.length = 0; cfg.routes.forEach((r) => ROUTES.push(r)); }
     if (cfg.cars && typeof cfg.cars === "object") { Object.keys(ONEWAY_CARS).forEach((k) => delete ONEWAY_CARS[k]); Object.assign(ONEWAY_CARS, cfg.cars); }
@@ -353,7 +370,7 @@
   window.STBooking = {
     CONFIG, CITIES, CITY_GEO, ROUTES, ONEWAY_CARS, CAR_ORDER, LOCAL_SUGGESTIONS,
     ROUND_CARS, ROUND_ORDER, ROUND_EST_KM, LOCAL_PACKAGES, LOCAL_CLS, SHARE_ROUTES, SHARE_MAX_SEATS,
-    inr, findRoute, cityName, getCarFare, planFare, computeFare, waUrl, applyConfig,
+    inr, findRoute, cityName, getCarFare, planFare, computeFare, waUrl, applyConfig, SITE_IMAGES, applySiteImages,
     formatDate, formatTime, dateTimeDisplay,
     readFlow, writeFlow, updateFlow, loadFlow, buildUrl,
     readProfile, saveProfile, saveBooking, syncBookingToServer, newBookingId,
