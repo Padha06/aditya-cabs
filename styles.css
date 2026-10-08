@@ -317,7 +317,7 @@ html[lang="mr"] .footer__col h3{letter-spacing:.06em}
 .select > .ic{color:#64748B;width:18px;height:18px;flex-shrink:0}
 .select .ic--chev{margin-left:auto;pointer-events:none;color:#64748B}
 .select select,.select input{
-  appearance:none;-webkit-appearance:none;width:100%;border:0;background:none;
+  appearance:none;-webkit-appearance:none;width:100%;min-width:0;border:0;background:none;
   padding:13px 0;font-size:.94rem;font-weight:600;color:var(--text);
 }
 .select select{cursor:pointer;padding-right:28px}
@@ -330,6 +330,7 @@ html[lang="mr"] .footer__col h3{letter-spacing:.06em}
 }
 .select input[type=date]{color-scheme:light;cursor:pointer}
 .select input[type=date]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.65}
+.select input:focus-visible,.select select:focus-visible{outline:none}
 
 .swaprow{display:flex;justify-content:flex-end;margin:-6px 0 -6px}
 .swap{
@@ -1256,7 +1257,7 @@ body.rmodal-open{overflow:hidden}
 
   /* DATETIME ROW */
   .datetime-row{
-    display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;box-sizing:border-box;
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;width:100%;box-sizing:border-box;
   }
 
   /* SWAP BUTTON & URGENT PILL */
