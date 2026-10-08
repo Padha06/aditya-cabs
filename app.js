@@ -95,7 +95,16 @@ function waUrl(message) {
 function wireContactLinks() {
   $$("[data-phone-link]").forEach(el => {
     el.setAttribute("href", "tel:" + CONFIG.phoneTel);
-    if (el.textContent.includes("+91")) el.lastChild.nodeValue = " " + CONFIG.phoneDisplay;
+    // Sync any visible phone number to the configured display value, in place
+    // (never append — that duplicated the number).
+    const re = /(?:\+91[\s-]?)?\d{5}[\s-]?\d{5}/;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue && re.test(node.nodeValue)) {
+        node.nodeValue = node.nodeValue.replace(/(?:\+91[\s-]?)?\d{5}[\s-]?\d{5}/g, CONFIG.phoneDisplay);
+      }
+    }
   });
   $$("[data-wa-link]").forEach(el => el.setAttribute("href", waUrl(CONFIG.defaultMessage)));
 }

@@ -119,7 +119,7 @@ h3{font-size:clamp(1.08rem,1.7vw,1.32rem);line-height:1.2}
   display:inline-flex;align-items:center;justify-content:center;gap:9px;
   padding:var(--pad-y) var(--pad-x);border-radius:var(--r-pill);
   font-family:var(--font-d);font-weight:600;font-size:.94rem;letter-spacing:-.01em;
-  border:1px solid transparent;white-space:nowrap;
+  border:1px solid transparent;white-space:normal;overflow-wrap:anywhere;max-width:100%;
   transition:transform .18s var(--ease),background .2s,box-shadow .25s,border-color .2s,color .2s;
 }
 .btn:active{transform:translateY(1px) scale(.985)}
