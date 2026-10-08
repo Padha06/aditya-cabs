@@ -29,6 +29,8 @@
   .card { background: #FFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 18px 20px; margin-bottom: 16px; }
   .card h3 { font-size: 1rem; margin: 0 0 4px; }
   .hint { font-size: .8rem; color: #64748B; margin: 0 0 14px; line-height: 1.5; }
+  .where { font-size: .82rem; color: #0369A1; background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 10px; padding: 8px 12px; margin: 0 0 14px; line-height: 1.5; }
+  .where a { color: #0284C7; font-weight: 800; }
   .pill-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
   .pill { border: 1.5px solid #E2E8F0; background: #FFF; border-radius: 999px; padding: 7px 15px; font-size: .82rem; font-weight: 800; cursor: pointer; color: #475569; }
   .pill.is-on { border-color: #0284C7; background: #EFF8FF; color: #0284C7; }
@@ -61,6 +63,19 @@
     .cardrow { grid-template-columns: 1fr; }
     .carbox { grid-template-columns: 1fr; }
     .carimg { width: 100%; height: 160px; }
+    .adm-tabnav { top: 50px; }
+    /* tables become readable stacked cards */
+    table.tbl { font-size: .9rem; }
+    table.tbl thead { display: none; }
+    table.tbl tr:has(th) { display: none; }
+    table.tbl th { display: none; }
+    table.tbl tr { display: block; border: 1px solid #E2E8F0; border-radius: 14px; padding: 8px 14px; margin-bottom: 10px; background: #FFF; box-shadow: 0 1px 3px rgba(0,0,0,.03); }
+    table.tbl td { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 0; padding: 7px 0; }
+    table.tbl td::before { content: attr(data-label); flex: 0 0 46%; font-size: .7rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; color: #94A3B8; }
+    table.tbl td[data-label=""]::before { content: ""; flex: 0; }
+    table.tbl td .inp, table.tbl td select.inp { flex: 1 1 auto; max-width: none; }
+    table.tbl td:last-child { justify-content: flex-end; }
+    .scrollx { overflow-x: visible; }
   }
 </style>
 </head>
@@ -123,16 +138,18 @@
 
     <!-- ROUTES & FARES -->
     <section class="secwrap" data-sec="routes" hidden>
-      <h2 class="sec">Routes &amp; Fares</h2>
-      <p class="sec-sub">Each route runs both ways at the same price. Type the price for a <b>Sedan</b> and the price for an <b>SUV</b>. Prices for the other car types are worked out automatically (you can change that under “Cars”).</p>
+      <h2 class="sec">Routes &amp; Fares <span id="routeCount" style="font-size:.8rem;color:#94A3B8;font-weight:700"></span></h2>
+      <p class="sec-sub">Each route runs both ways at the same price. Set the <b>Sedan</b> and <b>SUV</b> prices — the other car types are calculated automatically (see the Cars tab).</p>
+      <p class="where">On your website: these prices appear on the <b>booking page</b> when a customer chooses a cab. &nbsp;<a href="/cabs" target="_blank" rel="noopener">Open the booking page ↗</a></p>
       <div class="card scrollx"><table class="tbl" id="admRoutes"></table></div>
       <button class="btn2 add" id="admAddRoute">+ Add a route</button>
     </section>
 
     <!-- CARS -->
     <section class="secwrap" data-sec="cars" hidden>
-      <h2 class="sec">Cars</h2>
-      <p class="sec-sub">These are the car types customers choose. To change a photo, paste an image link (right-click any image online → “Copy image address”). “Priced from” and “Price factor” control how each car is priced — a factor of <b>1</b> means “same as its base price”.</p>
+      <h2 class="sec">Cars <span id="carCount" style="font-size:.8rem;color:#94A3B8;font-weight:700"></span></h2>
+      <p class="sec-sub">Every car type your customers can book. Change the name, photo, fuel, seats, and how it is priced.</p>
+      <p class="where">On your website: these appear on the <b>booking page</b> under “Choose your cab”, and in the homepage fleet. &nbsp;<a href="/cabs" target="_blank" rel="noopener">Preview ↗</a></p>
       <div class="card" id="admCars"></div>
       <button class="btn2 add" id="admAddCar">+ Add a car type</button>
     </section>
@@ -141,6 +158,7 @@
     <section class="secwrap" data-sec="other" hidden>
       <h2 class="sec">Other trip types</h2>
       <p class="sec-sub">Prices for round trips, local (hourly) rental and shared cabs.</p>
+      <p class="where">On your website: these are the other booking options a customer can pick.</p>
       <div class="card">
         <h3>Round trip</h3>
         <p class="hint">A round trip is priced per kilometre. We estimate the total from the kilometres below.</p>
@@ -163,7 +181,8 @@
     <!-- SETTINGS -->
     <section class="secwrap" data-sec="settings" hidden>
       <h2 class="sec">Settings</h2>
-      <p class="sec-sub">Your brand name and the phone number customers call and message.</p>
+      <p class="sec-sub">Your brand name, phone number, images and the cities you serve.</p>
+      <p class="where">On your website: the phone number appears in the header, footer and every WhatsApp button.</p>
       <div class="card">
         <h3>Brand &amp; contact</h3>
         <div class="field"><label>Brand name</label><input class="inp" data-path="brand.brand"></div>
@@ -288,7 +307,11 @@
   function renderCities() {
     var rows = "<tr><th>City name (shown to customers)</th><th>Short name</th><th></th></tr>";
     Object.keys(C.cities).forEach(function (id) {
-      rows += "<tr><td>" + input("cities." + id + ".name") + "</td><td>" + input("cities." + id + ".short") + '</td><td><button class="btn2 danger" data-delcity="' + esc(id) + '">Remove</button></td></tr>';
+      rows += '<tr>' +
+        '<td data-label="City name">' + input("cities." + id + ".name") + '</td>' +
+        '<td data-label="Short name">' + input("cities." + id + ".short") + '</td>' +
+        '<td data-label=""><button class="btn2 danger" data-delcity="' + esc(id) + '">Remove</button></td>' +
+        '</tr>';
     });
     $("#admCities").innerHTML = rows;
   }
@@ -297,15 +320,18 @@
   function renderRoutes() {
     var rows = "<tr><th>From</th><th>To</th><th>Sedan ₹</th><th>SUV ₹</th><th>Distance km</th><th>Time</th><th></th></tr>";
     C.routes.forEach(function (r, i) {
-      rows += "<tr><td><select class='inp' data-path='routes." + i + ".a'>" + cityOpts(r.a) + "</select></td>" +
-        "<td><select class='inp' data-path='routes." + i + ".b'>" + cityOpts(r.b) + "</select></td>" +
-        "<td>" + input("routes." + i + ".sedan", "number", "sm") + "</td>" +
-        "<td>" + input("routes." + i + ".suv", "number", "sm") + "</td>" +
-        "<td>" + input("routes." + i + ".km", "number", "sm") + "</td>" +
-        "<td>" + input("routes." + i + ".time", "text", "sm") + "</td>" +
-        '<td><button class="btn2 danger" data-delroute="' + i + '">Remove</button></td></tr>';
+      rows += '<tr>' +
+        '<td data-label="From"><select class="inp" data-path="routes.' + i + '.a">' + cityOpts(r.a) + '</select></td>' +
+        '<td data-label="To"><select class="inp" data-path="routes.' + i + '.b">' + cityOpts(r.b) + '</select></td>' +
+        '<td data-label="Sedan price (₹)">' + input("routes." + i + ".sedan", "number", "sm") + '</td>' +
+        '<td data-label="SUV price (₹)">' + input("routes." + i + ".suv", "number", "sm") + '</td>' +
+        '<td data-label="Distance (km)">' + input("routes." + i + ".km", "number", "sm") + '</td>' +
+        '<td data-label="Time">' + input("routes." + i + ".time", "text", "sm") + '</td>' +
+        '<td data-label=""><button class="btn2 danger" data-delroute="' + i + '">Remove</button></td>' +
+        '</tr>';
     });
     $("#admRoutes").innerHTML = rows;
+    var rc = $("#routeCount"); if (rc) rc.textContent = "(" + C.routes.length + " routes)";
   }
 
   // ---- cars ----
@@ -331,6 +357,7 @@
         '</div></div>';
     });
     $("#admCars").innerHTML = html;
+    var cc = $("#carCount"); if (cc) cc.textContent = "(" + C.carOrder.length + " cars)";
   }
 
   // ---- round ----
@@ -361,10 +388,12 @@
   function renderShare() {
     var rows = "<tr><th>From</th><th>To</th><th>₹ per seat</th><th></th></tr>";
     C.share.routes.forEach(function (r, i) {
-      rows += "<tr><td><select class='inp' data-path='share.routes." + i + ".a'>" + cityOpts(r.a) + "</select></td>" +
-        "<td><select class='inp' data-path='share.routes." + i + ".b'>" + cityOpts(r.b) + "</select></td>" +
-        "<td>" + input("share.routes." + i + ".rate", "number", "sm") + "</td>" +
-        '<td><button class="btn2 danger" data-delshare="' + i + '">Remove</button></td></tr>';
+      rows += '<tr>' +
+        '<td data-label="From"><select class="inp" data-path="share.routes.' + i + '.a">' + cityOpts(r.a) + '</select></td>' +
+        '<td data-label="To"><select class="inp" data-path="share.routes.' + i + '.b">' + cityOpts(r.b) + '</select></td>' +
+        '<td data-label="Price per seat (₹)">' + input("share.routes." + i + ".rate", "number", "sm") + '</td>' +
+        '<td data-label=""><button class="btn2 danger" data-delshare="' + i + '">Remove</button></td>' +
+        '</tr>';
     });
     $("#admShare").innerHTML = rows;
   }
@@ -380,7 +409,15 @@
       if (!d.bookings.length) rows += '<tr><td colspan="7" class="muted" style="padding:16px">No bookings in this period yet.</td></tr>';
       d.bookings.forEach(function (b) {
         var when = b.createdAt ? new Date(b.createdAt).toLocaleString("en-IN") : "-";
-        rows += "<tr><td>#" + esc(b.id || "-") + "</td><td>" + esc(when) + "</td><td>" + esc(b.name || "-") + "</td><td>" + esc(b.phone || "-") + "</td><td>" + esc(b.from || "") + " → " + esc(b.to || "") + (b.type && b.type !== "oneway" ? " (" + esc(b.type) + ")" : "") + "</td><td>" + inr(b.totalFare) + "</td><td>" + esc(b.paymentMode || "") + "</td></tr>";
+        rows += '<tr>' +
+          '<td data-label="Booking">#' + esc(b.id || "-") + '</td>' +
+          '<td data-label="When">' + esc(when) + '</td>' +
+          '<td data-label="Name">' + esc(b.name || "-") + '</td>' +
+          '<td data-label="Phone">' + esc(b.phone || "-") + '</td>' +
+          '<td data-label="Route">' + esc(b.from || "") + ' → ' + esc(b.to || "") + (b.type && b.type !== "oneway" ? ' (' + esc(b.type) + ')' : '') + '</td>' +
+          '<td data-label="Fare">' + inr(b.totalFare) + '</td>' +
+          '<td data-label="Payment">' + esc(b.paymentMode || "") + '</td>' +
+          '</tr>';
       });
       $("#admBookings").innerHTML = rows;
     }).catch(function () {});
