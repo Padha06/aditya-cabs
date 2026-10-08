@@ -54,14 +54,13 @@
   ];
 
   const ONEWAY_CARS = {
-    hatchback: { key: "hatchback", name: "HATCHBACK", models: "WagonR, i20, Celerio, Swift, etc.", specs: "1 bag | 4 seats", seats: 4, bags: 1, fuel: "CNG", image: "sedan-thumb.webp", popular: false, base: "sedan", factor: 0.88 },
-    sedan:     { key: "sedan",     name: "SEDAN",     models: "Maruti Dzire, Hyundai Aura, Toyota Etios", specs: "2 bags | 4 seats", seats: 4, bags: 2, fuel: "CNG / PETROL", image: "sedan-thumb.webp", popular: true, base: "sedan", factor: 1 },
-    sedan_xl:  { key: "sedan_xl",  name: "SEDAN XL",  models: "Diesel Only - Swift Dzire, Etios, Honda Amaze", specs: "2 bags | 4 seats", seats: 4, bags: 2, fuel: "DIESEL", image: "sedan-thumb.webp", popular: false, base: "sedan", factor: 1.07 },
-    suv:       { key: "suv",       name: "SUV",       models: "Maruti Ertiga, Kia Carens, Mahindra Marazzo", specs: "4 bags | 6 seats", seats: 6, bags: 4, fuel: "CNG / DIESEL", image: "ertiga-thumb.webp", popular: false, base: "suv", factor: 1 },
+    hatchback: { key: "hatchback", name: "HATCHBACK", models: "WagonR, i20, Celerio, Swift, etc.", specs: "1 bag | 4 seats", seats: 4, bags: 1, fuel: "CNG", image: "swift.jpg", popular: false, base: "sedan", factor: 0.88 },
+    sedan:     { key: "sedan",     name: "SEDAN",     models: "Maruti Dzire, Hyundai Aura, Toyota Etios", specs: "2 bags | 4 seats", seats: 4, bags: 2, fuel: "CNG / PETROL", image: "sedan-dzire.jpg", popular: true, base: "sedan", factor: 1 },
+    suv:       { key: "suv",       name: "SUV",       models: "Maruti Ertiga, Kia Carens, Mahindra Marazzo", specs: "4 bags | 6 seats", seats: 6, bags: 4, fuel: "CNG / DIESEL", image: "innova-hycross.jpg", popular: false, base: "suv", factor: 1 },
     crysta:    { key: "crysta",    name: "INNOVA CRYSTA (VIP)", models: "Toyota Innova Crysta / Hycross - Captain Seats", specs: "4 large bags | 7 seats", seats: 7, bags: 4, fuel: "DIESEL", image: "suv-thumb.webp", popular: false, base: "suv", factor: 1.25 }
   };
 
-  const CAR_ORDER = ["hatchback", "sedan", "sedan_xl", "suv", "crysta"];
+  const CAR_ORDER = ["hatchback", "sedan", "suv", "crysta"];
 
   // --- Round trip (per-km) ---
   let ROUND_EST_KM = 500;
@@ -315,13 +314,13 @@
   };
 
   // Site-wide images (logo, hero, fleet, favicon) — editable from the admin.
-  const SITE_IMAGES = { logo: "logo.webp", hero: "hero.webp", fleet_sedan: "sedan.webp", fleet_ertiga: "ertiga.webp", fleet_carens: "carens.webp", fleet_crysta: "suv.webp", cta: "cta.webp", favicon: "favicon.png" };
+  const SITE_IMAGES = { logo: "logo.webp", hero: "hero.webp", fleet_sedan: "sedan.webp", fleet_ertiga: "ertiga.webp", fleet_carens: "carens.webp", fleet_crysta: "suv.webp", fleet_hycross: "innova-hycross.jpg", cta: "cta.webp", favicon: "favicon.png" };
 
   function applySiteImages(imgs) {
     if (!imgs) return;
     if (imgs.logo) document.querySelectorAll(".brand__logo, .bf-nav__brand img, .brand img").forEach((el) => { el.src = imgs.logo; });
     if (imgs.hero) { const h = document.querySelector(".hero__photo img, .hero__media img"); if (h) h.src = imgs.hero; }
-    ["sedan", "ertiga", "carens", "crysta"].forEach((k) => {
+    ["sedan", "ertiga", "carens", "crysta", "hycross"].forEach((k) => {
       if (!imgs["fleet_" + k]) return;
       const el = document.querySelector('[data-si="fleet_' + k + '"]');
       if (el) el.src = imgs["fleet_" + k];

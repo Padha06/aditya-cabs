@@ -820,7 +820,7 @@ body.rmodal-open{overflow:hidden}
 .prowlist__empty{padding:26px 18px;color:var(--text-3);font-size:.86rem;text-align:center}
 
 /* ---------- FLEET ---------- */
-.fleet__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,1.8vw,20px)}
+.fleet__grid{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(14px,1.8vw,20px)}
 @media (max-width:1100px){
   .fleet__grid{grid-template-columns:repeat(2,1fr)}
 }
