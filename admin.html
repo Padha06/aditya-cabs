@@ -141,7 +141,9 @@
       <h2 class="sec">Routes &amp; Fares <span id="routeCount" style="font-size:.8rem;color:#94A3B8;font-weight:700"></span></h2>
       <p class="sec-sub">Each route runs both ways at the same price. Set the <b>Sedan</b> and <b>SUV</b> prices — the other car types are calculated automatically (see the Cars tab).</p>
       <p class="where">On your website: these prices appear on the <b>booking page</b> when a customer chooses a cab. &nbsp;<a href="/cabs" target="_blank" rel="noopener">Open the booking page ↗</a></p>
+      <div class="pill-tabs" id="admRouteFilter"></div>
       <div class="card scrollx"><table class="tbl" id="admRoutes"></table></div>
+      <p class="hint" style="margin-top:10px">A route is priced for <b>both directions</b> — editing a price updates the return direction too.</p>
       <button class="btn2 add" id="admAddRoute">+ Add a route</button>
     </section>
 
@@ -316,22 +318,39 @@
     $("#admCities").innerHTML = rows;
   }
 
-  // ---- routes ----
+  // ---- routes (shown per direction, with a city filter) ----
+  var routesFromFilter = "";
   function renderRoutes() {
-    var rows = "<tr><th>From</th><th>To</th><th>Sedan ₹</th><th>SUV ₹</th><th>Distance km</th><th>Time</th><th></th></tr>";
+    // filter pills
+    var pills = '<button class="pill' + (routesFromFilter === "" ? " is-on" : "") + '" data-rfrom="">All routes</button>';
+    Object.keys(C.cities).forEach(function (id) {
+      pills += '<button class="pill' + (routesFromFilter === id ? " is-on" : "") + '" data-rfrom="' + esc(id) + '">From ' + esc(C.cities[id].name) + '</button>';
+    });
+    var flt = $("#admRouteFilter"); if (flt) flt.innerHTML = pills;
+
+    // build the directional list (each route bookable both ways)
+    var dirs = [];
     C.routes.forEach(function (r, i) {
+      dirs.push({ i: i, dir: 0, from: r.a, to: r.b });
+      dirs.push({ i: i, dir: 1, from: r.b, to: r.a });
+    });
+    if (routesFromFilter) dirs = dirs.filter(function (d) { return d.from === routesFromFilter; });
+
+    var rows = "<tr><th>From</th><th>To</th><th>Sedan ₹</th><th>SUV ₹</th><th>Distance (km)</th><th>Time</th><th></th></tr>";
+    dirs.forEach(function (d) {
+      var r = C.routes[d.i];
       rows += '<tr>' +
-        '<td data-label="From"><select class="inp" data-path="routes.' + i + '.a">' + cityOpts(r.a) + '</select></td>' +
-        '<td data-label="To"><select class="inp" data-path="routes.' + i + '.b">' + cityOpts(r.b) + '</select></td>' +
-        '<td data-label="Sedan price (₹)">' + input("routes." + i + ".sedan", "number", "sm") + '</td>' +
-        '<td data-label="SUV price (₹)">' + input("routes." + i + ".suv", "number", "sm") + '</td>' +
-        '<td data-label="Distance (km)">' + input("routes." + i + ".km", "number", "sm") + '</td>' +
-        '<td data-label="Time">' + input("routes." + i + ".time", "text", "sm") + '</td>' +
-        '<td data-label=""><button class="btn2 danger" data-delroute="' + i + '">Remove</button></td>' +
+        '<td data-label="From"><select class="inp" data-rsel="' + d.i + '" data-rf="' + (d.dir ? "b" : "a") + '">' + cityOpts(d.from) + '</select></td>' +
+        '<td data-label="To"><select class="inp" data-rsel="' + d.i + '" data-rf="' + (d.dir ? "a" : "b") + '">' + cityOpts(d.to) + '</select></td>' +
+        '<td data-label="Sedan price (₹)"><input class="inp sm" type="number" data-rin="' + d.i + '" data-rf="sedan" value="' + r.sedan + '"></td>' +
+        '<td data-label="SUV price (₹)"><input class="inp sm" type="number" data-rin="' + d.i + '" data-rf="suv" value="' + r.suv + '"></td>' +
+        '<td data-label="Distance (km)"><input class="inp sm" type="number" data-rin="' + d.i + '" data-rf="km" value="' + (r.km || 0) + '"></td>' +
+        '<td data-label="Time"><input class="inp sm" data-rin="' + d.i + '" data-rf="time" value="' + esc(r.time || "") + '"></td>' +
+        '<td data-label=""><button class="btn2 danger" data-delroute="' + d.i + '">Remove</button></td>' +
         '</tr>';
     });
     $("#admRoutes").innerHTML = rows;
-    var rc = $("#routeCount"); if (rc) rc.textContent = "(" + C.routes.length + " routes)";
+    var rc = $("#routeCount"); if (rc) rc.textContent = "(" + dirs.length + " routes)";
   }
 
   // ---- cars ----
@@ -452,6 +471,27 @@
     $("#admAddCity").addEventListener("click", function () { readInputs(); var id = uniqueId(slug("City" + (Object.keys(C.cities).length + 1)), C.cities); C.cities[id] = { name: "New city", short: "New" }; renderCities(); renderRoutes(); renderShare(); });
     $("#admAddCar").addEventListener("click", function () { readInputs(); var n = "New car " + (Object.keys(C.cars).length + 1); var k = uniqueId(slug(n), C.cars); C.cars[k] = { name: n, models: "", fuel: "PETROL", seats: 4, bags: 2, image: "sedan-thumb.webp", popular: false, base: "sedan", factor: 1 }; C.carOrder.push(k); renderCars(); });
     $("#admAddShare").addEventListener("click", function () { readInputs(); var ids = Object.keys(C.cities); C.share.routes.push({ key: "", a: ids[0] || "pune", b: ids[1] || "mumbai", rate: 800 }); renderShare(); });
+
+    // Routes: editing a fare/distance/time updates the route (both directions stay in sync)
+    $("#admRoutes").addEventListener("input", function (e) {
+      var el = e.target;
+      if (!el.dataset || el.dataset.rin == null) return;
+      var i = Number(el.dataset.rin), f = el.dataset.rf;
+      C.routes[i][f] = el.type === "number" ? Number(el.value) : el.value;
+      var sib = document.querySelectorAll('[data-rin="' + i + '"][data-rf="' + f + '"]');
+      for (var x = 0; x < sib.length; x++) { if (sib[x] !== el) sib[x].value = el.value; }
+    });
+    $("#admRoutes").addEventListener("change", function (e) {
+      var el = e.target;
+      if (!el.dataset || el.dataset.rsel == null) return;
+      C.routes[Number(el.dataset.rsel)][el.dataset.rf] = el.value;
+      renderRoutes();
+    });
+    $("#admRouteFilter").addEventListener("click", function (e) {
+      var b = e.target.closest(".pill[data-rfrom]"); if (!b) return;
+      routesFromFilter = b.getAttribute("data-rfrom") || "";
+      renderRoutes();
+    });
 
     document.addEventListener("click", function (e) {
       var t = e.target;
