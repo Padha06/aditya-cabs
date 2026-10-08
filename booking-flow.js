@@ -849,12 +849,12 @@
     const type = flow.type || "oneway";
     const { total, advance, balance } = bookAmounts(mode);
 
-    let bFrom, bTo;
-    if (type === "local") { bFrom = flow.city || "Pune"; bTo = "Local package"; }
+    let bFrom, bTo, fromId, toId;
+    if (type === "local") { bFrom = flow.city || "Pune"; bTo = "Local package"; fromId = flow.city || "pune"; toId = ""; }
     else if (type === "share") {
       const r = ST.SHARE_ROUTES.find((x) => x.key === flow.route) || ST.SHARE_ROUTES[0];
-      bFrom = ST.cityName(r.a); bTo = ST.cityName(r.b);
-    } else { bFrom = ST.cityName(flow.from); bTo = ST.cityName(flow.to); }
+      bFrom = ST.cityName(r.a); bTo = ST.cityName(r.b); fromId = r.a; toId = r.b;
+    } else { bFrom = ST.cityName(flow.from); bTo = ST.cityName(flow.to); fromId = flow.from; toId = flow.to; }
 
     const booking = {
       id: ST.newBookingId(),
@@ -862,6 +862,8 @@
       type: type,
       from: bFrom,
       to: bTo,
+      fromId: fromId,
+      toId: toId,
       date: flow.date || "",
       time: flow.time || "08:00",
       returnDate: flow.rdate || "",

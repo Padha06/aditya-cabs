@@ -1874,24 +1874,13 @@ function initHero() {
    - contact is deliberately admin-mediated: "Request seat" opens WhatsApp to the
      office, never to the traveller. Swap this for masked calling in production.
 --------------------------------------------------------------------------- */
-const POOL_KEY = "aditya.pools.v1";
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-const isoIn = n => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
-
-const POOL_SEED = [
-  { id: "s1", from: "pune",   to: "mumbai",        date: isoIn(2), time: "06:30", cls: "suv",   seats: 2, name: "Rohit Deshmukh",  verified: true },
-  { id: "s2", from: "pune",   to: "mumbai",        date: isoIn(2), time: "07:00", cls: "suv",   seats: 1, name: "Aarti Nair",      verified: true },
-  { id: "s3", from: "pune",   to: "shirdi",        date: isoIn(3), time: "05:00", cls: "sedan", seats: 2, name: "Sameer Kulkarni", verified: true },
-  { id: "s4", from: "mumbai", to: "pune",          date: isoIn(1), time: "18:30", cls: "sedan", seats: 1, name: "Nikhil Joshi",    verified: true },
-  { id: "s5", from: "pune",   to: "nashik",        date: isoIn(4), time: "08:00", cls: "sedan", seats: 2, name: "Farhan Shaikh",   verified: true },
-  { id: "s6", from: "mumbai", to: "sambhajinagar", date: isoIn(5), time: "21:00", cls: "suv",   seats: 2, name: "Meera Iyer",      verified: true },
-  { id: "s7", from: "pune",   to: "kolhapur",      date: isoIn(6), time: "07:30", cls: "sedan", seats: 1, name: "Aditya Rane",     verified: true },
-  { id: "s8", from: "nashik", to: "pune",          date: isoIn(2), time: "17:00", cls: "sedan", seats: 2, name: "Pooja Bhosale",   verified: true }
-];
-
+// The shared-cab board shows REAL trips only (shared bookings + posted trips),
+// masked to the first-name initial — no gender, no phone, no full name.
 let poolPosts = [];
 
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const maskName = name => { const t = String(name || "").trim(); return t ? t[0].toUpperCase() : "T"; };
 
 function poolFullFare(p) {
   const r = findRoute(p.from, p.to);
@@ -1922,29 +1911,6 @@ function avatarBg(name) {
   return `linear-gradient(140deg,hsl(${h} 68% 64%),hsl(${(h + 42) % 360} 70% 48%))`;
 }
 
-function loadMine() {
-  try { const raw = localStorage.getItem(POOL_KEY); const a = raw ? JSON.parse(raw) : []; return Array.isArray(a) ? a : []; }
-  catch (e) { return []; }
-}
-function saveMine() {
-  try { localStorage.setItem(POOL_KEY, JSON.stringify(poolPosts.filter(p => p.mine))); } catch (e) { /* private mode */ }
-}
-
-function poolMessage(p) {
-  return [
-    `Hi ${CONFIG.brand}, I would like to post a shared cab trip.`,
-    ``,
-    `Route: ${i18nCity(p.from)} ${i18nT("to")} ${i18nCity(p.to)}`,
-    `Date: ${fmtDate(p.date)}`,
-    `Pickup time: ${fmtTime(p.time)}`,
-    `Car: ${CAR_CLASSES[p.cls].label}`,
-    `Seats needed: ${p.seats}`,
-    `Name: ${p.name}`,
-    ``,
-    `Please confirm my seat and connect me with a co-traveller.`
-  ].join("\n");
-}
-
 function joinMessage(p) {
   const per = poolPerPerson(p);
   return [
@@ -1953,11 +1919,9 @@ function joinMessage(p) {
     `Route: ${i18nCity(p.from)} ${i18nT("to")} ${i18nCity(p.to)}`,
     `Date: ${fmtDate(p.date)}`,
     `Pickup time: ${fmtTime(p.time)}`,
-    `Car: ${CAR_CLASSES[p.cls].label}`,
-    `Traveller: ${p.name}`,
     `Fare share shown: ${per != null ? inr(per) + " each" : "please quote"}`,
     ``,
-    `Please connect me with this traveller and confirm the seat.`
+    `Please confirm the seat and connect me with this traveller.`
   ].join("\n");
 }
 
@@ -1965,8 +1929,7 @@ function renderPoolBoard() {
   const host = $("#poolList");
   if (!host) return;
 
-  poolPosts.sort((a, b) =>
-    (b.mine ? 1 : 0) - (a.mine ? 1 : 0) || (a.date + a.time).localeCompare(b.date + b.time));
+  poolPosts.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
 
   const tally = {};
   poolPosts.forEach(p => { const k = poolRouteKey(p); tally[k] = (tally[k] || 0) + 1; });
@@ -1976,55 +1939,62 @@ function renderPoolBoard() {
   if (countEl) countEl.textContent = poolPosts.length + " " + i18nT("trips posted");
 
   if (!poolPosts.length) {
-    host.innerHTML = '<p class="prowlist__empty">' + i18nT("No trips posted yet. Be the first on this route.") + '</p>';
+    host.innerHTML = '<p class="prowlist__empty">' + i18nT("No shared trips yet. Be the first to post one.") + "</p>";
     return;
   }
 
   host.innerHTML = poolPosts.map(p => {
     const per = poolPerPerson(p), full = poolFullFare(p);
     const isMatch = matched.has(poolRouteKey(p));
-    return `<article class="prow${p.mine ? " is-mine" : ""}${isMatch && !p.mine ? " is-match" : ""}">
+    const initial = maskName(p.name);
+    return `<article class="prow${isMatch ? " is-match" : ""}">
       <div class="prow__who">
-        <span class="pavatar" style="background:${avatarBg(p.name)}" aria-hidden="true">${esc(initials(p.name))}<img src="https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(p.name)}" alt="" loading="lazy" onerror="this.remove()"></span>
+        <span class="pavatar" style="background:${avatarBg(initial)}" aria-hidden="true">${esc(initial)}</span>
         <span class="prow__id">
-          <b>${esc(p.name)}</b>
+          <b>${esc(initial)}</b>
           <span class="prow__tags">
-            ${p.mine ? '<span class="ptag ptag--you">' + i18nT("You") + "</span>" : ""}
-            ${p.verified ? '<span class="ptag"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>' + i18nT("Verified") + "</span>" : ""}
+            <span class="ptag">${i18nT("Co-traveller")}</span>
             ${isMatch ? '<span class="ptag ptag--match"><svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>' + i18nT("Match") + "</span>" : ""}
           </span>
         </span>
       </div>
       <div class="prow__route">
         <b>${i18nCity(p.from)} ${i18nT("to")} ${i18nCity(p.to)}</b>
-        <span>${i18nT(CAR_CLASSES[p.cls].label)} &middot; ${p.seats} ${i18nT(p.seats > 1 ? "seats needed" : "seat needed")}</span>
+        <span>${i18nT("AC Sedan")} &middot; ${p.seats} ${i18nT(p.seats > 1 ? "seats" : "seat")}</span>
       </div>
-      <div class="prow__when"><b>${fmtDate(p.date).replace(/ \d{4}$/, "")}</b><span>${fmtTime(p.time)} pickup</span></div>
+      <div class="prow__when"><b>${fmtDate(p.date).replace(/ \d{4}$/, "")}</b><span>${fmtTime(p.time)}</span></div>
       <div class="prow__price"><b>${per != null ? inr(per) : "Quote"}</b><span>${full != null ? i18nT("full") + " " + inr(full) : i18nT("on request")}</span></div>
-      ${p.mine
-        ? `<button class="prow__cta" type="button" data-remove="${p.id}">${i18nT("Remove post")}</button>`
-        : `<button class="prow__cta" type="button" data-join="${p.id}"><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>${i18nT("Request")}</button>`}
+      <button class="prow__cta" type="button" data-join="${esc(p.id)}"><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>${i18nT("Request")}</button>
     </article>`;
   }).join("");
+}
+
+function loadPoolBoard() {
+  fetch("/api/share-board", { headers: { Accept: "application/json" }, cache: "no-store" })
+    .then(r => r.json())
+    .then(list => {
+      poolPosts = Array.isArray(list) ? list.map(p => Object.assign({ cls: "sedan" }, p)) : [];
+      renderPoolBoard();
+    })
+    .catch(() => { poolPosts = []; renderPoolBoard(); });
 }
 
 function showPoolResult(post) {
   const box = $("#poolResult"), title = $("#poolResultTitle"), body = $("#poolResultBody"), cta = $("#poolResultCta");
   if (!box) return;
   const key = poolRouteKey(post);
-  const matches = poolPosts.filter(p => !p.mine && poolRouteKey(p) === key);
+  const matches = poolPosts.filter(p => poolRouteKey(p) === key);
   const routeTxt = `${CITIES[post.from].short} to ${CITIES[post.to].short}`;
   const per = poolPerPerson(post);
   const shareTxt = per != null ? inr(per) + " each" : "the shared fare";
 
+  title.textContent = "Trip posted";
   if (matches.length) {
-    title.textContent = matches.length === 1 ? "Match found" : matches.length + " matches found";
-    body.textContent = `${matches.map(m => m.name).join(" and ")} ${matches.length === 1 ? "is" : "are"} already going ${routeTxt} on ${fmtDate(post.date)}. We will connect you both and confirm the seat at ${shareTxt}.`;
+    body.textContent = `${matches.length} ${matches.length === 1 ? "traveller is" : "travellers are"} also going ${routeTxt} around this time. We will connect you and confirm the seat at ${shareTxt}.`;
   } else {
-    title.textContent = "Trip posted";
-    body.textContent = `No match on ${routeTxt} for ${fmtDate(post.date)} yet. We will message you the moment another traveller joins, at ${shareTxt}.`;
+    body.textContent = `Your trip is on the board. We will message you the moment another traveller joins ${routeTxt}, at ${shareTxt}.`;
   }
-  cta.href = waUrl(poolMessage(post));
+  cta.href = waUrl(joinMessage(post));
   box.hidden = false;
 }
 
@@ -2063,15 +2033,8 @@ function initPool() {
   poolStripRefresh = updateStrip;
 
   $("#poolList").addEventListener("click", e => {
-    const btn = e.target.closest("[data-join],[data-remove]");
+    const btn = e.target.closest("[data-join]");
     if (!btn) return;
-    if (btn.dataset.remove) {
-      poolPosts = poolPosts.filter(p => p.id !== btn.dataset.remove);
-      saveMine();
-      renderPoolBoard();
-      const box = $("#poolResult"); if (box) box.hidden = true;
-      return;
-    }
     const p = poolPosts.find(x => x.id === btn.dataset.join);
     if (p) window.open(waUrl(joinMessage(p)), "_blank", "noopener");
   });
@@ -2086,26 +2049,25 @@ function initPool() {
     const fail = m => { err.hidden = false; err.textContent = m; };
 
     if (from.value === to.value) return fail("Pickup and drop are the same city. Choose two different cities.");
-    if (!name) { fail("Add your name so co-travellers know who they are sharing with."); $("#pname").focus(); return; }
+    if (!name) { fail("Add your first name."); $("#pname").focus(); return; }
     if (!date || !time) return fail("Add your travel date and pickup time.");
 
     err.hidden = true;
-    const post = {
-      id: "u" + Date.now(), from: from.value, to: to.value, date, time,
-      seats, cls: clsEl ? clsEl.value : "sedan", name, mine: true, verified: false
-    };
-    poolPosts.unshift(post);
-    saveMine();
-    renderPoolBoard();
-    showPoolResult(post);
-    $("#pname").value = "";
-    const box = $("#poolResult");
-    if (box) box.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+    fetch("/api/share-board", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ from: from.value, to: to.value, date, time, seats, name })
+    }).then(r => r.json()).then(res => {
+      if (!res.success) return fail(res.error || "Could not post your trip.");
+      const post = { id: "me", from: from.value, to: to.value, date, time, seats, cls: clsEl ? clsEl.value : "sedan", name };
+      loadPoolBoard();
+      showPoolResult(post);
+      $("#pname").value = "";
+      const box = $("#poolResult");
+      if (box) box.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+    }).catch(() => fail("Network error. Please try again."));
   });
 
-  poolPosts = loadMine().concat(POOL_SEED);
-  updateStrip();
-  renderPoolBoard();
+  loadPoolBoard();
 }
 
 /* ---------------------------------------------------------------------------
@@ -3243,7 +3205,7 @@ function initFirebaseAuth() {
   if (btnSignOut) {
     btnSignOut.addEventListener("click", async () => {
       if (window.__phoneUser) {
-        try { await fetch("/api/logout", { method: "POST" }); } catch (e) {}
+        try { await fetch("/api/me", { method: "DELETE" }); } catch (e) {}
         window.__phoneUser = null;
         const label = $("#navAuthLabel");
         const mobileLabel = $("#mobileAuthLabel");

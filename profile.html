@@ -747,7 +747,7 @@
 
     if (btn) btn.addEventListener("click", function () {
       if (btn.dataset.mode === "in") {
-        fetch("/api/logout", { method: "POST" }).catch(function () {}).then(function () { location.reload(); });
+        fetch("/api/me", { method: "DELETE" }).catch(function () {}).then(function () { location.reload(); });
       } else {
         location.href = "/login?next=/profile";
       }
