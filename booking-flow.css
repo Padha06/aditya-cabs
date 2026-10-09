@@ -68,7 +68,7 @@
   border-radius: 10px;
   white-space: nowrap;
 }
-.bf-nav__signin:hover { background: #F1F5F9; color: #0088EA; }
+.bf-nav__signin:hover { background: #F1F5F9; color: #0369A1; }
 
 /* ---- breadcrumb ---- */
 .bf-breadcrumb {
@@ -190,13 +190,13 @@
   color: #0F172A;
   cursor: pointer;
 }
-.bf-btn-ghost:hover { border-color: #0088EA; }
+.bf-btn-ghost:hover { border-color: #0369A1; }
 
 /* ---- loading / error ---- */
 .bf-loading { text-align: center; padding: 60px 20px; color: #64748B; font-weight: 700; }
 .bf-spinner {
   width: 34px; height: 34px; margin: 0 auto 14px;
-  border: 3px solid #E2E8F0; border-top-color: #0088EA; border-radius: 50%;
+  border: 3px solid #E2E8F0; border-top-color: #0369A1; border-radius: 50%;
   animation: bf-spin .8s linear infinite;
 }
 @keyframes bf-spin { to { transform: rotate(360deg); } }
@@ -258,7 +258,7 @@
 }
 .ac-spinner {
   width: 14px; height: 14px; flex-shrink: 0;
-  border: 2px solid #E2E8F0; border-top-color: #0088EA; border-radius: 50%;
+  border: 2px solid #E2E8F0; border-top-color: #0369A1; border-radius: 50%;
   animation: bf-spin .7s linear infinite;
 }
 
@@ -370,14 +370,14 @@
 .ic--fill { fill: currentColor; stroke: none; }
 .bf-page .star-badge { display: inline-flex; align-items: center; gap: 4px; }
 .bf-page input,
-.bf-page textarea { caret-color: #0088EA; }
+.bf-page textarea { caret-color: #0369A1; }
 .bf-page .check-green .ic,
 .bf-page .cross-red .ic { stroke-width: 3; }
 
 /* =========================================================================
    Icons used in the funnel
    ========================================================================= */
-.route-pin { width: 16px; height: 16px; color: #0088EA; }
+.route-pin { width: 16px; height: 16px; color: #0369A1; }
 .itin-dot--pickup, .itin-dot--drop { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
 .itin-dot--pickup { background: #0088EA; box-shadow: 0 0 0 3px rgba(0, 136, 234, .15); }
 .itin-dot--drop { background: #EF4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, .15); }
@@ -391,8 +391,8 @@
 .seat-picker__label { font-size: .72rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: #64748B; }
 .seat-chips { display: flex; gap: 8px; }
 .seat-chip { border: 1.5px solid #E2E8F0; background: #FFF; color: #0F172A; border-radius: 10px; padding: 8px 14px; font-size: .82rem; font-weight: 800; cursor: pointer; transition: all .15s; }
-.seat-chip:hover { border-color: #0088EA; }
-.seat-chip.is-on { border-color: #0088EA; background: rgba(0, 136, 234, .08); color: #0088EA; }
+.seat-chip:hover { border-color: #0369A1; }
+.seat-chip.is-on { border-color: #0369A1; background: rgba(0, 136, 234, .08); color: #0369A1; }
 
 /* =========================================================================
    Mobile optimisation — prevent overflow, stack tight rows
