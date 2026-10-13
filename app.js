@@ -383,12 +383,13 @@ function goToFunnel(type, params) {
 window._goToFunnel = goToFunnel;
 
 /* --- CLEAN UNIFIED AUTOCOMPLETE (Matching Client Reference) --- */
-function setupAutocomplete(inputId, dropdownId, onSelect) {
+function setupAutocomplete(inputId, dropdownId, onSelect, customList) {
   const input = $(inputId);
   const dropdown = $(dropdownId);
   if (!input || !dropdown) return;
 
   let activeIndex = -1;
+  const isReadOnly = input.hasAttribute("readonly");
 
   function highlightMatch(text, query) {
     if (!text) return "";
@@ -401,6 +402,16 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
 
   function filterLocations(query) {
     const q = (query || "").trim().toLowerCase();
+    if (customList && Array.isArray(customList)) {
+      if (!q) return customList;
+      return customList.filter(item => {
+        const n = (item.name || "").toLowerCase();
+        const s = (item.sub || "").toLowerCase();
+        const a = (item.aliases || []).join(" ").toLowerCase();
+        return n.includes(q) || s.includes(q) || a.includes(q);
+      });
+    }
+
     if (!q) return POPULAR_HUBS_DEFAULT;
 
     const starts = [];
@@ -430,10 +441,10 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
         const hlName = highlightMatch(item.name, qClean);
         const subText = item.sub || (item.aliases ? item.aliases[0] : "Maharashtra");
         const hlSub = highlightMatch(subText, qClean);
-        const tag = item.tag || "POPULAR AREA";
+        const tag = item.tag || (item.rate ? `₹${Number(item.rate).toLocaleString("en-IN")} / SEAT` : "POPULAR AREA");
         const isFocused = idx === 0 && qClean.length > 0;
         return `
-          <div class="autocomplete-item${isFocused ? " is-focused" : ""}" role="option" data-id="${item.id}" data-name="${item.name}">
+          <div class="autocomplete-item${isFocused ? " is-focused" : ""}" role="option" data-id="${item.id}" data-name="${item.name}" ${item.rate ? `data-rate="${item.rate}"` : ""}>
             <div class="ac-item-content">
               <span class="ac-item-name">${hlName}</span>
               <span class="ac-item-sub">${hlSub}</span>
@@ -444,7 +455,7 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
       }).join("");
     }
 
-    if (qClean) {
+    if (qClean && !customList) {
       html += `
         <div class="autocomplete-item autocomplete-item--custom" role="option" data-id="custom" data-name="${qClean}">
           <div class="ac-item-content">
@@ -457,7 +468,7 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
     }
 
     if (!html) {
-      html = `<div class="autocomplete-item" style="color:var(--text-3);cursor:default"><div class="ac-item-content"><span class="ac-item-name">Type any city or town in Maharashtra...</span></div></div>`;
+      html = `<div class="autocomplete-item" style="color:var(--text-3);cursor:default"><div class="ac-item-content"><span class="ac-item-name">${customList ? "No matching options found" : "Type any city or town in Maharashtra..."}</span></div></div>`;
     }
 
     dropdown.innerHTML = html;
@@ -477,13 +488,15 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
   }
 
   input.addEventListener("focus", () => {
-    renderList(filterLocations(input.value), input.value);
-    setTimeout(() => { try { input.select(); } catch(_) {} }, 40);
+    renderList(filterLocations(isReadOnly ? "" : input.value), isReadOnly ? "" : input.value);
+    if (!isReadOnly) {
+      setTimeout(() => { try { input.select(); } catch(_) {} }, 40);
+    }
   });
 
   input.addEventListener("click", () => {
     if (!dropdown.classList.contains("is-open")) {
-      renderList(filterLocations(input.value), input.value);
+      renderList(filterLocations(isReadOnly ? "" : input.value), isReadOnly ? "" : input.value);
     }
   });
 
@@ -497,10 +510,11 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
     if (item && item.dataset.id) {
       const id = item.dataset.id;
       const name = item.dataset.name;
+      const rate = item.dataset.rate;
       input.value = name;
       dropdown.classList.remove("is-open");
       if (clearBtn) clearBtn.hidden = false;
-      onSelect(id, name);
+      onSelect(id, name, rate);
     }
   });
 
@@ -511,7 +525,7 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
     if (e.key === "ArrowDown") {
       e.preventDefault();
       if (!isOpen) {
-        renderList(filterLocations(input.value), input.value);
+        renderList(filterLocations(isReadOnly ? "" : input.value), isReadOnly ? "" : input.value);
         return;
       }
       if (items.length > 0) {
@@ -521,7 +535,7 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       if (!isOpen) {
-        renderList(filterLocations(input.value), input.value);
+        renderList(filterLocations(isReadOnly ? "" : input.value), isReadOnly ? "" : input.value);
         return;
       }
       if (items.length > 0) {
@@ -535,15 +549,16 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
           e.preventDefault();
           const id = focusedItem.dataset.id;
           const name = focusedItem.dataset.name;
+          const rate = focusedItem.dataset.rate;
           input.value = name;
           dropdown.classList.remove("is-open");
           if (clearBtn) clearBtn.hidden = false;
-          onSelect(id, name);
+          onSelect(id, name, rate);
           return;
         }
       }
       const val = input.value.trim();
-      if (val) {
+      if (val && !customList) {
         e.preventDefault();
         dropdown.classList.remove("is-open");
         onSelect("custom", val);
@@ -1062,12 +1077,8 @@ function initLocalPackage() {
 function initRoundTrip() {
   const fromSel = $("#roundFrom"), toSel = $("#roundTo");
   const num = $("#roundFareNum"), meta = $("#roundFareMeta"), badge = $("#roundFareBadge");
-  const fromCustomWrap = $("#roundFromCustomWrap"), toCustomWrap = $("#roundToCustomWrap");
   let currentRate = 12;
   let currentCarName = "Sedan (Dzire / Aura)";
-
-  if (fromCustomWrap && fromSel) fromCustomWrap.hidden = (fromSel.value !== "custom");
-  if (toCustomWrap && toSel) toCustomWrap.hidden = (toSel.value !== "custom");
 
   const startEl = $("#roundStart"), retEl = $("#roundReturn");
   if (startEl && !startEl.value) {
@@ -1081,29 +1092,17 @@ function initRoundTrip() {
     retEl.value = t.toISOString().slice(0, 10);
   }
 
-  if (fromSel) {
-    fromSel.addEventListener("change", e => {
-      if (fromCustomWrap) {
-        fromCustomWrap.hidden = (e.target.value !== "custom");
-        if (e.target.value === "custom") {
-          const inp = $("#roundFromCustom");
-          if (inp) inp.focus();
-        }
-      }
-    });
-  }
+  setupAutocomplete("#roundFromInput", "#roundFromDropdown", (id, name) => {
+    bookState.roundFrom = id;
+    if (fromSel) fromSel.value = id;
+    recalc();
+  });
 
-  if (toSel) {
-    toSel.addEventListener("change", e => {
-      if (toCustomWrap) {
-        toCustomWrap.hidden = (e.target.value !== "custom");
-        if (e.target.value === "custom") {
-          const inp = $("#roundToCustom");
-          if (inp) inp.focus();
-        }
-      }
-    });
-  }
+  setupAutocomplete("#roundToInput", "#roundToDropdown", (id, name) => {
+    bookState.roundTo = id;
+    if (toSel) toSel.value = id;
+    recalc();
+  });
 
   function recalc() {
     const estKm = 500;
@@ -1135,26 +1134,15 @@ function initRoundTrip() {
   const btn = $("#btnRoundBook");
   if (btn) {
     btn.addEventListener("click", () => {
-      let from = fromSel ? fromSel.options[fromSel.selectedIndex].text : "Pune";
-      if (fromSel && fromSel.value === "custom") {
-        const inp = $("#roundFromCustom");
-        from = (inp && inp.value.trim()) || "Custom Pickup Location";
-      }
-      let to = toSel ? toSel.options[toSel.selectedIndex].text : "Outstation Destination";
-      if (toSel && toSel.value === "custom") {
-        const inp = $("#roundToCustom");
-        to = (inp && inp.value.trim()) || "Custom Destination";
-      }
+      const fromInp = $("#roundFromInput");
+      const toInp = $("#roundToInput");
+      let from = (fromInp && fromInp.value.trim()) || "Pune";
+      let to = (toInp && toInp.value.trim()) || "Chhatrapati Sambhajinagar";
 
-      const d1 = ($("#roundStart") && $("#roundStart").value) || "Departure Date";
-      const d2 = ($("#roundReturn") && $("#roundReturn").value) || "Return Date";
-      const fare = ($("#roundFareNum") && $("#roundFareNum").textContent) || "6,000";
-
-      // Open the dedicated funnel (Step 1: select car & rate)
-      let rf = fromSel ? fromSel.value : bookState.from;
-      if (rf === "custom") rf = ($("#roundFromCustom") && $("#roundFromCustom").value.trim()) || "Custom Pickup";
-      let rt = toSel ? toSel.value : bookState.to;
-      if (rt === "custom") rt = ($("#roundToCustom") && $("#roundToCustom").value.trim()) || "Custom Destination";
+      let rf = fromSel ? fromSel.value : (bookState.roundFrom || "pune");
+      if (rf === "custom") rf = from;
+      let rt = toSel ? toSel.value : (bookState.roundTo || "sambhajinagar");
+      if (rt === "custom") rt = to;
       const rc = document.querySelector('input[name="roundCls"]:checked');
       goToFunnel("round", {
         from: rf,
@@ -1164,32 +1152,46 @@ function initRoundTrip() {
         date: ($("#roundStart") && $("#roundStart").value) || bookState.date,
         time: bookState.time || "08:00"
       });
-      void d1; void d2; void fare; void currentCarName; void currentRate;
+      void currentCarName; void currentRate;
     });
   }
 }
 
 /* --- CAR SHARING (Verified Express Routes & All Maharashtra) --- */
+const SHARING_ROUTES_LIST = [
+  { id: "pune-sambhajinagar", name: "Pune ⇄ Chhatrapati Sambhajinagar", sub: "Daily Express Carpool · AC Sedan", rate: 1000, tag: "₹1,000 / SEAT" },
+  { id: "pune-ahilyanagar", name: "Pune ⇄ Ahilyanagar (Ahmednagar)", sub: "Daily Express Carpool · AC Sedan", rate: 600, tag: "₹600 / SEAT" },
+  { id: "pune-mumbai", name: "Pune ⇄ Mumbai / Thane / Navi Mumbai", sub: "Expressway Carpool · AC Sedan", rate: 800, tag: "₹800 / SEAT" },
+  { id: "pune-nashik", name: "Pune ⇄ Nashik", sub: "Highway Carpool · AC Sedan", rate: 900, tag: "₹900 / SEAT" },
+  { id: "sambhajinagar-nashik", name: "Chhatrapati Sambhajinagar ⇄ Nashik", sub: "Samruddhi Mahamarg Corridor", rate: 800, tag: "₹800 / SEAT" },
+  { id: "sambhajinagar-shirdi", name: "Chhatrapati Sambhajinagar ⇄ Shirdi", sub: "Direct Temple Share · AC Sedan", rate: 600, tag: "₹600 / SEAT" },
+  { id: "pune-shirdi", name: "Pune ⇄ Shirdi (Sai Baba)", sub: "Direct Temple Share · AC Sedan", rate: 800, tag: "₹800 / SEAT" },
+  { id: "mumbai-nashik", name: "Mumbai ⇄ Nashik", sub: "Kasara Ghat Highway Express", rate: 700, tag: "₹700 / SEAT" },
+  { id: "custom", name: "+ Other / Custom Shared Route", sub: "Any town in Maharashtra · Instant dispatch", rate: 800, tag: "CUSTOM" }
+];
+
 function initCarSharing() {
-  const routeSel = $("#sharingRoute");
+  const routeInput = $("#sharingRouteInput");
+  const routeHidden = $("#sharingRoute");
   const seatsSel = $("#sharingSeats");
   const fareEl = $("#sharingTotalFare");
   const badgeEl = $("#sharingFareBadge");
   const dateEl = $("#sharingDate");
   const customWrap = $("#sharingCustomWrap");
 
-  if (!routeSel) return;
+  if (!routeHidden && !routeInput) return;
 
-  if (dateEl) {
+  if (dateEl && !dateEl.value) {
     const t = new Date();
     t.setDate(t.getDate() + 1);
     dateEl.value = t.toISOString().slice(0, 10);
   }
 
   function recalc() {
-    const opt = routeSel.options[routeSel.selectedIndex];
-    const isCustom = routeSel.value === "custom";
-    const ratePerSeat = parseInt(opt.getAttribute("data-rate"), 10) || 800;
+    const currentId = routeHidden ? routeHidden.value : "pune-sambhajinagar";
+    const found = SHARING_ROUTES_LIST.find(r => r.id === currentId);
+    const ratePerSeat = found ? found.rate : (parseInt(routeHidden && routeHidden.dataset.rate, 10) || 800);
+    const isCustom = currentId === "custom";
     const seats = seatsSel ? (parseInt(seatsSel.value, 10) || 1) : 1;
 
     if (customWrap) {
@@ -1205,32 +1207,39 @@ function initCarSharing() {
     }
   }
 
-  routeSel.addEventListener("change", recalc);
+  setupAutocomplete("#sharingRouteInput", "#sharingRouteDropdown", (id, name, rate) => {
+    if (routeHidden) {
+      routeHidden.value = id;
+      if (rate) routeHidden.dataset.rate = rate;
+    }
+    if (routeInput) routeInput.value = name;
+    recalc();
+  }, SHARING_ROUTES_LIST);
+
   if (seatsSel) seatsSel.addEventListener("change", recalc);
   recalc();
 
   const shareBtn = $("#btnShareBook");
   if (shareBtn) {
     shareBtn.addEventListener("click", () => {
-      let routeText = routeSel.options[routeSel.selectedIndex].text;
-      if (routeSel.value === "custom") {
+      let routeText = (routeInput && routeInput.value) || "Pune ⇄ Chhatrapati Sambhajinagar";
+      const routeId = routeHidden ? routeHidden.value : "pune-sambhajinagar";
+      const isCustom = routeId === "custom";
+      if (isCustom) {
         const cFrom = ($("#sharingCustomFrom") && $("#sharingCustomFrom").value.trim()) || "Pickup City";
         const cTo = ($("#sharingCustomTo") && $("#sharingCustomTo").value.trim()) || "Drop City";
         routeText = `${cFrom} ⇄ ${cTo} (Custom Shared Route)`;
       }
       const seats = seatsSel ? seatsSel.value : "1";
-      const total = ($("#sharingTotalFare") && $("#sharingTotalFare").textContent) || "1,000";
-      const dateVal = ($("#sharingDate") && $("#sharingDate").value) || "Tomorrow";
+      const dateVal = ($("#sharingDate") && $("#sharingDate").value) || bookState.date;
 
-      const isCustom = routeSel.value === "custom";
-      // Open the dedicated funnel (Step 1: pick route & seats)
       goToFunnel("share", {
-        route: isCustom ? "" : routeSel.value,
-        seats: seatsSel ? seatsSel.value : "1",
-        date: ($("#sharingDate") && $("#sharingDate").value) || bookState.date,
-        time: bookState.time || "08:00"
+        route: isCustom ? "" : routeId,
+        seats: seats,
+        date: dateVal,
+        time: "07:00"
       });
-      void routeText; void total; void dateVal;
+      void routeText;
     });
   }
 }
