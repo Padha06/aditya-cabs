@@ -226,52 +226,27 @@ const MH_LOCATIONS = [
   { name: "Indore & Ujjain (Mahakaleshwar), MP", id: "nashik", tag: "Interstate", icon: "🛕", sub: "Mahakaleshwar Jyotirlinga · Omkareshwar", aliases: ["indore", "ujjain", "mahakal"] }
 ];
 
-// Curated Category Groups for Instant Empty/Focus Dropdown View
-const DEFAULT_CATEGORIES = [
-  {
-    title: "Major Transit Hubs",
-    icon: "⭐",
-    items: [
-      { name: "Pune", id: "pune", tag: "Major Hub", icon: "🏙️", sub: "Shivajinagar · Hinjawadi · Wakad · PCMC" },
-      { name: "Mumbai (All MMR)", id: "mumbai", tag: "Metro Hub", icon: "🏙️", sub: "Dadar · Andheri · BKC · Navi Mumbai · Thane" },
-      { name: "Chhatrapati Sambhajinagar (Aurangabad)", id: "sambhajinagar", tag: "Major Hub", icon: "🏙️", sub: "CIDCO · Waluj MIDC · Kranti Chowk · Station" },
-      { name: "Nashik", id: "nashik", tag: "Major Hub", icon: "🏙️", sub: "Panchavati · College Rd · Ambad · Satpur" },
-      { name: "Ahilyanagar (Ahmednagar)", id: "ahilyanagar", tag: "Major Hub", icon: "🏙️", sub: "Savedi · MIDC · Station Rd · Maliwada" },
-      { name: "Kolhapur City (Mahalaxmi Temple)", id: "kolhapur", tag: "Major Hub", icon: "🏙️", sub: "Mahalaxmi Mandir · Tarabai Park · Rankala" }
-    ]
-  },
-  {
-    title: "Airports & Terminals",
-    icon: "✈️",
-    items: [
-      { name: "Mumbai International Airport (CSMI - BOM T1/T2)", id: "mumbai", tag: "Airport", icon: "✈️", sub: "Sahar · Domestic T1 & International T2" },
-      { name: "Pune Airport (PNQ), Lohegaon", id: "pune", tag: "Airport", icon: "✈️", sub: "Lohegaon Terminal · 24x7 Terminal Pickup" },
-      { name: "Shirdi International Airport (SAG), Kakadi", id: "shirdi", tag: "Airport", icon: "✈️", sub: "Kakadi · Direct Temple Transfer" },
-      { name: "Nashik Airport (Ozar - ISK)", id: "nashik", tag: "Airport", icon: "✈️", sub: "HAL Ozar · Highway Connected" }
-    ]
-  },
-  {
-    title: "Pilgrimage & Hill Stations",
-    icon: "🛕",
-    items: [
-      { name: "Shirdi (Sai Baba Temple)", id: "shirdi", tag: "Temple Town", icon: "🛕", sub: "Samadhi Mandir Gate 1-3 · Temple Trust" },
-      { name: "Mahabaleshwar & Panchgani", id: "mahabaleshwar", tag: "Hill Station", icon: "⛰️", sub: "Venna Lake · Mapro Garden · Table Land" },
-      { name: "Lonavala & Khandala", id: "lonavala", tag: "Getaway", icon: "⛰️", sub: "Tiger Point · Bushy Dam · Expressway Exit" },
-      { name: "Trimbakeshwar (Jyotirlinga)", id: "nashik", tag: "Temple Town", icon: "🛕", sub: "12 Jyotirlinga · Brahmagiri · Kushavarta" }
-    ]
-  },
-  {
-    title: "Key Districts & Coastal Getaways",
-    icon: "📍",
-    items: [
-      { name: "Satara City & Karad", id: "pune", tag: "District", icon: "📍", sub: "Kaas Plateau · Wai · NH48 Highway" },
-      { name: "Solapur (Pandharpur / Akkalkot)", id: "pune", tag: "District", icon: "🛕", sub: "Pandharpur Vithoba · Swami Samarth Mandir" },
-      { name: "Alibaug & Kashid Beach", id: "mumbai", tag: "Coastal", icon: "🏖️", sub: "Mandwa Jetty · Kihim · Murud Janjira" },
-      { name: "Karjat, Khopoli & Imagica", id: "mumbai", tag: "Getaway", icon: "🎢", sub: "Theme Park · Matheran Foothills · Resorts" },
-      { name: "Nagpur (Zero Mile / MIHAN)", id: "sambhajinagar", tag: "Major Hub", icon: "🏙️", sub: "MIHAN SEZ · Samruddhi Mahamarg Corridor" },
-      { name: "Goa (North & South Goa / Mopa GOX)", id: "kolhapur", tag: "Outstation", icon: "🏖️", sub: "Panaji · Calangute · Baga · Mopa GOX" }
-    ]
-  }
+// Top Popular Transit Hubs & Areas shown when dropdown opens (Clean OneWay style)
+const POPULAR_HUBS_DEFAULT = [
+  { name: "Mumbai Airport T2 (BOM), Andheri", id: "mumbai", sub: "Mumbai", tag: "AIRPORT" },
+  { name: "Mumbai Airport T1 (BOM), Santacruz", id: "mumbai", sub: "Mumbai", tag: "AIRPORT" },
+  { name: "Pune Airport (PNQ), Lohegaon", id: "pune", sub: "Pune", tag: "AIRPORT" },
+  { name: "Pune", id: "pune", sub: "Maharashtra", tag: "MAJOR HUB" },
+  { name: "Mumbai (All MMR)", id: "mumbai", sub: "Maharashtra", tag: "MAJOR HUB" },
+  { name: "Dadar", id: "mumbai", sub: "Mumbai", tag: "POPULAR AREA" },
+  { name: "Bandra West", id: "mumbai", sub: "Mumbai", tag: "POPULAR AREA" },
+  { name: "Andheri", id: "mumbai", sub: "Mumbai", tag: "POPULAR AREA" },
+  { name: "BKC (Bandra Kurla Complex)", id: "mumbai", sub: "Mumbai", tag: "POPULAR AREA" },
+  { name: "Hinjawadi IT Park & Wakad", id: "pune", sub: "Pune", tag: "POPULAR AREA" },
+  { name: "Thane", id: "mumbai", sub: "Mumbai MMR", tag: "POPULAR AREA" },
+  { name: "Navi Mumbai / Panvel", id: "mumbai", sub: "Mumbai MMR", tag: "POPULAR AREA" },
+  { name: "Shirdi (Sai Baba Temple)", id: "shirdi", sub: "Ahmednagar", tag: "TEMPLE TOWN" },
+  { name: "Nashik", id: "nashik", sub: "Maharashtra", tag: "MAJOR HUB" },
+  { name: "Chhatrapati Sambhajinagar (Aurangabad)", id: "sambhajinagar", sub: "Maharashtra", tag: "MAJOR HUB" },
+  { name: "Mahabaleshwar & Panchgani", id: "mahabaleshwar", sub: "Satara", tag: "HILL STATION" },
+  { name: "Lonavala & Khandala", id: "lonavala", sub: "Pune", tag: "POPULAR AREA" },
+  { name: "Kolhapur City (Mahalaxmi Temple)", id: "kolhapur", sub: "Maharashtra", tag: "MAJOR HUB" },
+  { name: "Ahilyanagar (Ahmednagar)", id: "ahilyanagar", sub: "Maharashtra", tag: "MAJOR HUB" }
 ];
 
 function buildSelects() {
@@ -407,25 +382,7 @@ function goToFunnel(type, params) {
 }
 window._goToFunnel = goToFunnel;
 
-/* --- PREMIUM AUTOCOMPLETE COMPONENT (OneWay & MakeMyTrip Style) --- */
-function getCategoryIcon(loc) {
-  if (loc.icon) return loc.icon;
-  if (loc.tag === "Airport") return "✈️";
-  if (loc.tag === "Temple Town" || loc.tag === "Heritage") return "🛕";
-  if (loc.tag === "Hill Station" || loc.tag === "Getaway") return "⛰️";
-  if (loc.tag === "Coastal") return "🏖️";
-  if (loc.tag === "Major Hub" || loc.tag === "Metro Hub") return "🏙️";
-  return "📍";
-}
-
-function getCategoryBadgeClass(loc) {
-  if (loc.tag === "Airport") return "ac-badge--airport";
-  if (loc.tag === "Major Hub" || loc.tag === "Metro Hub") return "ac-badge--hub";
-  if (loc.tag === "Temple Town" || loc.tag === "Heritage") return "ac-badge--temple";
-  if (loc.tag === "Hill Station" || loc.tag === "Getaway" || loc.tag === "Coastal") return "ac-badge--hill";
-  return "ac-badge--district";
-}
-
+/* --- CLEAN UNIFIED AUTOCOMPLETE (Matching Client Reference) --- */
 function setupAutocomplete(inputId, dropdownId, onSelect) {
   const input = $(inputId);
   const dropdown = $(dropdownId);
@@ -444,7 +401,8 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
 
   function filterLocations(query) {
     const q = (query || "").trim().toLowerCase();
-    if (!q) return [];
+    if (!q) return POPULAR_HUBS_DEFAULT;
+
     const starts = [];
     const nameInc = [];
     const aliasInc = [];
@@ -463,127 +421,48 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
     return [...starts, ...nameInc, ...aliasInc].slice(0, 10);
   }
 
-  function renderItem(item, query, isFocused) {
+  function renderList(list, query) {
     const qClean = (query || "").trim();
-    const hlName = highlightMatch(item.name, qClean);
-    const subText = item.sub || (item.aliases ? item.aliases.slice(0, 4).join(" · ") : "");
-    const hlSub = highlightMatch(subText, qClean);
-    const icon = getCategoryIcon(item);
-    const badgeCls = getCategoryBadgeClass(item);
-    const iconWrapCls = item.tag === "Airport" ? "ac-item__icon-wrap--airport" :
-                        (item.tag === "Major Hub" || item.tag === "Metro Hub") ? "ac-item__icon-wrap--hub" :
-                        (item.tag === "Temple Town" || item.tag === "Heritage") ? "ac-item__icon-wrap--temple" :
-                        (item.tag === "Hill Station" || item.tag === "Getaway" || item.tag === "Coastal") ? "ac-item__icon-wrap--hill" :
-                        "ac-item__icon-wrap--district";
-
-    return `
-      <div class="ac-item autocomplete-item${isFocused ? " is-focused" : ""}" role="option" data-id="${item.id}" data-name="${item.name}">
-        <div class="ac-item__left">
-          <div class="ac-item__icon-wrap ${iconWrapCls}">
-            <span class="ac-item__icon">${icon}</span>
-          </div>
-          <div class="ac-item__body">
-            <div class="ac-item__title">${hlName}</div>
-            ${subText ? `<div class="ac-item__sub">${hlSub}</div>` : ""}
-          </div>
-        </div>
-        <span class="ac-item__badge autocomplete-tag ${badgeCls}">${item.tag || "Location"}</span>
-      </div>
-    `;
-  }
-
-  function renderQuickPills() {
-    return `
-      <div class="ac-quick-section">
-        <div class="ac-section-title">
-          <span>🔥 Popular Cities & Airports</span>
-          <small style="opacity:0.65;font-weight:600">Quick Select</small>
-        </div>
-        <div class="ac-quick-pills">
-          <button type="button" class="ac-pill" data-id="pune" data-name="Pune">🏙️ Pune</button>
-          <button type="button" class="ac-pill" data-id="mumbai" data-name="Mumbai">🏙️ Mumbai</button>
-          <button type="button" class="ac-pill" data-id="mumbai" data-name="Mumbai International Airport (CSMI - BOM T1/T2)">✈️ Mumbai Airport</button>
-          <button type="button" class="ac-pill" data-id="shirdi" data-name="Shirdi (Sai Baba Temple)">🛕 Shirdi</button>
-          <button type="button" class="ac-pill" data-id="nashik" data-name="Nashik">🏙️ Nashik</button>
-          <button type="button" class="ac-pill" data-id="sambhajinagar" data-name="Chhatrapati Sambhajinagar (Aurangabad)">🏙️ Sambhajinagar</button>
-          <button type="button" class="ac-pill" data-id="mahabaleshwar" data-name="Mahabaleshwar & Panchgani">⛰️ Mahabaleshwar</button>
-          <button type="button" class="ac-pill" data-id="lonavala" data-name="Lonavala & Khandala">⛰️ Lonavala</button>
-        </div>
-      </div>
-    `;
-  }
-
-  function renderGroupedCategories() {
-    let html = renderQuickPills();
-
-    DEFAULT_CATEGORIES.forEach(cat => {
-      html += `
-        <div class="ac-group-header">
-          <span>${cat.icon} ${cat.title}</span>
-        </div>
-      `;
-      cat.items.forEach(item => {
-        html += renderItem(item, "", false);
-      });
-    });
-
-    dropdown.innerHTML = html;
-    dropdown.classList.add("is-open");
-    activeIndex = -1;
-  }
-
-  function renderSearchResults(query) {
-    const qClean = (query || "").trim();
-    if (!qClean) {
-      renderGroupedCategories();
-      return;
-    }
-
-    const list = filterLocations(qClean);
-    let html = renderQuickPills();
+    let html = "";
 
     if (list.length > 0) {
-      html += `<div class="ac-group-header"><span>🔍 Matching Destinations (${list.length})</span></div>`;
-      html += list.map((item, idx) => renderItem(item, qClean, idx === 0)).join("");
-    } else {
+      html += list.map((item, idx) => {
+        const hlName = highlightMatch(item.name, qClean);
+        const subText = item.sub || (item.aliases ? item.aliases[0] : "Maharashtra");
+        const hlSub = highlightMatch(subText, qClean);
+        const tag = item.tag || "POPULAR AREA";
+        const isFocused = idx === 0 && qClean.length > 0;
+        return `
+          <div class="autocomplete-item${isFocused ? " is-focused" : ""}" role="option" data-id="${item.id}" data-name="${item.name}">
+            <div class="ac-item-content">
+              <span class="ac-item-name">${hlName}</span>
+              <span class="ac-item-sub">${hlSub}</span>
+            </div>
+            <span class="autocomplete-tag">${tag}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    if (qClean) {
       html += `
-        <div class="ac-empty">
-          <div class="ac-empty__icon">📍</div>
-          <div class="ac-empty__title">No exact city match for "<b>${qClean}</b>"</div>
-          <div class="ac-empty__desc">Don't worry! We provide doorstep cabs to every village, MIDC & town in Maharashtra.</div>
+        <div class="autocomplete-item autocomplete-item--custom" role="option" data-id="custom" data-name="${qClean}">
+          <div class="ac-item-content">
+            <span class="ac-item-name"><b>Use "${qClean}"</b></span>
+            <span class="ac-item-sub">Custom Location · 24x7 Doorstep Pickup</span>
+          </div>
+          <span class="autocomplete-tag">CUSTOM</span>
         </div>
       `;
     }
 
-    // Always offer custom typed location
-    html += `
-      <div class="ac-item ac-item--custom autocomplete-item autocomplete-item--custom" role="option" data-id="custom" data-name="${qClean}">
-        <div class="ac-item__left">
-          <div class="ac-item__icon-wrap ac-item__icon-wrap--custom">
-            <span class="ac-item__icon">✨</span>
-          </div>
-          <div class="ac-item__body">
-            <div class="ac-item__title">Use <b>"${qClean}"</b></div>
-            <div class="ac-item__sub">Any Maharashtra Location · 24x7 Doorstep Pickup</div>
-          </div>
-        </div>
-        <span class="ac-item__badge ac-badge--custom autocomplete-tag">Instant Quote</span>
-      </div>
-    `;
+    if (!html) {
+      html = `<div class="autocomplete-item" style="color:var(--text-3);cursor:default"><div class="ac-item-content"><span class="ac-item-name">Type any city or town in Maharashtra...</span></div></div>`;
+    }
 
     dropdown.innerHTML = html;
     dropdown.classList.add("is-open");
-    activeIndex = list.length > 0 ? 0 : -1;
-  }
-
-  function renderDefaultOrSearch() {
-    const val = (input.value || "").trim();
-    const isStandardCity = MH_LOCATIONS.some(l => l.name.toLowerCase() === val.toLowerCase());
-    if (!val || isStandardCity) {
-      renderGroupedCategories();
-    } else {
-      renderSearchResults(val);
-    }
+    activeIndex = (qClean && list.length > 0) ? 0 : -1;
   }
 
   function updateKeyboardFocus(items, newIndex) {
@@ -597,42 +476,24 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
     }
   }
 
-  // Focus & Click handlers
   input.addEventListener("focus", () => {
-    renderDefaultOrSearch();
+    renderList(filterLocations(input.value), input.value);
     setTimeout(() => { try { input.select(); } catch(_) {} }, 40);
   });
 
   input.addEventListener("click", () => {
     if (!dropdown.classList.contains("is-open")) {
-      renderDefaultOrSearch();
+      renderList(filterLocations(input.value), input.value);
     }
   });
 
   input.addEventListener("input", () => {
-    const val = (input.value || "").trim();
-    if (!val) {
-      renderGroupedCategories();
-    } else {
-      renderSearchResults(val);
-    }
-    if (clearBtn) clearBtn.hidden = !val;
+    renderList(filterLocations(input.value), input.value);
+    if (clearBtn) clearBtn.hidden = !input.value.trim();
   });
 
-  // Selection via click
   dropdown.addEventListener("click", e => {
-    const pill = e.target.closest(".ac-pill");
-    if (pill) {
-      const id = pill.dataset.id;
-      const name = pill.dataset.name || pill.textContent.trim().replace(/^[^\w\s]+\s*/, "");
-      input.value = name;
-      dropdown.classList.remove("is-open");
-      if (clearBtn) clearBtn.hidden = false;
-      onSelect(id, name);
-      return;
-    }
-
-    const item = e.target.closest(".ac-item, .autocomplete-item");
+    const item = e.target.closest(".autocomplete-item");
     if (item && item.dataset.id) {
       const id = item.dataset.id;
       const name = item.dataset.name;
@@ -640,19 +501,17 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
       dropdown.classList.remove("is-open");
       if (clearBtn) clearBtn.hidden = false;
       onSelect(id, name);
-      return;
     }
   });
 
-  // Keyboard navigation
   input.addEventListener("keydown", e => {
     const isOpen = dropdown.classList.contains("is-open");
-    const items = Array.from(dropdown.querySelectorAll(".ac-item, .autocomplete-item"));
+    const items = Array.from(dropdown.querySelectorAll(".autocomplete-item"));
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
       if (!isOpen) {
-        renderDefaultOrSearch();
+        renderList(filterLocations(input.value), input.value);
         return;
       }
       if (items.length > 0) {
@@ -662,7 +521,7 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       if (!isOpen) {
-        renderDefaultOrSearch();
+        renderList(filterLocations(input.value), input.value);
         return;
       }
       if (items.length > 0) {
@@ -671,7 +530,7 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
       }
     } else if (e.key === "Enter") {
       if (isOpen) {
-        const focusedItem = dropdown.querySelector(".ac-item.is-focused, .autocomplete-item.is-focused");
+        const focusedItem = dropdown.querySelector(".autocomplete-item.is-focused");
         if (focusedItem && focusedItem.dataset.id) {
           e.preventDefault();
           const id = focusedItem.dataset.id;
@@ -694,7 +553,6 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
     }
   });
 
-  // Clear button support
   const clearBtn = input.parentElement ? input.parentElement.querySelector(".autocomplete-clear") : null;
   if (clearBtn) {
     const updateClear = () => { clearBtn.hidden = !input.value.trim(); };
@@ -704,11 +562,10 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
       input.value = "";
       updateClear();
       input.focus();
-      renderGroupedCategories();
+      renderList(filterLocations(""), "");
     });
   }
 
-  // Outside click closes dropdown
   document.addEventListener("click", e => {
     if (!input.contains(e.target) && !dropdown.contains(e.target)) {
       dropdown.classList.remove("is-open");
@@ -941,12 +798,11 @@ function setupAddressAutocomplete(inputSelector, dropdownSelector, statusSelecto
         }
         return `
           <div class="autocomplete-item" data-name="${item.name}" data-sub="${item.sub || ""}">
-            <span class="addr-item-icon">${item.icon || "📍"}</span>
-            <div class="addr-item-content">
-              <span class="addr-item-name">${title}</span>
-              ${item.sub ? `<span class="addr-item-detail">${item.sub}</span>` : ""}
+            <div class="ac-item-content">
+              <span class="ac-item-name">${title}</span>
+              <span class="ac-item-sub">${item.sub || city.name}</span>
             </div>
-            <span class="autocomplete-tag">${item.type || "Area"}</span>
+            <span class="autocomplete-tag">${item.type || "POPULAR AREA"}</span>
           </div>
         `;
       }).join("");
@@ -955,12 +811,11 @@ function setupAddressAutocomplete(inputSelector, dropdownSelector, statusSelecto
     if (qClean) {
       html += `
         <div class="autocomplete-item autocomplete-item--custom" data-name="${qClean}" data-sub="Exact Doorstep Address in ${city.name}">
-          <span class="addr-item-icon">✨</span>
-          <div class="addr-item-content">
-            <span class="addr-item-name"><b>Use "${qClean}"</b></span>
-            <span class="addr-item-detail">Doorstep pickup &amp; drop confirmed for ${city.name}</span>
+          <div class="ac-item-content">
+            <span class="ac-item-name"><b>Use "${qClean}"</b></span>
+            <span class="ac-item-sub">Doorstep pickup &amp; drop confirmed for ${city.name}</span>
           </div>
-          <span class="autocomplete-tag" style="background:#FEF3C7;color:#B45309">Custom Address</span>
+          <span class="autocomplete-tag">CUSTOM</span>
         </div>
       `;
     }
