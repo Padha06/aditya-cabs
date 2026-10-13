@@ -140,91 +140,138 @@ const bookState = {
 
 // --- UPI PAYMENT CONFIGURATION ---
 
-// 100+ Maharashtra Locations with Hub / Airport Tags & Alias Matching
+// 100+ Maharashtra Locations with Hub / Airport Tags, Local Subtitle & Alias Matching
 const MH_LOCATIONS = [
   // --- PRIMARY TRANSIT HUBS & AIRPORTS ---
-  { name: "Pune", id: "pune", tag: "Major Hub", aliases: ["pune", "poona", "shivajinagar", "swargate", "wakad", "hinjawadi", "viman nagar", "hadapsar", "kothrud", "baner", "chakan", "pcmc", "pimpri", "chinchwad", "bhosari", "talegaon", "kharadi", "magarpatta"] },
-  { name: "Pune Airport (PNQ), Lohegaon", id: "pune", tag: "Airport", aliases: ["pune airport", "lohegaon", "pnq", "viman nagar airport"] },
-  { name: "Hinjawadi IT Park & Wakad, Pune", id: "pune", tag: "Local Area", aliases: ["hinjawadi", "wakad", "hinjewadi", "phase 1", "phase 2", "phase 3", "dange chowk"] },
-  { name: "Kothrud, Baner & Swargate, Pune", id: "pune", tag: "Local Area", aliases: ["kothrud", "baner", "swargate", "deccan", "karve nagar", "warje", "bavdhan"] },
-  { name: "Viman Nagar & Kharadi IT Park, Pune", id: "pune", tag: "Local Area", aliases: ["viman nagar", "kharadi", "hadapsar", "magarpatta", "kalyani nagar", "yerwada"] },
-  { name: "Pimpri-Chinchwad & Chakan MIDC, PCMC", id: "pune", tag: "Local Area", aliases: ["pcmc", "pimpri", "chinchwad", "bhosari", "chakan", "talegaon", "nigdi", "akurdi"] },
-  { name: "Mumbai (All MMR)", id: "mumbai", tag: "Metro Hub", aliases: ["mumbai", "bombay", "dadar", "borivali", "andheri", "bandra", "chembur", "kurla", "ghatkopar", "colaba", "cst", "mumbai central"] },
-  { name: "Mumbai International Airport (CSMI - BOM T1/T2)", id: "mumbai", tag: "Airport", aliases: ["mumbai airport", "bom", "t1", "t2", "sahar", "santacruz", "domestic airport", "csmi"] },
-  { name: "Dadar, Bandra & South Mumbai", id: "mumbai", tag: "Local Area", aliases: ["dadar", "bandra", "bkc", "cst", "colaba", "chembur", "kurla"] },
-  { name: "Andheri, Borivali & Western Suburbs", id: "mumbai", tag: "Local Area", aliases: ["andheri", "borivali", "kandivali", "malad", "goregaon", "jogeshwari"] },
-  { name: "Thane, MMR", id: "mumbai", tag: "MMR", aliases: ["thane", "ghodbunder", "majiwada", "viviana", "wagle estate", "naupada"] },
-  { name: "Navi Mumbai / Panvel", id: "mumbai", tag: "MMR", aliases: ["navi mumbai", "vashi", "nerul", "kharghar", "panvel", "belapur", "airoli", "ghansoli", "koparkhairane", "kamothe"] },
-  { name: "Kalyan - Dombivli - Ulhasnagar", id: "mumbai", tag: "MMR", aliases: ["kalyan", "dombivli", "dombivali", "ulhasnagar", "titwala", "badlapur", "ambarnath"] },
-  { name: "Vasai - Virar - Palghar", id: "mumbai", tag: "MMR", aliases: ["vasai", "virar", "palghar", "boisar", "dahanu", "naigaon", "nallasopara"] },
-  { name: "Aurangabad (Chhatrapati Sambhajinagar)", id: "sambhajinagar", tag: "Major Hub", aliases: ["aurangabad", "sambhajinagar", "chhatrapati sambhajinagar", "cidco", "waluj", "beed bypass", "kranti chowk", "chikalthana", "prozone"] },
-  { name: "Chhatrapati Sambhajinagar (Aurangabad)", id: "sambhajinagar", tag: "Major Hub", aliases: ["aurangabad", "sambhajinagar", "chhatrapati sambhajinagar", "cidco", "waluj", "beed bypass", "kranti chowk", "chikalthana", "prozone"] },
-  { name: "CIDCO & Waluj MIDC, Aurangabad", id: "sambhajinagar", tag: "Local Area", aliases: ["cidco", "waluj", "aurangabad cidco", "waluj midc", "bajaj nagar"] },
-  { name: "Kranti Chowk & Beed Bypass, Aurangabad", id: "sambhajinagar", tag: "Local Area", aliases: ["kranti chowk", "beed bypass", "prozone", "shendra midc", "chikalthana", "station road"] },
-  { name: "Aurangabad Airport (Chhatrapati Sambhajinagar - IXU)", id: "sambhajinagar", tag: "Airport", aliases: ["aurangabad airport", "chikkalthana", "ixu", "sambhajinagar airport"] },
-  { name: "Nashik", id: "nashik", tag: "Major Hub", aliases: ["nashik", "nasik", "panchavati", "cbs", "mumbai naka", "ambad", "satpur", "indira nagar", "college road", "gangapur road"] },
-  { name: "Panchavati & Gangapur Road, Nashik", id: "nashik", tag: "Local Area", aliases: ["panchavati", "gangapur road", "college road", "indira nagar", "mumbai naka"] },
-  { name: "Ambad & Satpur MIDC, Nashik", id: "nashik", tag: "Local Area", aliases: ["ambad", "satpur", "nashik road", "deolali"] },
-  { name: "Nashik Airport (Ozar - ISK)", id: "nashik", tag: "Airport", aliases: ["ozar airport", "nashik airport", "isk", "hal ozar"] },
-  { name: "Ahilyanagar (Ahmednagar)", id: "ahilyanagar", tag: "Major Hub", aliases: ["ahilyanagar", "ahmednagar", "nagar", "savedi", "maliwada", "station road", "midc ahmednagar", "bhingar"] },
-  { name: "Savedi & MIDC, Ahilyanagar", id: "ahilyanagar", tag: "Local Area", aliases: ["savedi", "midc ahmednagar", "station road", "maliwada", "bhingar"] },
-  { name: "Shirdi (Sai Baba Temple)", id: "shirdi", tag: "Temple Town", aliases: ["shirdi", "sai baba", "shirdi temple", "kopargaon", "rahata", "shirdi trust", "samadhi mandir"] },
-  { name: "Shirdi International Airport (SAG), Kakadi", id: "shirdi", tag: "Airport", aliases: ["shirdi airport", "kakadi", "sag", "shirdi flight"] },
+  { name: "Pune", id: "pune", tag: "Major Hub", icon: "🏙️", sub: "Shivajinagar · Hinjawadi · Wakad · PCMC", aliases: ["pune", "poona", "shivajinagar", "swargate", "wakad", "hinjawadi", "viman nagar", "hadapsar", "kothrud", "baner", "chakan", "pcmc", "pimpri", "chinchwad", "bhosari", "talegaon", "kharadi", "magarpatta"] },
+  { name: "Pune Airport (PNQ), Lohegaon", id: "pune", tag: "Airport", icon: "✈️", sub: "Lohegaon Terminal · 24x7 Terminal Pickup", aliases: ["pune airport", "lohegaon", "pnq", "viman nagar airport"] },
+  { name: "Hinjawadi IT Park & Wakad, Pune", id: "pune", tag: "Local Area", icon: "🏢", sub: "Phase 1, 2, 3 · Dange Chowk · Datta Mandir", aliases: ["hinjawadi", "wakad", "hinjewadi", "phase 1", "phase 2", "phase 3", "dange chowk"] },
+  { name: "Kothrud, Baner & Swargate, Pune", id: "pune", tag: "Local Area", icon: "📍", sub: "Chandani Chowk · Deccan · Balewadi High St", aliases: ["kothrud", "baner", "swargate", "deccan", "karve nagar", "warje", "bavdhan"] },
+  { name: "Viman Nagar & Kharadi IT Park, Pune", id: "pune", tag: "Local Area", icon: "🏢", sub: "EON IT Park · WTC · Phoenix Marketcity", aliases: ["viman nagar", "kharadi", "hadapsar", "magarpatta", "kalyani nagar", "yerwada"] },
+  { name: "Pimpri-Chinchwad & Chakan MIDC, PCMC", id: "pune", tag: "Local Area", icon: "🏭", sub: "Auto Hub · Bhosari · Nigdi · Talegaon", aliases: ["pcmc", "pimpri", "chinchwad", "bhosari", "chakan", "talegaon", "nigdi", "akurdi"] },
+  { name: "Mumbai (All MMR)", id: "mumbai", tag: "Metro Hub", icon: "🏙️", sub: "Dadar · Andheri · BKC · Navi Mumbai · Thane", aliases: ["mumbai", "bombay", "dadar", "borivali", "andheri", "bandra", "chembur", "kurla", "ghatkopar", "colaba", "cst", "mumbai central"] },
+  { name: "Mumbai International Airport (CSMI - BOM T1/T2)", id: "mumbai", tag: "Airport", icon: "✈️", sub: "Sahar · Domestic T1 & International T2", aliases: ["mumbai airport", "bom", "t1", "t2", "sahar", "santacruz", "domestic airport", "csmi"] },
+  { name: "Dadar, Bandra & South Mumbai", id: "mumbai", tag: "Local Area", icon: "📍", sub: "BKC · Dadar TT · Fort · Marine Drive", aliases: ["dadar", "bandra", "bkc", "cst", "colaba", "chembur", "kurla"] },
+  { name: "Andheri, Borivali & Western Suburbs", id: "mumbai", tag: "Local Area", icon: "📍", sub: "Lokhandwala · Malad · Kandivali · Goregaon", aliases: ["andheri", "borivali", "kandivali", "malad", "goregaon", "jogeshwari"] },
+  { name: "Thane, MMR", id: "mumbai", tag: "MMR", icon: "🏙️", sub: "Ghodbunder Rd · Majiwada · Viviana Mall", aliases: ["thane", "ghodbunder", "majiwada", "viviana", "wagle estate", "naupada"] },
+  { name: "Navi Mumbai / Panvel", id: "mumbai", tag: "MMR", icon: "🏙️", sub: "Vashi · Nerul · Kharghar · Belapur · Panvel", aliases: ["navi mumbai", "vashi", "nerul", "kharghar", "panvel", "belapur", "airoli", "ghansoli", "koparkhairane", "kamothe"] },
+  { name: "Kalyan - Dombivli - Ulhasnagar", id: "mumbai", tag: "MMR", icon: "📍", sub: "Central Line Hub · Badlapur · Ambernath", aliases: ["kalyan", "dombivli", "dombivali", "ulhasnagar", "titwala", "badlapur", "ambarnath"] },
+  { name: "Vasai - Virar - Palghar", id: "mumbai", tag: "MMR", icon: "📍", sub: "Western Corridor · Boisar · Dahanu", aliases: ["vasai", "virar", "palghar", "boisar", "dahanu", "naigaon", "nallasopara"] },
+  { name: "Chhatrapati Sambhajinagar (Aurangabad)", id: "sambhajinagar", tag: "Major Hub", icon: "🏙️", sub: "CIDCO · Waluj MIDC · Kranti Chowk · Station", aliases: ["aurangabad", "sambhajinagar", "chhatrapati sambhajinagar", "cidco", "waluj", "beed bypass", "kranti chowk", "chikalthana", "prozone"] },
+  { name: "Aurangabad Airport (Chhatrapati Sambhajinagar - IXU)", id: "sambhajinagar", tag: "Airport", icon: "✈️", sub: "Chikalthana · Jalna Road", aliases: ["aurangabad airport", "chikkalthana", "ixu", "sambhajinagar airport"] },
+  { name: "CIDCO & Waluj MIDC, Aurangabad", id: "sambhajinagar", tag: "Local Area", icon: "🏭", sub: "Town Centre · Bajaj Nagar · Prozone", aliases: ["cidco", "waluj", "aurangabad cidco", "waluj midc", "bajaj nagar"] },
+  { name: "Kranti Chowk & Beed Bypass, Aurangabad", id: "sambhajinagar", tag: "Local Area", icon: "📍", sub: "City Center · Shendra DMIC Corridor", aliases: ["kranti chowk", "beed bypass", "prozone", "shendra midc", "chikalthana", "station road"] },
+  { name: "Nashik", id: "nashik", tag: "Major Hub", icon: "🏙️", sub: "Panchavati · College Rd · Ambad · Satpur", aliases: ["nashik", "nasik", "panchavati", "cbs", "mumbai naka", "ambad", "satpur", "indira nagar", "college road", "gangapur road"] },
+  { name: "Panchavati & Gangapur Road, Nashik", id: "nashik", tag: "Local Area", icon: "🛕", sub: "Ramkund · Godavari Ghat · College Rd", aliases: ["panchavati", "gangapur road", "college road", "indira nagar", "mumbai naka"] },
+  { name: "Ambad & Satpur MIDC, Nashik", id: "nashik", tag: "Local Area", icon: "🏭", sub: "Industrial Belt · Nashik Road Station", aliases: ["ambad", "satpur", "nashik road", "deolali"] },
+  { name: "Nashik Airport (Ozar - ISK)", id: "nashik", tag: "Airport", icon: "✈️", sub: "HAL Ozar · Highway Connected", aliases: ["ozar airport", "nashik airport", "isk", "hal ozar"] },
+  { name: "Ahilyanagar (Ahmednagar)", id: "ahilyanagar", tag: "Major Hub", icon: "🏙️", sub: "Savedi · MIDC · Station Rd · Maliwada", aliases: ["ahilyanagar", "ahmednagar", "nagar", "savedi", "maliwada", "station road", "midc ahmednagar", "bhingar"] },
+  { name: "Savedi & MIDC, Ahilyanagar", id: "ahilyanagar", tag: "Local Area", icon: "🏭", sub: "Pipeline Rd · Industrial Estate", aliases: ["savedi", "midc ahmednagar", "station road", "maliwada", "bhingar"] },
+  { name: "Shirdi (Sai Baba Temple)", id: "shirdi", tag: "Temple Town", icon: "🛕", sub: "Samadhi Mandir Gate 1-3 · Temple Trust", aliases: ["shirdi", "sai baba", "shirdi temple", "kopargaon", "rahata", "shirdi trust", "samadhi mandir"] },
+  { name: "Shirdi International Airport (SAG), Kakadi", id: "shirdi", tag: "Airport", icon: "✈️", sub: "Kakadi · Direct Temple Transfer", aliases: ["shirdi airport", "kakadi", "sag", "shirdi flight"] },
 
   // --- WESTERN MAHARASHTRA & HILL STATIONS ---
-  { name: "Kolhapur City (Mahalaxmi Temple)", id: "kolhapur", tag: "Major Hub", aliases: ["kolhapur", "mahalaxmi", "tarabai park", "rajarampuri", "rankala", "panhala"] },
-  { name: "Kolhapur Airport (KLH), Ujalaiwadi", id: "kolhapur", tag: "Airport", aliases: ["kolhapur airport", "klh", "ujalaiwadi"] },
-  { name: "Ichalkaranji & Kagal", id: "kolhapur", tag: "Hub", aliases: ["ichalkaranji", "kagal", "jaysingpur", "gadhinglaj"] },
-  { name: "Mahabaleshwar & Panchgani", id: "mahabaleshwar", tag: "Hill Station", aliases: ["mahabaleshwar", "panchgani", "venna lake", "mapro", "pratapgad", "old mahabaleshwar"] },
-  { name: "Lonavala & Khandala", id: "lonavala", tag: "Getaway", aliases: ["lonavala", "khandala", "ins shivaji", "tiger point", "bushy dam", "wet n joy"] },
-  { name: "Satara City & Karad", id: "pune", tag: "District", aliases: ["satara", "karad", "wai", "kaas plateau", "koregaon", "shirwal", "phaltan"] },
-  { name: "Solapur (Pandharpur / Akkalkot)", id: "pune", tag: "District", aliases: ["solapur", "pandharpur", "akkalkot", "vithoba", "swami samarth", "barshi", "kurduvadi", "mohol"] },
-  { name: "Sangli & Miraj", id: "kolhapur", tag: "District", aliases: ["sangli", "miraj", "madhavnagar", "islampur", "vita", "tasgaon"] },
+  { name: "Kolhapur City (Mahalaxmi Temple)", id: "kolhapur", tag: "Major Hub", icon: "🏙️", sub: "Mahalaxmi Mandir · Tarabai Park · Rankala", aliases: ["kolhapur", "mahalaxmi", "tarabai park", "rajarampuri", "rankala", "panhala"] },
+  { name: "Kolhapur Airport (KLH), Ujalaiwadi", id: "kolhapur", tag: "Airport", icon: "✈️", sub: "Ujalaiwadi · Highway Connected", aliases: ["kolhapur airport", "klh", "ujalaiwadi"] },
+  { name: "Ichalkaranji & Kagal", id: "kolhapur", tag: "Hub", icon: "🏭", sub: "Textile City · Kagal 5 Star MIDC", aliases: ["ichalkaranji", "kagal", "jaysingpur", "gadhinglaj"] },
+  { name: "Mahabaleshwar & Panchgani", id: "mahabaleshwar", tag: "Hill Station", icon: "⛰️", sub: "Venna Lake · Mapro Garden · Table Land", aliases: ["mahabaleshwar", "panchgani", "venna lake", "mapro", "pratapgad", "old mahabaleshwar"] },
+  { name: "Lonavala & Khandala", id: "lonavala", tag: "Getaway", icon: "⛰️", sub: "Tiger Point · Bushy Dam · Expressway Exit", aliases: ["lonavala", "khandala", "ins shivaji", "tiger point", "bushy dam", "wet n joy"] },
+  { name: "Satara City & Karad", id: "pune", tag: "District", icon: "📍", sub: "Kaas Plateau · Wai · NH48 Highway", aliases: ["satara", "karad", "wai", "kaas plateau", "koregaon", "shirwal", "phaltan"] },
+  { name: "Solapur (Pandharpur / Akkalkot)", id: "pune", tag: "District", icon: "🛕", sub: "Pandharpur Vithoba · Swami Samarth Mandir", aliases: ["solapur", "pandharpur", "akkalkot", "vithoba", "swami samarth", "barshi", "kurduvadi", "mohol"] },
+  { name: "Sangli & Miraj", id: "kolhapur", tag: "District", icon: "📍", sub: "Medical Hub · Islampur · Kupwad MIDC", aliases: ["sangli", "miraj", "madhavnagar", "islampur", "vita", "tasgaon"] },
 
   // --- KONKAN & COASTAL DESTINATIONS ---
-  { name: "Alibaug & Kashid Beach", id: "mumbai", tag: "Coastal", aliases: ["alibaug", "kashid", "murud", "kihim", "nagaon", "mandwa", "revdanda"] },
-  { name: "Karjat, Khopoli & Imagica", id: "mumbai", tag: "Getaway", aliases: ["karjat", "khopoli", "imagica", "matheran", "neral"] },
-  { name: "Pen, Mangaon & Mahad", id: "mumbai", tag: "Konkan", aliases: ["pen", "mangaon", "mahad", "roha", "raigad fort"] },
-  { name: "Ratnagiri & Chiplun", id: "kolhapur", tag: "Konkan", aliases: ["ratnagiri", "chiplun", "ganpatipule", "khed", "dapoli", "guhagar", "rajapur", "derwan"] },
-  { name: "Sindhudurg (Malvan, Tarkarli & Sawantwadi)", id: "kolhapur", tag: "Konkan", aliases: ["sindhudurg", "malvan", "tarkarli", "sawantwadi", "kankavli", "vengurla", "kudal", "chipi airport", "sdw"] },
+  { name: "Alibaug & Kashid Beach", id: "mumbai", tag: "Coastal", icon: "🏖️", sub: "Mandwa Jetty · Kihim · Murud Janjira", aliases: ["alibaug", "kashid", "murud", "kihim", "nagaon", "mandwa", "revdanda"] },
+  { name: "Karjat, Khopoli & Imagica", id: "mumbai", tag: "Getaway", icon: "🎢", sub: "Theme Park · Matheran Foothills · Resorts", aliases: ["karjat", "khopoli", "imagica", "matheran", "neral"] },
+  { name: "Pen, Mangaon & Mahad", id: "mumbai", tag: "Konkan", icon: "📍", sub: "Mumbai-Goa Highway · Raigad Fort Exit", aliases: ["pen", "mangaon", "mahad", "roha", "raigad fort"] },
+  { name: "Ratnagiri & Chiplun", id: "kolhapur", tag: "Konkan", icon: "🏖️", sub: "Ganpatipule · Guhagar · Dapoli Beach", aliases: ["ratnagiri", "chiplun", "ganpatipule", "khed", "dapoli", "guhagar", "rajapur", "derwan"] },
+  { name: "Sindhudurg (Malvan, Tarkarli & Sawantwadi)", id: "kolhapur", tag: "Konkan", icon: "🏖️", sub: "Tarkarli Scuba · Chipi Airport · Vengurla", aliases: ["sindhudurg", "malvan", "tarkarli", "sawantwadi", "kankavli", "vengurla", "kudal", "chipi airport", "sdw"] },
 
   // --- NORTH MAHARASHTRA & KHANDESH ---
-  { name: "Jalgaon & Bhusawal", id: "sambhajinagar", tag: "District", aliases: ["jalgaon", "bhusawal", "chalisgaon", "amalner", "pachora", "deepnagar"] },
-  { name: "Dhule & Shirpur", id: "nashik", tag: "District", aliases: ["dhule", "shirpur", "sakri", "sindkheda"] },
-  { name: "Malegaon & Manmad", id: "nashik", tag: "Hub", aliases: ["malegaon", "manmad", "yeola", "chandwad", "satana"] },
-  { name: "Nandurbar & Shahada", id: "nashik", tag: "District", aliases: ["nandurbar", "shahada", "navapur", "toranmal"] },
-  { name: "Trimbakeshwar (Jyotirlinga)", id: "nashik", tag: "Temple Town", aliases: ["trimbakeshwar", "trambakeshwar", "brahmagiri"] },
-  { name: "Igatpuri (Bhatsa / Vipassana)", id: "nashik", tag: "Hill Station", aliases: ["igatpuri", "ghoti", "kasara", "vipassana"] },
-  { name: "Sangamner & Kopargaon", id: "ahilyanagar", tag: "Hub", aliases: ["sangamner", "kopargaon", "shrirampur", "newasa", "rahata"] },
+  { name: "Jalgaon & Bhusawal", id: "sambhajinagar", tag: "District", icon: "📍", sub: "Banana City · Bhusawal Railway Junction", aliases: ["jalgaon", "bhusawal", "chalisgaon", "amalner", "pachora", "deepnagar"] },
+  { name: "Dhule & Shirpur", id: "nashik", tag: "District", icon: "📍", sub: "NH52 / NH53 Crossroads · Textile Hub", aliases: ["dhule", "shirpur", "sakri", "sindkheda"] },
+  { name: "Malegaon & Manmad", id: "nashik", tag: "Hub", icon: "📍", sub: "Manmad Railway Junction · Yeola Paithani", aliases: ["malegaon", "manmad", "yeola", "chandwad", "satana"] },
+  { name: "Nandurbar & Shahada", id: "nashik", tag: "District", icon: "📍", sub: "Toranmal Hill Station · Tapi Basin", aliases: ["nandurbar", "shahada", "navapur", "toranmal"] },
+  { name: "Trimbakeshwar (Jyotirlinga)", id: "nashik", tag: "Temple Town", icon: "🛕", sub: "12 Jyotirlinga · Brahmagiri · Kushavarta", aliases: ["trimbakeshwar", "trambakeshwar", "brahmagiri"] },
+  { name: "Igatpuri (Bhatsa / Vipassana)", id: "nashik", tag: "Hill Station", icon: "⛰️", sub: "Dhamma Giri Vipassana · Kasara Ghat", aliases: ["igatpuri", "ghoti", "kasara", "vipassana"] },
+  { name: "Sangamner & Kopargaon", id: "ahilyanagar", tag: "Hub", icon: "📍", sub: "Pune-Nashik Highway · Shrirampur", aliases: ["sangamner", "kopargaon", "shrirampur", "newasa", "rahata"] },
 
   // --- MARATHWADA ---
-  { name: "Jalna City", id: "sambhajinagar", tag: "District", aliases: ["jalna", "partur", "ambad", "bhokardan", "jafrabad"] },
-  { name: "Beed & Parli Vaijnath (Jyotirlinga)", id: "ahilyanagar", tag: "District", aliases: ["beed", "parli", "parli vaijnath", "ambajogai", "majalgaon", "georai"] },
-  { name: "Nanded (Hazur Sachkhand Sahib Gurudwara)", id: "sambhajinagar", tag: "District", aliases: ["nanded", "hazur sahib", "sachkhand", "degloor", "kinwat", "nanded airport", "ndc"] },
-  { name: "Latur & Udgir", id: "sambhajinagar", tag: "District", aliases: ["latur", "udgir", "ausa", "nilanga", "ahmedpur"] },
-  { name: "Dharashiv (Osmanabad) & Tuljapur Temple", id: "sambhajinagar", tag: "District", aliases: ["dharashiv", "osmanabad", "tuljapur", "bhavani mandir", "omerga"] },
-  { name: "Parbhani & Gangakhed", id: "sambhajinagar", tag: "District", aliases: ["parbhani", "gangakhed", "jintur", "sailu"] },
-  { name: "Hingoli & Aundha Nagnath (Jyotirlinga)", id: "sambhajinagar", tag: "District", aliases: ["hingoli", "aundha nagnath", "basmath", "kalamnuri"] },
-  { name: "Ellora & Ajanta Caves (UNESCO World Heritage)", id: "sambhajinagar", tag: "Heritage", aliases: ["ellora", "ajanta", "grishneshwar", "kailasa temple", "khuldabad"] },
+  { name: "Jalna City", id: "sambhajinagar", tag: "District", icon: "📍", sub: "Steel City · Samruddhi Highway Exit", aliases: ["jalna", "partur", "ambad", "bhokardan", "jafrabad"] },
+  { name: "Beed & Parli Vaijnath (Jyotirlinga)", id: "ahilyanagar", tag: "District", icon: "🛕", sub: "Vaijnath Jyotirlinga Mandir · Ambajogai", aliases: ["beed", "parli", "parli vaijnath", "ambajogai", "majalgaon", "georai"] },
+  { name: "Nanded (Hazur Sachkhand Sahib Gurudwara)", id: "sambhajinagar", tag: "District", icon: "🛕", sub: "Takht Sachkhand Sri Hazur Abchalnagar", aliases: ["nanded", "hazur sahib", "sachkhand", "degloor", "kinwat", "nanded airport", "ndc"] },
+  { name: "Latur & Udgir", id: "sambhajinagar", tag: "District", icon: "📍", sub: "Education Hub · Udgir Fort", aliases: ["latur", "udgir", "ausa", "nilanga", "ahmedpur"] },
+  { name: "Dharashiv (Osmanabad) & Tuljapur Temple", id: "sambhajinagar", tag: "District", icon: "🛕", sub: "Tulja Bhavani Mandir · Solapur Highway", aliases: ["dharashiv", "osmanabad", "tuljapur", "bhavani mandir", "omerga"] },
+  { name: "Parbhani & Gangakhed", id: "sambhajinagar", tag: "District", icon: "📍", sub: "Marathwada Central · Godavari Basin", aliases: ["parbhani", "gangakhed", "jintur", "sailu"] },
+  { name: "Hingoli & Aundha Nagnath (Jyotirlinga)", id: "sambhajinagar", tag: "District", icon: "🛕", sub: "Ancient 8th Jyotirlinga Shrine", aliases: ["hingoli", "aundha nagnath", "basmath", "kalamnuri"] },
+  { name: "Ellora & Ajanta Caves (UNESCO World Heritage)", id: "sambhajinagar", tag: "Heritage", icon: "🛕", sub: "Kailasa Temple · Grishneshwar Jyotirlinga", aliases: ["ellora", "ajanta", "grishneshwar", "kailasa temple", "khuldabad"] },
 
   // --- VIDARBHA ---
-  { name: "Nagpur (Zero Mile / MIHAN)", id: "sambhajinagar", tag: "Major Hub", aliases: ["nagpur", "mihan", "sitabuldi", "dharampeth", "kamptee", "butibori", "ramtek"] },
-  { name: "Nagpur Airport (Dr. Babasaheb Ambedkar - NAG)", id: "sambhajinagar", tag: "Airport", aliases: ["nagpur airport", "nag", "sonaebgaon"] },
-  { name: "Amravati City & Badnera", id: "sambhajinagar", tag: "District", aliases: ["amravati", "badnera", "achlapur", "morshi", "melghat", "chikhaldara"] },
-  { name: "Akola City", id: "sambhajinagar", tag: "District", aliases: ["akola", "akot", "murtizapur", "balapur"] },
-  { name: "Buldhana & Shegaon (Gajanan Maharaj)", id: "sambhajinagar", tag: "District", aliases: ["buldhana", "shegaon", "gajanan maharaj", "khamgaon", "malkapur", "mehkar", "lonar"] },
-  { name: "Wardha & Sevagram Ashram", id: "sambhajinagar", tag: "District", aliases: ["wardha", "sevagram", "hinganghat", "arvi"] },
-  { name: "Yavatmal & Pusad", id: "sambhajinagar", tag: "District", aliases: ["yavatmal", "pusad", "umarkhed", "digras", "wani"] },
-  { name: "Washim & Karanja Lad", id: "sambhajinagar", tag: "District", aliases: ["washim", "karanja", "risod", "mangrulpir"] },
-  { name: "Chandrapur City & Tadoba National Park", id: "sambhajinagar", tag: "District", aliases: ["chandrapur", "tadoba", "ballarpur", "warora", "tiger reserve"] },
-  { name: "Bhandara & Gondia", id: "sambhajinagar", tag: "District", aliases: ["bhandara", "gondia", "tumsar", "tirora"] },
-  { name: "Gadchiroli", id: "sambhajinagar", tag: "District", aliases: ["gadchiroli", "chamorshi", "aheri"] },
+  { name: "Nagpur (Zero Mile / MIHAN)", id: "sambhajinagar", tag: "Major Hub", icon: "🏙️", sub: "MIHAN SEZ · Samruddhi Mahamarg Corridor", aliases: ["nagpur", "mihan", "sitabuldi", "dharampeth", "kamptee", "butibori", "ramtek"] },
+  { name: "Nagpur Airport (Dr. Babasaheb Ambedkar - NAG)", id: "sambhajinagar", tag: "Airport", icon: "✈️", sub: "Sonegaon · International Terminal", aliases: ["nagpur airport", "nag", "sonaebgaon"] },
+  { name: "Amravati City & Badnera", id: "sambhajinagar", tag: "District", icon: "📍", sub: "Chikhaldara Hill Station Gateway", aliases: ["amravati", "badnera", "achlapur", "morshi", "melghat", "chikhaldara"] },
+  { name: "Akola City", id: "sambhajinagar", tag: "District", icon: "📍", sub: "Cotton City · Shegaon Gateway", aliases: ["akola", "akot", "murtizapur", "balapur"] },
+  { name: "Buldhana & Shegaon (Gajanan Maharaj)", id: "sambhajinagar", tag: "District", icon: "🛕", sub: "Anand Sagar · Shri Sant Gajanan Maharaj", aliases: ["buldhana", "shegaon", "gajanan maharaj", "khamgaon", "malkapur", "mehkar", "lonar"] },
+  { name: "Wardha & Sevagram Ashram", id: "sambhajinagar", tag: "District", icon: "📍", sub: "Mahatma Gandhi Sevagram · Pavnar", aliases: ["wardha", "sevagram", "hinganghat", "arvi"] },
+  { name: "Yavatmal & Pusad", id: "sambhajinagar", tag: "District", icon: "📍", sub: "Vidarbha South Corridor", aliases: ["yavatmal", "pusad", "umarkhed", "digras", "wani"] },
+  { name: "Washim & Karanja Lad", id: "sambhajinagar", tag: "District", icon: "🛕", sub: "Nrusimha Saraswati Swami Temple", aliases: ["washim", "karanja", "risod", "mangrulpir"] },
+  { name: "Chandrapur City & Tadoba National Park", id: "sambhajinagar", tag: "District", icon: "🐅", sub: "Tadoba Tiger Reserve Safari Gateway", aliases: ["chandrapur", "tadoba", "ballarpur", "warora", "tiger reserve"] },
+  { name: "Bhandara & Gondia", id: "sambhajinagar", tag: "District", icon: "📍", sub: "Navegaon National Park Gateway", aliases: ["bhandara", "gondia", "tumsar", "tirora"] },
+  { name: "Gadchiroli", id: "sambhajinagar", tag: "District", icon: "📍", sub: "East Maharashtra Corridor", aliases: ["gadchiroli", "chamorshi", "aheri"] },
 
   // --- POPULAR OUTSTATIONS ---
-  { name: "Goa (North & South Goa / Mopa Airport GOX)", id: "kolhapur", tag: "Outstation", aliases: ["goa", "panaji", "calangute", "baga", "candolim", "mopa", "dabolim", "margao", "vasco"] },
-  { name: "Surat, Gujarat", id: "mumbai", tag: "Interstate", aliases: ["surat", "vapi", "valsad", "navsari"] },
-  { name: "Belgaum (Belagavi), Karnataka", id: "kolhapur", tag: "Interstate", aliases: ["belgaum", "belagavi", "hubli", "dharwad"] },
-  { name: "Indore & Ujjain (Mahakaleshwar), MP", id: "nashik", tag: "Interstate", aliases: ["indore", "ujjain", "mahakal"] }
+  { name: "Goa (North & South Goa / Mopa Airport GOX)", id: "kolhapur", tag: "Outstation", icon: "🏖️", sub: "Panaji · Calangute · Baga · Mopa GOX", aliases: ["goa", "panaji", "calangute", "baga", "candolim", "mopa", "dabolim", "margao", "vasco"] },
+  { name: "Surat, Gujarat", id: "mumbai", tag: "Interstate", icon: "🏙️", sub: "Vapi · Valsad · Navsari Industrial Corridor", aliases: ["surat", "vapi", "valsad", "navsari"] },
+  { name: "Belgaum (Belagavi), Karnataka", id: "kolhapur", tag: "Interstate", icon: "🏙️", sub: "Belagavi · Hubli-Dharwad Corridor", aliases: ["belgaum", "belagavi", "hubli", "dharwad"] },
+  { name: "Indore & Ujjain (Mahakaleshwar), MP", id: "nashik", tag: "Interstate", icon: "🛕", sub: "Mahakaleshwar Jyotirlinga · Omkareshwar", aliases: ["indore", "ujjain", "mahakal"] }
+];
+
+// Curated Category Groups for Instant Empty/Focus Dropdown View
+const DEFAULT_CATEGORIES = [
+  {
+    title: "Major Transit Hubs",
+    icon: "⭐",
+    items: [
+      { name: "Pune", id: "pune", tag: "Major Hub", icon: "🏙️", sub: "Shivajinagar · Hinjawadi · Wakad · PCMC" },
+      { name: "Mumbai (All MMR)", id: "mumbai", tag: "Metro Hub", icon: "🏙️", sub: "Dadar · Andheri · BKC · Navi Mumbai · Thane" },
+      { name: "Chhatrapati Sambhajinagar (Aurangabad)", id: "sambhajinagar", tag: "Major Hub", icon: "🏙️", sub: "CIDCO · Waluj MIDC · Kranti Chowk · Station" },
+      { name: "Nashik", id: "nashik", tag: "Major Hub", icon: "🏙️", sub: "Panchavati · College Rd · Ambad · Satpur" },
+      { name: "Ahilyanagar (Ahmednagar)", id: "ahilyanagar", tag: "Major Hub", icon: "🏙️", sub: "Savedi · MIDC · Station Rd · Maliwada" },
+      { name: "Kolhapur City (Mahalaxmi Temple)", id: "kolhapur", tag: "Major Hub", icon: "🏙️", sub: "Mahalaxmi Mandir · Tarabai Park · Rankala" }
+    ]
+  },
+  {
+    title: "Airports & Terminals",
+    icon: "✈️",
+    items: [
+      { name: "Mumbai International Airport (CSMI - BOM T1/T2)", id: "mumbai", tag: "Airport", icon: "✈️", sub: "Sahar · Domestic T1 & International T2" },
+      { name: "Pune Airport (PNQ), Lohegaon", id: "pune", tag: "Airport", icon: "✈️", sub: "Lohegaon Terminal · 24x7 Terminal Pickup" },
+      { name: "Shirdi International Airport (SAG), Kakadi", id: "shirdi", tag: "Airport", icon: "✈️", sub: "Kakadi · Direct Temple Transfer" },
+      { name: "Nashik Airport (Ozar - ISK)", id: "nashik", tag: "Airport", icon: "✈️", sub: "HAL Ozar · Highway Connected" }
+    ]
+  },
+  {
+    title: "Pilgrimage & Hill Stations",
+    icon: "🛕",
+    items: [
+      { name: "Shirdi (Sai Baba Temple)", id: "shirdi", tag: "Temple Town", icon: "🛕", sub: "Samadhi Mandir Gate 1-3 · Temple Trust" },
+      { name: "Mahabaleshwar & Panchgani", id: "mahabaleshwar", tag: "Hill Station", icon: "⛰️", sub: "Venna Lake · Mapro Garden · Table Land" },
+      { name: "Lonavala & Khandala", id: "lonavala", tag: "Getaway", icon: "⛰️", sub: "Tiger Point · Bushy Dam · Expressway Exit" },
+      { name: "Trimbakeshwar (Jyotirlinga)", id: "nashik", tag: "Temple Town", icon: "🛕", sub: "12 Jyotirlinga · Brahmagiri · Kushavarta" }
+    ]
+  },
+  {
+    title: "Key Districts & Coastal Getaways",
+    icon: "📍",
+    items: [
+      { name: "Satara City & Karad", id: "pune", tag: "District", icon: "📍", sub: "Kaas Plateau · Wai · NH48 Highway" },
+      { name: "Solapur (Pandharpur / Akkalkot)", id: "pune", tag: "District", icon: "🛕", sub: "Pandharpur Vithoba · Swami Samarth Mandir" },
+      { name: "Alibaug & Kashid Beach", id: "mumbai", tag: "Coastal", icon: "🏖️", sub: "Mandwa Jetty · Kihim · Murud Janjira" },
+      { name: "Karjat, Khopoli & Imagica", id: "mumbai", tag: "Getaway", icon: "🎢", sub: "Theme Park · Matheran Foothills · Resorts" },
+      { name: "Nagpur (Zero Mile / MIHAN)", id: "sambhajinagar", tag: "Major Hub", icon: "🏙️", sub: "MIHAN SEZ · Samruddhi Mahamarg Corridor" },
+      { name: "Goa (North & South Goa / Mopa GOX)", id: "kolhapur", tag: "Outstation", icon: "🏖️", sub: "Panaji · Calangute · Baga · Mopa GOX" }
+    ]
+  }
 ];
 
 function buildSelects() {
@@ -360,94 +407,294 @@ function goToFunnel(type, params) {
 }
 window._goToFunnel = goToFunnel;
 
-/* --- AUTOCOMPLETE COMPONENT --- */
+/* --- PREMIUM AUTOCOMPLETE COMPONENT (OneWay & MakeMyTrip Style) --- */
+function getCategoryIcon(loc) {
+  if (loc.icon) return loc.icon;
+  if (loc.tag === "Airport") return "✈️";
+  if (loc.tag === "Temple Town" || loc.tag === "Heritage") return "🛕";
+  if (loc.tag === "Hill Station" || loc.tag === "Getaway") return "⛰️";
+  if (loc.tag === "Coastal") return "🏖️";
+  if (loc.tag === "Major Hub" || loc.tag === "Metro Hub") return "🏙️";
+  return "📍";
+}
+
+function getCategoryBadgeClass(loc) {
+  if (loc.tag === "Airport") return "ac-badge--airport";
+  if (loc.tag === "Major Hub" || loc.tag === "Metro Hub") return "ac-badge--hub";
+  if (loc.tag === "Temple Town" || loc.tag === "Heritage") return "ac-badge--temple";
+  if (loc.tag === "Hill Station" || loc.tag === "Getaway" || loc.tag === "Coastal") return "ac-badge--hill";
+  return "ac-badge--district";
+}
+
 function setupAutocomplete(inputId, dropdownId, onSelect) {
   const input = $(inputId);
   const dropdown = $(dropdownId);
   if (!input || !dropdown) return;
 
-  function filterLocations(query) {
-    const q = (query || "").trim().toLowerCase();
-    if (!q) return MH_LOCATIONS.slice(0, 10);
-    return MH_LOCATIONS.filter(loc => {
-      if (loc.name.toLowerCase().includes(q)) return true;
-      return loc.aliases.some(alias => alias.includes(q));
-    }).slice(0, 12);
+  let activeIndex = -1;
+
+  function highlightMatch(text, query) {
+    if (!text) return "";
+    const q = (query || "").trim();
+    if (!q) return text;
+    const idx = text.toLowerCase().indexOf(q.toLowerCase());
+    if (idx === -1) return text;
+    return text.substring(0, idx) + `<mark class="ac-hl">${text.substring(idx, idx + q.length)}</mark>` + text.substring(idx + q.length);
   }
 
-  function renderList(list, query) {
-    const qClean = (query || "").trim();
-    const q = qClean.toLowerCase();
-    let html = "";
+  function filterLocations(query) {
+    const q = (query || "").trim().toLowerCase();
+    if (!q) return [];
+    const starts = [];
+    const nameInc = [];
+    const aliasInc = [];
 
-    if (list.length) {
-      html += list.map(item => {
-        let displayName = item.name;
-        if (q && displayName.toLowerCase().includes(q)) {
-          const idx = displayName.toLowerCase().indexOf(q);
-          displayName = displayName.substring(0, idx) + `<mark>${displayName.substring(idx, idx + q.length)}</mark>` + displayName.substring(idx + q.length);
-        }
-        return `
-          <div class="autocomplete-item" data-id="${item.id}" data-name="${item.name}">
-            <span><b>${displayName}</b></span>
-            <span class="autocomplete-tag">${item.tag}</span>
+    MH_LOCATIONS.forEach(loc => {
+      const n = loc.name.toLowerCase();
+      if (n.startsWith(q)) {
+        starts.push(loc);
+      } else if (n.includes(q)) {
+        nameInc.push(loc);
+      } else if (loc.aliases && loc.aliases.some(alias => alias.toLowerCase().includes(q))) {
+        aliasInc.push(loc);
+      }
+    });
+
+    return [...starts, ...nameInc, ...aliasInc].slice(0, 10);
+  }
+
+  function renderItem(item, query, isFocused) {
+    const qClean = (query || "").trim();
+    const hlName = highlightMatch(item.name, qClean);
+    const subText = item.sub || (item.aliases ? item.aliases.slice(0, 4).join(" · ") : "");
+    const hlSub = highlightMatch(subText, qClean);
+    const icon = getCategoryIcon(item);
+    const badgeCls = getCategoryBadgeClass(item);
+    const iconWrapCls = item.tag === "Airport" ? "ac-item__icon-wrap--airport" :
+                        (item.tag === "Major Hub" || item.tag === "Metro Hub") ? "ac-item__icon-wrap--hub" :
+                        (item.tag === "Temple Town" || item.tag === "Heritage") ? "ac-item__icon-wrap--temple" :
+                        (item.tag === "Hill Station" || item.tag === "Getaway" || item.tag === "Coastal") ? "ac-item__icon-wrap--hill" :
+                        "ac-item__icon-wrap--district";
+
+    return `
+      <div class="ac-item autocomplete-item${isFocused ? " is-focused" : ""}" role="option" data-id="${item.id}" data-name="${item.name}">
+        <div class="ac-item__left">
+          <div class="ac-item__icon-wrap ${iconWrapCls}">
+            <span class="ac-item__icon">${icon}</span>
           </div>
-        `;
-      }).join("");
+          <div class="ac-item__body">
+            <div class="ac-item__title">${hlName}</div>
+            ${subText ? `<div class="ac-item__sub">${hlSub}</div>` : ""}
+          </div>
+        </div>
+        <span class="ac-item__badge autocomplete-tag ${badgeCls}">${item.tag || "Location"}</span>
+      </div>
+    `;
+  }
+
+  function renderQuickPills() {
+    return `
+      <div class="ac-quick-section">
+        <div class="ac-section-title">
+          <span>🔥 Popular Cities & Airports</span>
+          <small style="opacity:0.65;font-weight:600">Quick Select</small>
+        </div>
+        <div class="ac-quick-pills">
+          <button type="button" class="ac-pill" data-id="pune" data-name="Pune">🏙️ Pune</button>
+          <button type="button" class="ac-pill" data-id="mumbai" data-name="Mumbai">🏙️ Mumbai</button>
+          <button type="button" class="ac-pill" data-id="mumbai" data-name="Mumbai International Airport (CSMI - BOM T1/T2)">✈️ Mumbai Airport</button>
+          <button type="button" class="ac-pill" data-id="shirdi" data-name="Shirdi (Sai Baba Temple)">🛕 Shirdi</button>
+          <button type="button" class="ac-pill" data-id="nashik" data-name="Nashik">🏙️ Nashik</button>
+          <button type="button" class="ac-pill" data-id="sambhajinagar" data-name="Chhatrapati Sambhajinagar (Aurangabad)">🏙️ Sambhajinagar</button>
+          <button type="button" class="ac-pill" data-id="mahabaleshwar" data-name="Mahabaleshwar & Panchgani">⛰️ Mahabaleshwar</button>
+          <button type="button" class="ac-pill" data-id="lonavala" data-name="Lonavala & Khandala">⛰️ Lonavala</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderGroupedCategories() {
+    let html = renderQuickPills();
+
+    DEFAULT_CATEGORIES.forEach(cat => {
+      html += `
+        <div class="ac-group-header">
+          <span>${cat.icon} ${cat.title}</span>
+        </div>
+      `;
+      cat.items.forEach(item => {
+        html += renderItem(item, "", false);
+      });
+    });
+
+    dropdown.innerHTML = html;
+    dropdown.classList.add("is-open");
+    activeIndex = -1;
+  }
+
+  function renderSearchResults(query) {
+    const qClean = (query || "").trim();
+    if (!qClean) {
+      renderGroupedCategories();
+      return;
     }
 
-    // Always offer custom typed location if user typed something
-    if (qClean) {
+    const list = filterLocations(qClean);
+    let html = renderQuickPills();
+
+    if (list.length > 0) {
+      html += `<div class="ac-group-header"><span>🔍 Matching Destinations (${list.length})</span></div>`;
+      html += list.map((item, idx) => renderItem(item, qClean, idx === 0)).join("");
+    } else {
       html += `
-        <div class="autocomplete-item autocomplete-item--custom" data-id="custom" data-name="${qClean}">
-          <span>✨ <b>Use "${qClean}"</b> <small style="color:var(--text-3)">(Any location in Maharashtra · 24x7 Dispatch)</small></span>
-          <span class="autocomplete-tag" style="background:#FEF3C7;color:#B45309">Instant Quote</span>
+        <div class="ac-empty">
+          <div class="ac-empty__icon">📍</div>
+          <div class="ac-empty__title">No exact city match for "<b>${qClean}</b>"</div>
+          <div class="ac-empty__desc">Don't worry! We provide doorstep cabs to every village, MIDC & town in Maharashtra.</div>
         </div>
       `;
     }
 
-    if (!html) {
-      html = `<div class="autocomplete-item" style="color:var(--text-3);cursor:default"><span>Type any city or town in Maharashtra...</span></div>`;
-    }
+    // Always offer custom typed location
+    html += `
+      <div class="ac-item ac-item--custom autocomplete-item autocomplete-item--custom" role="option" data-id="custom" data-name="${qClean}">
+        <div class="ac-item__left">
+          <div class="ac-item__icon-wrap ac-item__icon-wrap--custom">
+            <span class="ac-item__icon">✨</span>
+          </div>
+          <div class="ac-item__body">
+            <div class="ac-item__title">Use <b>"${qClean}"</b></div>
+            <div class="ac-item__sub">Any Maharashtra Location · 24x7 Doorstep Pickup</div>
+          </div>
+        </div>
+        <span class="ac-item__badge ac-badge--custom autocomplete-tag">Instant Quote</span>
+      </div>
+    `;
 
     dropdown.innerHTML = html;
     dropdown.classList.add("is-open");
+    activeIndex = list.length > 0 ? 0 : -1;
   }
 
+  function renderDefaultOrSearch() {
+    const val = (input.value || "").trim();
+    const isStandardCity = MH_LOCATIONS.some(l => l.name.toLowerCase() === val.toLowerCase());
+    if (!val || isStandardCity) {
+      renderGroupedCategories();
+    } else {
+      renderSearchResults(val);
+    }
+  }
+
+  function updateKeyboardFocus(items, newIndex) {
+    items.forEach(el => el.classList.remove("is-focused"));
+    if (newIndex >= 0 && newIndex < items.length) {
+      items[newIndex].classList.add("is-focused");
+      items[newIndex].scrollIntoView({ block: "nearest", behavior: "smooth" });
+      activeIndex = newIndex;
+    } else {
+      activeIndex = -1;
+    }
+  }
+
+  // Focus & Click handlers
   input.addEventListener("focus", () => {
-    renderList(filterLocations(input.value), input.value);
+    renderDefaultOrSearch();
+    setTimeout(() => { try { input.select(); } catch(_) {} }, 40);
+  });
+
+  input.addEventListener("click", () => {
+    if (!dropdown.classList.contains("is-open")) {
+      renderDefaultOrSearch();
+    }
   });
 
   input.addEventListener("input", () => {
-    renderList(filterLocations(input.value), input.value);
+    const val = (input.value || "").trim();
+    if (!val) {
+      renderGroupedCategories();
+    } else {
+      renderSearchResults(val);
+    }
+    if (clearBtn) clearBtn.hidden = !val;
   });
 
+  // Selection via click
   dropdown.addEventListener("click", e => {
-    const item = e.target.closest(".autocomplete-item");
-    if (!item || !item.dataset.id) return;
-    input.value = item.dataset.name;
-    dropdown.classList.remove("is-open");
-    onSelect(item.dataset.id, item.dataset.name);
+    const pill = e.target.closest(".ac-pill");
+    if (pill) {
+      const id = pill.dataset.id;
+      const name = pill.dataset.name || pill.textContent.trim().replace(/^[^\w\s]+\s*/, "");
+      input.value = name;
+      dropdown.classList.remove("is-open");
+      if (clearBtn) clearBtn.hidden = false;
+      onSelect(id, name);
+      return;
+    }
+
+    const item = e.target.closest(".ac-item, .autocomplete-item");
+    if (item && item.dataset.id) {
+      const id = item.dataset.id;
+      const name = item.dataset.name;
+      input.value = name;
+      dropdown.classList.remove("is-open");
+      if (clearBtn) clearBtn.hidden = false;
+      onSelect(id, name);
+      return;
+    }
   });
 
+  // Keyboard navigation
   input.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
+    const isOpen = dropdown.classList.contains("is-open");
+    const items = Array.from(dropdown.querySelectorAll(".ac-item, .autocomplete-item"));
+
+    if (e.key === "ArrowDown") {
       e.preventDefault();
+      if (!isOpen) {
+        renderDefaultOrSearch();
+        return;
+      }
+      if (items.length > 0) {
+        const next = activeIndex + 1 < items.length ? activeIndex + 1 : 0;
+        updateKeyboardFocus(items, next);
+      }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (!isOpen) {
+        renderDefaultOrSearch();
+        return;
+      }
+      if (items.length > 0) {
+        const prev = activeIndex - 1 >= 0 ? activeIndex - 1 : items.length - 1;
+        updateKeyboardFocus(items, prev);
+      }
+    } else if (e.key === "Enter") {
+      if (isOpen) {
+        const focusedItem = dropdown.querySelector(".ac-item.is-focused, .autocomplete-item.is-focused");
+        if (focusedItem && focusedItem.dataset.id) {
+          e.preventDefault();
+          const id = focusedItem.dataset.id;
+          const name = focusedItem.dataset.name;
+          input.value = name;
+          dropdown.classList.remove("is-open");
+          if (clearBtn) clearBtn.hidden = false;
+          onSelect(id, name);
+          return;
+        }
+      }
       const val = input.value.trim();
       if (val) {
+        e.preventDefault();
         dropdown.classList.remove("is-open");
         onSelect("custom", val);
       }
+    } else if (e.key === "Escape") {
+      dropdown.classList.remove("is-open");
     }
   });
 
-  input.addEventListener("change", () => {
-    const val = input.value.trim();
-    if (val) {
-      onSelect("custom", val);
-    }
-  });
-
+  // Clear button support
   const clearBtn = input.parentElement ? input.parentElement.querySelector(".autocomplete-clear") : null;
   if (clearBtn) {
     const updateClear = () => { clearBtn.hidden = !input.value.trim(); };
@@ -457,10 +704,11 @@ function setupAutocomplete(inputId, dropdownId, onSelect) {
       input.value = "";
       updateClear();
       input.focus();
-      renderList(filterLocations(""), "");
+      renderGroupedCategories();
     });
   }
 
+  // Outside click closes dropdown
   document.addEventListener("click", e => {
     if (!input.contains(e.target) && !dropdown.contains(e.target)) {
       dropdown.classList.remove("is-open");
