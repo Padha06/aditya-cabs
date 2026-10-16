@@ -165,8 +165,9 @@
       // 1. Per-KM pricing mode
       if (r.pricingMode === "per_km") {
         const km = Number(r.km) || 0;
+        const defFallback = (car && car.base === "suv") ? Math.round(16 * (car.factor || 1)) : Math.round(13 * ((car && car.factor) || 1));
         const rate = (r.ratesPerKm && Number(r.ratesPerKm[key])) ||
-                     (DEFAULT_PER_KM_RATES[key] || 13);
+                     (DEFAULT_PER_KM_RATES[key] || defFallback);
         return Math.round(km * rate);
       }
 

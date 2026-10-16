@@ -3524,6 +3524,7 @@ function syncCitiesToLocations(citiesDict) {
             ROUTES.push(copy);
           });
           renderFare(false);
+          if (typeof renderCards === "function") renderCards();
         }
 
         // 4. Sync site images

@@ -88,7 +88,7 @@
   .pricing-mode-switch { display: inline-flex; background: #F1F5F9; border-radius: 10px; padding: 3px; gap: 2px; }
   .mode-btn { border: 0; background: transparent; padding: 6px 12px; border-radius: 8px; font: inherit; font-size: .78rem; font-weight: 800; color: #64748B; cursor: pointer; transition: all .15s; }
   .mode-btn.is-active { background: #FFF; color: #0284C7; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-  .route-fare-grid, .route-rate-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .route-fare-grid, .route-rate-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
   .fare-col { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
   .car-label { font-size: .72rem; font-weight: 800; letter-spacing: .04em; color: #475569; }
   .fare-input-wrap { display: flex; align-items: center; gap: 4px; }
@@ -98,7 +98,7 @@
   .live-calc-tag { font-size: .76rem; color: #0284C7; background: #E0F2FE; border-radius: 6px; padding: 4px 8px; font-weight: 600; margin-top: 2px; }
   .live-calc-tag b { font-weight: 800; color: #0369A1; }
   @media (max-width: 800px) {
-    .route-fare-grid, .route-rate-grid { grid-template-columns: 1fr 1fr; }
+    .route-fare-grid, .route-rate-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
   }
   @media (max-width: 550px) {
     .route-fare-grid, .route-rate-grid { grid-template-columns: 1fr; }
@@ -216,54 +216,16 @@
         <!-- Option 1: Custom Fixed Fare Inputs -->
         <div id="admNewCustomBox" style="margin-bottom:16px">
           <label style="font-size:.72rem;font-weight:800;text-transform:uppercase;color:#64748B;display:block;margin-bottom:6px">Enter Fixed Total Fare For Each Car</label>
-          <div class="route-fare-grid">
-            <div class="fare-col">
-              <span class="car-label">HATCHBACK</span>
-              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewFareHatchback" value="2499"></div>
-              <span class="fare-note">WagonR, Swift, i20</span>
-            </div>
-            <div class="fare-col">
-              <span class="car-label">SEDAN</span>
-              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewFareSedan" value="2799"></div>
-              <span class="fare-note">Dzire, Aura, Etios</span>
-            </div>
-            <div class="fare-col">
-              <span class="car-label">SUV (ERTIGA)</span>
-              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewFareSuv" value="3499"></div>
-              <span class="fare-note">Ertiga, Carens</span>
-            </div>
-            <div class="fare-col">
-              <span class="car-label">INNOVA CRYSTA (VIP)</span>
-              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewFareCrysta" value="4499"></div>
-              <span class="fare-note">Innova Crysta, Hycross</span>
-            </div>
+          <div class="route-fare-grid" id="admNewCustomGrid">
+            <!-- Dynamically populated for all cars in fleet -->
           </div>
         </div>
 
         <!-- Option 2: Per KM Rates Inputs with Live Preview -->
         <div id="admNewPerKmBox" style="display:none;margin-bottom:16px">
           <label style="font-size:.72rem;font-weight:800;text-transform:uppercase;color:#64748B;display:block;margin-bottom:6px">Enter Price Per KM (Total calculated live from distance)</label>
-          <div class="route-rate-grid">
-            <div class="fare-col">
-              <span class="car-label">HATCHBACK</span>
-              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewRateHatchback" value="11"><span class="curr-suffix">/ km</span></div>
-              <div class="live-calc-tag" id="admNewCalcHatchback">Total: ₹1,650</div>
-            </div>
-            <div class="fare-col">
-              <span class="car-label">SEDAN</span>
-              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewRateSedan" value="13"><span class="curr-suffix">/ km</span></div>
-              <div class="live-calc-tag" id="admNewCalcSedan">Total: ₹1,950</div>
-            </div>
-            <div class="fare-col">
-              <span class="car-label">SUV (ERTIGA)</span>
-              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewRateSuv" value="16"><span class="curr-suffix">/ km</span></div>
-              <div class="live-calc-tag" id="admNewCalcSuv">Total: ₹2,400</div>
-            </div>
-            <div class="fare-col">
-              <span class="car-label">INNOVA CRYSTA (VIP)</span>
-              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewRateCrysta" value="20"><span class="curr-suffix">/ km</span></div>
-              <div class="live-calc-tag" id="admNewCalcCrysta">Total: ₹3,000</div>
-            </div>
+          <div class="route-rate-grid" id="admNewPerKmGrid">
+            <!-- Dynamically populated for all cars in fleet -->
           </div>
         </div>
 
@@ -475,6 +437,24 @@
   var routesFromFilter = "";
   var routeSearchQuery = "";
 
+  function getCarList() {
+    var order = (Array.isArray(C.carOrder) && C.carOrder.length) ? C.carOrder : Object.keys(C.cars || {});
+    var seen = {}, list = [];
+    order.forEach(function (k) {
+      if (!seen[k] && C.cars && C.cars[k]) {
+        seen[k] = true;
+        list.push({ key: k, car: C.cars[k] });
+      }
+    });
+    Object.keys(C.cars || {}).forEach(function (k) {
+      if (!seen[k]) {
+        seen[k] = true;
+        list.push({ key: k, car: C.cars[k] });
+      }
+    });
+    return list;
+  }
+
   function renderRoutes() {
     // filter pills
     var pills = '<button class="pill' + (routesFromFilter === "" ? " is-on" : "") + '" data-rfrom="">All cities</button>';
@@ -510,14 +490,65 @@
       return;
     }
 
+    var carList = getCarList();
     var html = "";
     filtered.forEach(function (item) {
       var i = item.i;
       var r = item.r;
       var isPerKm = r.pricingMode === "per_km";
       var km = Number(r.km) || 0;
-      var fares = r.fares || { hatchback: 2499, sedan: Number(r.sedan) || 2799, suv: Number(r.suv) || 3499, crysta: 4499 };
-      var rates = r.ratesPerKm || { hatchback: 11, sedan: 13, suv: 16, crysta: 20 };
+      var fares = r.fares || {};
+      var rates = r.ratesPerKm || {};
+
+      var customColsHtml = "";
+      var perKmColsHtml = "";
+
+      carList.forEach(function (itemCar) {
+        var k = itemCar.key;
+        var c = itemCar.car;
+        var carName = (c.name || k).toUpperCase();
+        var carDesc = c.models || (c.seats ? (c.seats + " seats | " + (c.bags || 2) + " bags") : "");
+
+        var fareVal = "";
+        if (fares[k] != null && fares[k] !== "") {
+          fareVal = fares[k];
+        } else if (k === "sedan" && r.sedan) {
+          fareVal = r.sedan;
+        } else if (k === "suv" && r.suv) {
+          fareVal = r.suv;
+        } else {
+          var basePrice = c.base === "suv" ? (Number(r.suv) || 3499) : (Number(r.sedan) || 2799);
+          var factor = typeof c.factor === "number" ? c.factor : 1;
+          fareVal = Math.round((basePrice * factor) / 50) * 50;
+        }
+
+        var rateVal = 13;
+        if (rates[k] != null && rates[k] !== "") {
+          rateVal = Number(rates[k]);
+        } else if (k === "hatchback") rateVal = 11;
+        else if (k === "sedan") rateVal = 13;
+        else if (k === "suv") rateVal = 16;
+        else if (k === "crysta") rateVal = 20;
+        else {
+          var baseRate = c.base === "suv" ? 16 : 13;
+          var factor = typeof c.factor === "number" ? c.factor : 1;
+          rateVal = Math.round(baseRate * factor);
+        }
+
+        var liveTotal = Math.round(km * rateVal);
+
+        customColsHtml += '<div class="fare-col">' +
+          '<span class="car-label">' + esc(carName) + '</span>' +
+          '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-fare-inp" data-car="' + esc(k) + '" data-idx="' + i + '" value="' + esc(fareVal) + '"></div>' +
+          (carDesc ? '<span class="fare-note">' + esc(carDesc) + '</span>' : '') +
+          '</div>';
+
+        perKmColsHtml += '<div class="fare-col">' +
+          '<span class="car-label">' + esc(carName) + ' RATE</span>' +
+          '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-rate-inp" data-car="' + esc(k) + '" data-idx="' + i + '" value="' + esc(rateVal) + '"><span class="curr-suffix">/ km</span></div>' +
+          '<div class="live-calc-tag" id="liveCalc_' + i + '_' + esc(k) + '">Total: <b>₹' + liveTotal.toLocaleString("en-IN") + '</b></div>' +
+          '</div>';
+      });
 
       html += '<div class="card route-card" data-idx="' + i + '">' +
         '<div class="route-card__header">' +
@@ -550,54 +581,12 @@
 
         // Custom Fixed Fare Body
         '<div class="route-card__mode-body" data-modebody="custom" data-idx="' + i + '" style="' + (isPerKm ? 'display:none' : '') + '">' +
-          '<div class="route-fare-grid">' +
-            '<div class="fare-col">' +
-              '<span class="car-label">HATCHBACK</span>' +
-              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-fare-inp" data-car="hatchback" data-idx="' + i + '" value="' + (fares.hatchback || '') + '"></div>' +
-              '<span class="fare-note">WagonR, Swift, i20</span>' +
-            '</div>' +
-            '<div class="fare-col">' +
-              '<span class="car-label">SEDAN</span>' +
-              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-fare-inp" data-car="sedan" data-idx="' + i + '" value="' + (fares.sedan || r.sedan || '') + '"></div>' +
-              '<span class="fare-note">Dzire, Aura, Etios</span>' +
-            '</div>' +
-            '<div class="fare-col">' +
-              '<span class="car-label">SUV (ERTIGA)</span>' +
-              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-fare-inp" data-car="suv" data-idx="' + i + '" value="' + (fares.suv || r.suv || '') + '"></div>' +
-              '<span class="fare-note">Ertiga, Carens</span>' +
-            '</div>' +
-            '<div class="fare-col">' +
-              '<span class="car-label">INNOVA CRYSTA (VIP)</span>' +
-              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-fare-inp" data-car="crysta" data-idx="' + i + '" value="' + (fares.crysta || '') + '"></div>' +
-              '<span class="fare-note">Crysta, Hycross</span>' +
-            '</div>' +
-          '</div>' +
+          '<div class="route-fare-grid">' + customColsHtml + '</div>' +
         '</div>' +
 
         // Per KM Rates Body
         '<div class="route-card__mode-body" data-modebody="per_km" data-idx="' + i + '" style="' + (!isPerKm ? 'display:none' : '') + '">' +
-          '<div class="route-rate-grid">' +
-            '<div class="fare-col">' +
-              '<span class="car-label">HATCHBACK RATE</span>' +
-              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-rate-inp" data-car="hatchback" data-idx="' + i + '" value="' + (rates.hatchback || 11) + '"><span class="curr-suffix">/ km</span></div>' +
-              '<div class="live-calc-tag" id="liveCalc_' + i + '_hatchback">Total: <b>₹' + Math.round(km * (Number(rates.hatchback) || 11)).toLocaleString('en-IN') + '</b></div>' +
-            '</div>' +
-            '<div class="fare-col">' +
-              '<span class="car-label">SEDAN RATE</span>' +
-              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-rate-inp" data-car="sedan" data-idx="' + i + '" value="' + (rates.sedan || 13) + '"><span class="curr-suffix">/ km</span></div>' +
-              '<div class="live-calc-tag" id="liveCalc_' + i + '_sedan">Total: <b>₹' + Math.round(km * (Number(rates.sedan) || 13)).toLocaleString('en-IN') + '</b></div>' +
-            '</div>' +
-            '<div class="fare-col">' +
-              '<span class="car-label">SUV (ERTIGA) RATE</span>' +
-              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-rate-inp" data-car="suv" data-idx="' + i + '" value="' + (rates.suv || 16) + '"><span class="curr-suffix">/ km</span></div>' +
-              '<div class="live-calc-tag" id="liveCalc_' + i + '_suv">Total: <b>₹' + Math.round(km * (Number(rates.suv) || 16)).toLocaleString('en-IN') + '</b></div>' +
-            '</div>' +
-            '<div class="fare-col">' +
-              '<span class="car-label">INNOVA CRYSTA RATE</span>' +
-              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-rate-inp" data-car="crysta" data-idx="' + i + '" value="' + (rates.crysta || 20) + '"><span class="curr-suffix">/ km</span></div>' +
-              '<div class="live-calc-tag" id="liveCalc_' + i + '_crysta">Total: <b>₹' + Math.round(km * (Number(rates.crysta) || 20)).toLocaleString('en-IN') + '</b></div>' +
-            '</div>' +
-          '</div>' +
+          '<div class="route-rate-grid">' + perKmColsHtml + '</div>' +
         '</div>' +
       '</div>';
     });
@@ -699,21 +688,65 @@
   function showTab(name) {
     $$("#admTabs button").forEach(function (b) { b.classList.toggle("is-on", b.dataset.tab === name); });
     $$(".secwrap").forEach(function (s) { s.hidden = s.dataset.sec !== name; });
+    if (name === "routes") {
+      readInputs();
+      renderRoutes();
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   // ---- add route modal / form handlers ----
+  function renderNewRouteCars() {
+    var customBox = $("#admNewCustomGrid");
+    var perKmBox = $("#admNewPerKmGrid");
+    if (!customBox || !perKmBox) return;
+
+    var km = Number($("#admNewRouteKm").value) || 150;
+    var carList = getCarList();
+    var customHtml = "";
+    var perKmHtml = "";
+
+    carList.forEach(function (itemCar) {
+      var k = itemCar.key;
+      var c = itemCar.car;
+      var carName = (c.name || k).toUpperCase();
+      var carDesc = c.models || (c.seats ? (c.seats + " seats") : "");
+
+      var basePrice = c.base === "suv" ? 3499 : 2799;
+      var factor = typeof c.factor === "number" ? c.factor : 1;
+      var defFare = Math.round((basePrice * factor) / 50) * 50;
+
+      var baseRate = c.base === "suv" ? 16 : 13;
+      if (k === "hatchback") baseRate = 11;
+      else if (k === "crysta") baseRate = 20;
+      var defRate = Math.round(baseRate * factor);
+      var liveTotal = Math.round(km * defRate);
+
+      customHtml += '<div class="fare-col">' +
+        '<span class="car-label">' + esc(carName) + '</span>' +
+        '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp adm-new-fare-inp" data-car="' + esc(k) + '" value="' + defFare + '"></div>' +
+        (carDesc ? '<span class="fare-note">' + esc(carDesc) + '</span>' : '') +
+        '</div>';
+
+      perKmHtml += '<div class="fare-col">' +
+        '<span class="car-label">' + esc(carName) + ' RATE</span>' +
+        '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp adm-new-rate-inp" data-car="' + esc(k) + '" value="' + defRate + '"><span class="curr-suffix">/ km</span></div>' +
+        '<div class="live-calc-tag" id="admNewCalc_' + esc(k) + '">Total: <b>₹' + liveTotal.toLocaleString("en-IN") + '</b></div>' +
+        '</div>';
+    });
+
+    customBox.innerHTML = customHtml;
+    perKmBox.innerHTML = perKmHtml;
+  }
+
   function updateNewRouteCalc() {
     var km = Number($("#admNewRouteKm").value) || 0;
-    var rh = Number($("#admNewRateHatchback").value) || 11;
-    var rs = Number($("#admNewRateSedan").value) || 13;
-    var rsuv = Number($("#admNewRateSuv").value) || 16;
-    var rc = Number($("#admNewRateCrysta").value) || 20;
-
-    var hEl = $("#admNewCalcHatchback"); if (hEl) hEl.innerHTML = "Total: <b>₹" + Math.round(km * rh).toLocaleString("en-IN") + "</b>";
-    var sEl = $("#admNewCalcSedan"); if (sEl) sEl.innerHTML = "Total: <b>₹" + Math.round(km * rs).toLocaleString("en-IN") + "</b>";
-    var suvEl = $("#admNewCalcSuv"); if (suvEl) suvEl.innerHTML = "Total: <b>₹" + Math.round(km * rsuv).toLocaleString("en-IN") + "</b>";
-    var cEl = $("#admNewCalcCrysta"); if (cEl) cEl.innerHTML = "Total: <b>₹" + Math.round(km * rc).toLocaleString("en-IN") + "</b>";
+    $$(".adm-new-rate-inp").forEach(function (inp) {
+      var car = inp.dataset.car;
+      var rate = Number(inp.value) || 0;
+      var tag = document.getElementById("admNewCalc_" + car);
+      if (tag) tag.innerHTML = "Total: <b>₹" + Math.round(km * rate).toLocaleString("en-IN") + "</b>";
+    });
   }
 
   function openAddRouteForm() {
@@ -724,6 +757,7 @@
     var ids = Object.keys(C.cities);
     if (selA) selA.innerHTML = cityOpts(ids[0] || "");
     if (selB) selB.innerHTML = cityOpts(ids[1] || ids[0] || "");
+    renderNewRouteCars();
     updateNewRouteCalc();
     form.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
@@ -760,19 +794,15 @@
     var time = ($("#admNewRouteTime").value || "3h").trim();
     var isPerKm = $("#admNewModePerKm").classList.contains("is-active");
 
-    var fares = {
-      hatchback: Number($("#admNewFareHatchback").value) || 2499,
-      sedan: Number($("#admNewFareSedan").value) || 2799,
-      suv: Number($("#admNewFareSuv").value) || 3499,
-      crysta: Number($("#admNewFareCrysta").value) || 4499
-    };
+    var fares = {};
+    $$(".adm-new-fare-inp").forEach(function (inp) {
+      fares[inp.dataset.car] = Number(inp.value) || 0;
+    });
 
-    var rates = {
-      hatchback: Number($("#admNewRateHatchback").value) || 11,
-      sedan: Number($("#admNewRateSedan").value) || 13,
-      suv: Number($("#admNewRateSuv").value) || 16,
-      crysta: Number($("#admNewRateCrysta").value) || 20
-    };
+    var rates = {};
+    $$(".adm-new-rate-inp").forEach(function (inp) {
+      rates[inp.dataset.car] = Number(inp.value) || 0;
+    });
 
     var newRoute = {
       a: cityA,
@@ -782,8 +812,8 @@
       pricingMode: isPerKm ? "per_km" : "custom",
       fares: fares,
       ratesPerKm: rates,
-      sedan: isPerKm ? Math.round(km * rates.sedan) : fares.sedan,
-      suv: isPerKm ? Math.round(km * rates.suv) : fares.suv
+      sedan: isPerKm ? Math.round(km * (rates.sedan || 13)) : (fares.sedan || 2799),
+      suv: isPerKm ? Math.round(km * (rates.suv || 16)) : (fares.suv || 3499)
     };
 
     C.routes.unshift(newRoute);
@@ -858,10 +888,14 @@
     }
 
     // Live calc for add form
-    ["#admNewRouteKm", "#admNewRateHatchback", "#admNewRateSedan", "#admNewRateSuv", "#admNewRateCrysta"].forEach(function (sel) {
-      var el = $(sel);
-      if (el) el.addEventListener("input", updateNewRouteCalc);
-    });
+    var newRouteKmEl = $("#admNewRouteKm");
+    if (newRouteKmEl) newRouteKmEl.addEventListener("input", updateNewRouteCalc);
+    var newPerKmGrid = $("#admNewPerKmGrid");
+    if (newPerKmGrid) {
+      newPerKmGrid.addEventListener("input", function (e) {
+        if (e.target.classList.contains("adm-new-rate-inp")) updateNewRouteCalc();
+      });
+    }
 
     var confirmAddBtn = $("#admConfirmAddRoute");
     if (confirmAddBtn) confirmAddBtn.addEventListener("click", confirmAddRoute);
@@ -927,10 +961,13 @@
           var km = Number(distInp.value) || 0;
           C.routes[idx].km = km;
           var r = C.routes[idx];
-          var rates = r.ratesPerKm || { hatchback: 11, sedan: 13, suv: 16, crysta: 20 };
-          ["hatchback", "sedan", "suv", "crysta"].forEach(function (c) {
-            var tag = document.getElementById("liveCalc_" + idx + "_" + c);
-            if (tag) tag.innerHTML = "Total: <b>₹" + Math.round(km * (Number(rates[c]) || 11)).toLocaleString("en-IN") + "</b>";
+          var rates = r.ratesPerKm || {};
+          var carList = getCarList();
+          carList.forEach(function (item) {
+            var cKey = item.key;
+            var cRate = Number(rates[cKey]) || (cKey === "hatchback" ? 11 : (cKey === "suv" ? 16 : (cKey === "crysta" ? 20 : 13)));
+            var tag = document.getElementById("liveCalc_" + idx + "_" + cKey);
+            if (tag) tag.innerHTML = "Total: <b>₹" + Math.round(km * cRate).toLocaleString("en-IN") + "</b>";
           });
           return;
         }
@@ -969,7 +1006,28 @@
     }
 
     $("#admAddCity").addEventListener("click", function () { readInputs(); var id = uniqueId(slug("City" + (Object.keys(C.cities).length + 1)), C.cities); C.cities[id] = { name: "New city", short: "New" }; renderCities(); renderRoutes(); renderShare(); });
-    $("#admAddCar").addEventListener("click", function () { readInputs(); var n = "New car " + (Object.keys(C.cars).length + 1); var k = uniqueId(slug(n), C.cars); C.cars[k] = { name: n, models: "", fuel: "PETROL", seats: 4, bags: 2, image: "sedan-thumb.webp", popular: false, base: "sedan", factor: 1 }; C.carOrder.push(k); renderCars(); });
+    $("#admAddCar").addEventListener("click", function () {
+      readInputs();
+      var n = "New car " + (Object.keys(C.cars).length + 1);
+      var k = uniqueId(slug(n), C.cars);
+      C.cars[k] = { name: n, models: "", fuel: "PETROL", seats: 4, bags: 2, image: "sedan-thumb.webp", popular: false, base: "sedan", factor: 1 };
+      C.carOrder.push(k);
+      var factor = 1;
+      var defRate = 13;
+      C.routes.forEach(function (r) {
+        if (!r.fares) r.fares = {};
+        if (!r.ratesPerKm) r.ratesPerKm = {};
+        if (r.fares[k] == null) {
+          var rBase = Number(r.sedan) || 2799;
+          r.fares[k] = Math.round((rBase * factor) / 50) * 50;
+        }
+        if (r.ratesPerKm[k] == null) {
+          r.ratesPerKm[k] = defRate;
+        }
+      });
+      renderCars();
+      renderRoutes();
+    });
     $("#admAddShare").addEventListener("click", function () { readInputs(); var ids = Object.keys(C.cities); C.share.routes.push({ key: "", a: ids[0] || "pune", b: ids[1] || "mumbai", rate: 800 }); renderShare(); });
 
     document.addEventListener("click", function (e) {
@@ -981,7 +1039,14 @@
           renderRoutes();
         }
       }
-      else if (t.dataset.delcar != null) { readInputs(); var k = t.dataset.delcar; delete C.cars[k]; C.carOrder = C.carOrder.filter(function (x) { return x !== k; }); renderCars(); }
+      else if (t.dataset.delcar != null) {
+        readInputs();
+        var k = t.dataset.delcar;
+        delete C.cars[k];
+        C.carOrder = C.carOrder.filter(function (x) { return x !== k; });
+        renderCars();
+        renderRoutes();
+      }
       else if (t.dataset.delshare != null) { readInputs(); C.share.routes.splice(Number(t.dataset.delshare), 1); renderShare(); }
       else if (t.dataset.delcity != null) { readInputs(); delete C.cities[t.dataset.delcity]; renderCities(); renderRoutes(); renderShare(); }
     });
@@ -990,6 +1055,27 @@
   function save() {
     readInputs();
     C.share.routes.forEach(function (r) { r.key = r.a + "-" + r.b; });
+
+    // Sync all currently rendered route inputs into C.routes
+    $$(".route-fare-inp").forEach(function (inp) {
+      var idx = Number(inp.dataset.idx);
+      var car = inp.dataset.car;
+      var val = Number(inp.value) || 0;
+      if (C.routes[idx]) {
+        if (!C.routes[idx].fares) C.routes[idx].fares = {};
+        C.routes[idx].fares[car] = val;
+      }
+    });
+
+    $$(".route-rate-inp").forEach(function (inp) {
+      var idx = Number(inp.dataset.idx);
+      var car = inp.dataset.car;
+      var val = Number(inp.value) || 0;
+      if (C.routes[idx]) {
+        if (!C.routes[idx].ratesPerKm) C.routes[idx].ratesPerKm = {};
+        C.routes[idx].ratesPerKm[car] = val;
+      }
+    });
 
     // Keep sedan and suv synchronized with fares / rates for backward compatibility
     C.routes.forEach(function (r) {
