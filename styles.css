@@ -1684,9 +1684,15 @@ body.rmodal-open{overflow:hidden}
 }
 .booktab .ic{width:18px;height:18px;transition:transform .2s;flex-shrink:0}
 .booktab:hover{color:var(--text);background:rgba(255,255,255,.75)}
-.booktab.is-active{
-  background:linear-gradient(135deg,#0369A1 0%,#075985 100%);
-  color:#FFF;box-shadow:0 6px 18px rgba(2,132,199,.32);
+.booktab.is-active,
+#tab-oneway.is-active{
+  background:linear-gradient(135deg,#0089E2 0%,#0077C8 100%) !important;
+  color:#FFF !important;box-shadow:0 6px 18px rgba(0,137,226,.35) !important;
+}
+.booktab.is-active:hover,
+#tab-oneway.is-active:hover{
+  background:linear-gradient(135deg,#0094F2 0%,#0080D8 100%) !important;
+  color:#FFF !important;
 }
 .booktab.is-active .ic{transform:scale(1.1)}
 .booktab--sharing.is-active{
