@@ -81,8 +81,48 @@ const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const inr = n => "\u20B9" + Number(n).toLocaleString("en-IN");
 const routeKey = (a, b) => [a, b].sort().join("|");
 
+function normalizeCityKey(str) {
+  if (!str) return "";
+  return String(str).toLowerCase().trim()
+    .replace(/^(chhatrapati\s+)?sambhajinagar.*|aurangabad/i, "sambhajinagar")
+    .replace(/^ahilyanagar.*|ahmednagar/i, "ahilyanagar")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function resolveCityId(input, citiesDict) {
+  if (!input) return "";
+  const raw = String(input).trim();
+  const dict = citiesDict || CITIES;
+  if (dict[raw]) return raw;
+  const norm = normalizeCityKey(raw);
+  for (const k in dict) {
+    if (k === norm || normalizeCityKey(k) === norm) return k;
+    if (dict[k].name && normalizeCityKey(dict[k].name) === norm) return k;
+    if (dict[k].short && normalizeCityKey(dict[k].short) === norm) return k;
+  }
+  return norm || raw.toLowerCase();
+}
+
 function findRoute(a, b) {
-  return ROUTES.find(r => (r.a === a && r.b === b) || (r.a === b && r.b === a)) || null;
+  if (!a || !b) return null;
+  const idA = resolveCityId(a, CITIES);
+  const idB = resolveCityId(b, CITIES);
+  const normA = normalizeCityKey(a);
+  const normB = normalizeCityKey(b);
+
+  return ROUTES.find(r => {
+    const rA = resolveCityId(r.a, CITIES);
+    const rB = resolveCityId(r.b, CITIES);
+    const rNormA = normalizeCityKey(r.a);
+    const rNormB = normalizeCityKey(r.b);
+
+    return (
+      (rA === idA && rB === idB) ||
+      (rA === idB && rB === idA) ||
+      (rNormA === normA && rNormB === normB) ||
+      (rNormA === normB && rNormB === normA)
+    );
+  }) || null;
 }
 
 /* ---------------------------------------------------------------------------
@@ -276,10 +316,19 @@ function buildSelects() {
 
 function currentFare() {
   const r = findRoute(bookState.from, bookState.to);
+  const cls = bookState.cls || "sedan";
   if (!r) {
-    return bookState.cls === "suv" ? 3600 : 2800;
+    return cls === "suv" ? 3600 : 2800;
   }
-  return bookState.cls === "suv" ? r.suv : r.sedan;
+  if (r.pricingMode === "per_km") {
+    const km = Number(r.km) || 0;
+    const rate = (r.ratesPerKm && Number(r.ratesPerKm[cls])) || (cls === "suv" ? 16 : 13);
+    return Math.round(km * rate);
+  }
+  if (r.fares && r.fares[cls] != null && Number(r.fares[cls]) > 0) {
+    return Number(r.fares[cls]);
+  }
+  return cls === "suv" ? (Number(r.suv) || 3499) : (Number(r.sedan) || 2799);
 }
 
 function renderFare(flash) {
@@ -317,7 +366,8 @@ function renderFare(flash) {
     } else {
       num.textContent = newVal;
     }
-    meta.textContent = `${i18nCity(r.a)} ${i18nT("to")} ${i18nCity(r.b)} · ${r.km} ${i18nT("km")} · ${r.time}`;
+    const modeNote = r.pricingMode === "per_km" ? ` (${r.km} km @ ₹${(r.ratesPerKm && r.ratesPerKm[bookState.cls]) || (bookState.cls === 'suv' ? 16 : 13)}/km)` : "";
+    meta.textContent = `${i18nCity(r.a)} ${i18nT("to")} ${i18nCity(r.b)} · ${r.km} ${i18nT("km")}${modeNote} · ${r.time}`;
     if (err) { err.hidden = true; err.textContent = ""; }
   }
 
@@ -361,8 +411,10 @@ window._setRouteQuick = (from, to) => setRoute(from, to, "sedan", { scroll: true
 function goToCabsFlow(from, to) {
   if (!from || !to || from === to) return;
   const p = new URLSearchParams();
-  p.set("from", from);
-  p.set("to", to);
+  const f = (from === "custom" && bookState.fromName) ? bookState.fromName : from;
+  const t = (to === "custom" && bookState.toName) ? bookState.toName : to;
+  p.set("from", f);
+  p.set("to", t);
   if (bookState.date) p.set("date", bookState.date);
   if (bookState.time) p.set("time", bookState.time);
   if (bookState.urgent) p.set("urgent", "1");
@@ -508,9 +560,15 @@ function setupAutocomplete(inputId, dropdownId, onSelect, customList) {
   dropdown.addEventListener("click", e => {
     const item = e.target.closest(".autocomplete-item");
     if (item && item.dataset.id) {
-      const id = item.dataset.id;
+      let id = item.dataset.id;
       const name = item.dataset.name;
       const rate = item.dataset.rate;
+      if (id === "custom") {
+        const resolved = resolveCityId(name);
+        if (resolved && (CITIES[resolved] || ROUTES.some(r => r.a === resolved || r.b === resolved))) {
+          id = resolved;
+        }
+      }
       input.value = name;
       dropdown.classList.remove("is-open");
       if (clearBtn) clearBtn.hidden = false;
@@ -3395,22 +3453,91 @@ function initFirebaseAuth() {
   checkService();
 }
 
-/* ---------- ADMIN-EDITABLE SITE IMAGES (logo, hero, fleet, favicon) ---------- */
-(function initSiteImages() {
+/* ---------- DYNAMIC SITE CONFIG SYNC (admin edited brand, cities, routes, images) ---------- */
+function syncCitiesToLocations(citiesDict) {
+  if (!citiesDict || typeof citiesDict !== "object") return;
+  Object.keys(citiesDict).forEach(function (id) {
+    var c = citiesDict[id];
+    if (!c || !c.name) return;
+    var norm = normalizeCityKey(id);
+    var existingMh = MH_LOCATIONS.find(function (loc) { return loc.id === id || normalizeCityKey(loc.id) === norm; });
+    if (!existingMh) {
+      MH_LOCATIONS.unshift({
+        name: c.name,
+        id: id,
+        tag: "City",
+        icon: "📍",
+        sub: c.short || "Maharashtra",
+        aliases: [id, c.name.toLowerCase(), (c.short || "").toLowerCase(), norm]
+      });
+    }
+    var existingPop = POPULAR_HUBS_DEFAULT.find(function (loc) { return loc.id === id || normalizeCityKey(loc.id) === norm; });
+    if (!existingPop) {
+      POPULAR_HUBS_DEFAULT.push({
+        name: c.name,
+        id: id,
+        sub: c.short || "Maharashtra",
+        tag: "POPULAR CITY"
+      });
+    }
+  });
+}
+
+(function syncSiteConfig() {
   try {
     fetch("/api/config", { headers: { Accept: "application/json" }, cache: "no-store" })
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        var imgs = d && d.config && d.config.images;
-        if (!imgs) return;
-        if (imgs.logo) { document.querySelectorAll(".brand__logo, .bf-nav__brand img").forEach(function (el) { el.src = imgs.logo; }); }
-        if (imgs.hero) { var h = document.querySelector(".hero__photo img"); if (h) h.src = imgs.hero; }
-        ["sedan", "ertiga", "carens", "crysta"].forEach(function (k) {
-          var url = imgs["fleet_" + k]; if (!url) return;
-          var el = document.querySelector('[data-si="fleet_' + k + '"]'); if (el) el.src = url;
-        });
-        if (imgs.cta) { var c = document.querySelector('[data-si="cta"]'); if (c) c.src = imgs.cta; }
-        if (imgs.favicon) { var l = document.querySelector('link[rel="icon"]'); if (l) l.href = imgs.favicon; }
+        if (!d || !d.config) return;
+        var cfg = d.config;
+
+        // 1. Sync brand & contact details
+        if (cfg.brand && typeof cfg.brand === "object") {
+          if (cfg.brand.brand) CONFIG.brand = cfg.brand.brand;
+          if (cfg.brand.phoneDisplay) CONFIG.phoneDisplay = cfg.brand.phoneDisplay;
+          if (cfg.brand.phoneTel) CONFIG.phoneTel = cfg.brand.phoneTel;
+          if (cfg.brand.whatsapp) CONFIG.whatsapp = cfg.brand.whatsapp;
+          wireContactLinks();
+        }
+
+        // 2. Sync cities & autocomplete locations
+        if (cfg.cities && typeof cfg.cities === "object") {
+          Object.assign(CITIES, cfg.cities);
+          syncCitiesToLocations(cfg.cities);
+          buildSelects();
+        }
+
+        // 3. Sync routes & dual-mode pricing
+        if (Array.isArray(cfg.routes) && cfg.routes.length > 0) {
+          ROUTES.length = 0;
+          cfg.routes.forEach(function (r) {
+            var copy = Object.assign({}, r);
+            if (!copy.pricingMode) copy.pricingMode = "custom";
+            if (!copy.fares && (copy.sedan || copy.suv)) {
+              copy.fares = {
+                hatchback: Math.round(((Number(copy.sedan) || 2799) * 0.88) / 50) * 50,
+                sedan: Number(copy.sedan) || 2799,
+                suv: Number(copy.suv) || 3499,
+                crysta: Math.round(((Number(copy.suv) || 3499) * 1.25) / 50) * 50
+              };
+            }
+            ROUTES.push(copy);
+          });
+          renderFare(false);
+        }
+
+        // 4. Sync site images
+        var imgs = cfg.images;
+        if (imgs) {
+          if (imgs.logo) { document.querySelectorAll(".brand__logo, .bf-nav__brand img").forEach(function (el) { el.src = imgs.logo; }); }
+          if (imgs.hero) { var h = document.querySelector(".hero__photo img"); if (h) h.src = imgs.hero; }
+          ["sedan", "ertiga", "carens", "crysta"].forEach(function (k) {
+            var url = imgs["fleet_" + k]; if (!url) return;
+            var el = document.querySelector('[data-si="fleet_' + k + '"]'); if (el) el.src = url;
+          });
+          if (imgs.cta) { var c = document.querySelector('[data-si="cta"]'); if (c) c.src = imgs.cta; }
+          if (imgs.favicon) { var l = document.querySelector('link[rel="icon"]'); if (l) l.href = imgs.favicon; }
+        }
       })
       .catch(function () {});
   } catch (e) {}

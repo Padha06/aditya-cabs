@@ -97,23 +97,100 @@
 
   const inr = (n) => "\u20B9" + Number(n).toLocaleString("en-IN");
 
+  function normalizeCityKey(str) {
+    if (!str) return "";
+    return String(str).toLowerCase().trim()
+      .replace(/^(chhatrapati\s+)?sambhajinagar.*|aurangabad/i, "sambhajinagar")
+      .replace(/^ahilyanagar.*|ahmednagar/i, "ahilyanagar")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  function resolveCityId(input, citiesDict) {
+    if (!input) return "";
+    const raw = String(input).trim();
+    const dict = citiesDict || CITIES;
+    if (dict[raw]) return raw;
+    const norm = normalizeCityKey(raw);
+    for (const k in dict) {
+      if (k === norm || normalizeCityKey(k) === norm) return k;
+      if (dict[k].name && normalizeCityKey(dict[k].name) === norm) return k;
+      if (dict[k].short && normalizeCityKey(dict[k].short) === norm) return k;
+    }
+    return norm || raw.toLowerCase();
+  }
+
   function findRoute(a, b) {
-    return ROUTES.find((r) => (r.a === a && r.b === b) || (r.a === b && r.b === a)) || null;
+    if (!a || !b) return null;
+    const idA = resolveCityId(a, CITIES);
+    const idB = resolveCityId(b, CITIES);
+    const normA = normalizeCityKey(a);
+    const normB = normalizeCityKey(b);
+
+    return ROUTES.find((r) => {
+      const rA = resolveCityId(r.a, CITIES);
+      const rB = resolveCityId(r.b, CITIES);
+      const rNormA = normalizeCityKey(r.a);
+      const rNormB = normalizeCityKey(r.b);
+
+      return (
+        (rA === idA && rB === idB) ||
+        (rA === idB && rB === idA) ||
+        (rNormA === normA && rNormB === normB) ||
+        (rNormA === normB && rNormB === normA)
+      );
+    }) || null;
   }
 
   function cityName(id) {
     if (!id) return "";
-    return CITIES[id] ? CITIES[id].name : id;
+    const resolved = resolveCityId(id, CITIES);
+    if (CITIES[resolved] && CITIES[resolved].name) return CITIES[resolved].name;
+    if (CITIES[id] && CITIES[id].name) return CITIES[id].name;
+    return String(id).charAt(0).toUpperCase() + String(id).slice(1);
   }
+
+  const DEFAULT_PER_KM_RATES = {
+    hatchback: 11,
+    sedan: 13,
+    suv: 16,
+    crysta: 20
+  };
 
   function getCarFare(carKey, from, to) {
     const r = findRoute(from, to);
-    const baseOf = (c) => (c && c.base === "suv") ? (r ? r.suv : 3499) : (r ? r.sedan : 2799);
-    const car = ONEWAY_CARS[carKey];
-    if (!car) return baseOf(null);
+    const car = ONEWAY_CARS[carKey] || ONEWAY_CARS.sedan;
+    const key = car.key || carKey || "sedan";
+
+    if (r) {
+      // 1. Per-KM pricing mode
+      if (r.pricingMode === "per_km") {
+        const km = Number(r.km) || 0;
+        const rate = (r.ratesPerKm && Number(r.ratesPerKm[key])) ||
+                     (DEFAULT_PER_KM_RATES[key] || 13);
+        return Math.round(km * rate);
+      }
+
+      // 2. Custom Fixed Fare mode
+      if (r.fares && r.fares[key] != null && Number(r.fares[key]) > 0) {
+        return Number(r.fares[key]);
+      }
+
+      // 3. Direct property fallback (r.sedan, r.suv, r.hatchback, r.crysta)
+      if (r[key] != null && Number(r[key]) > 0) {
+        return Number(r[key]);
+      }
+
+      // 4. Fallback based on sedan/suv factors
+      const baseOf = (c) => (c && c.base === "suv") ? (Number(r.suv) || 3499) : (Number(r.sedan) || 2799);
+      const factor = (typeof car.factor === "number") ? car.factor : 1;
+      const base = baseOf(car);
+      return factor === 1 ? base : Math.round((base * factor) / 50) * 50;
+    }
+
+    // Fallback if route is not predefined
+    const baseDefault = car.base === "suv" ? 3699 : 2899;
     const factor = (typeof car.factor === "number") ? car.factor : 1;
-    const base = baseOf(car);
-    return factor === 1 ? base : Math.round((base * factor) / 50) * 50;
+    return factor === 1 ? baseDefault : Math.round((baseDefault * factor) / 50) * 50;
   }
 
   function planFare(flow) {
@@ -335,7 +412,25 @@
     if (cfg.brand && typeof cfg.brand === "object") Object.assign(CONFIG, cfg.brand);
     if (cfg.images && typeof cfg.images === "object") { Object.assign(SITE_IMAGES, cfg.images); applySiteImages(SITE_IMAGES); }
     if (cfg.cities && typeof cfg.cities === "object") { Object.keys(CITIES).forEach((k) => delete CITIES[k]); Object.assign(CITIES, cfg.cities); }
-    if (Array.isArray(cfg.routes)) { ROUTES.length = 0; cfg.routes.forEach((r) => ROUTES.push(r)); }
+    if (Array.isArray(cfg.routes)) {
+      ROUTES.length = 0;
+      cfg.routes.forEach((r) => {
+        const copy = Object.assign({}, r);
+        if (!copy.pricingMode) copy.pricingMode = "custom";
+        if (!copy.fares && (copy.sedan || copy.suv)) {
+          copy.fares = {
+            hatchback: Math.round(((Number(copy.sedan) || 2799) * 0.88) / 50) * 50,
+            sedan: Number(copy.sedan) || 2799,
+            suv: Number(copy.suv) || 3499,
+            crysta: Math.round(((Number(copy.suv) || 3499) * 1.25) / 50) * 50
+          };
+        }
+        if (!copy.ratesPerKm) {
+          copy.ratesPerKm = Object.assign({}, DEFAULT_PER_KM_RATES);
+        }
+        ROUTES.push(copy);
+      });
+    }
     if (cfg.cars && typeof cfg.cars === "object") { Object.keys(ONEWAY_CARS).forEach((k) => delete ONEWAY_CARS[k]); Object.assign(ONEWAY_CARS, cfg.cars); }
     if (Array.isArray(cfg.carOrder) && cfg.carOrder.length) { CAR_ORDER.length = 0; cfg.carOrder.forEach((k) => CAR_ORDER.push(k)); }
     if (cfg.round) {
@@ -358,7 +453,7 @@
     try {
       const ctrl = (typeof AbortController !== "undefined") ? new AbortController() : null;
       const timer = ctrl ? setTimeout(() => ctrl.abort(), 3000) : null;
-      const r = await fetch("/api/config", { headers: { Accept: "application/json" }, signal: ctrl ? ctrl.signal : undefined });
+      const r = await fetch("/api/config", { headers: { Accept: "application/json" }, cache: "no-store", signal: ctrl ? ctrl.signal : undefined });
       if (timer) clearTimeout(timer);
       if (!r.ok) return;
       const d = await r.json();
@@ -369,7 +464,8 @@
   window.STBooking = {
     CONFIG, CITIES, CITY_GEO, ROUTES, ONEWAY_CARS, CAR_ORDER, LOCAL_SUGGESTIONS,
     ROUND_CARS, ROUND_ORDER, ROUND_EST_KM, LOCAL_PACKAGES, LOCAL_CLS, SHARE_ROUTES, SHARE_MAX_SEATS,
-    inr, findRoute, cityName, getCarFare, planFare, computeFare, waUrl, applyConfig, SITE_IMAGES, applySiteImages,
+    inr, findRoute, cityName, resolveCityId, normalizeCityKey, DEFAULT_PER_KM_RATES,
+    getCarFare, planFare, computeFare, waUrl, applyConfig, SITE_IMAGES, applySiteImages,
     formatDate, formatTime, dateTimeDisplay,
     readFlow, writeFlow, updateFlow, loadFlow, buildUrl,
     readProfile, saveProfile, saveBooking, syncBookingToServer, newBookingId,

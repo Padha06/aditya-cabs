@@ -77,6 +77,33 @@
     table.tbl td:last-child { justify-content: flex-end; }
     .scrollx { overflow-x: visible; }
   }
+  .route-card { padding: 18px 20px; margin-bottom: 14px; border: 1.5px solid #E2E8F0; transition: border-color .15s, box-shadow .15s; }
+  .route-card:hover { border-color: #CBD5E1; box-shadow: 0 4px 14px rgba(0,0,0,.04); }
+  .route-card__header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px solid #F1F5F9; margin-bottom: 14px; }
+  .route-card__title { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .route-city-badge { font-size: .72rem; font-weight: 800; text-transform: uppercase; color: #64748B; background: #F1F5F9; padding: 4px 8px; border-radius: 6px; }
+  .route-bidir { font-size: 1.2rem; color: #0284C7; font-weight: 800; }
+  .route-sel { min-width: 140px; font-weight: 700; }
+  .route-card__meta { display: flex; align-items: center; gap: 6px; font-size: .84rem; color: #475569; }
+  .pricing-mode-switch { display: inline-flex; background: #F1F5F9; border-radius: 10px; padding: 3px; gap: 2px; }
+  .mode-btn { border: 0; background: transparent; padding: 6px 12px; border-radius: 8px; font: inherit; font-size: .78rem; font-weight: 800; color: #64748B; cursor: pointer; transition: all .15s; }
+  .mode-btn.is-active { background: #FFF; color: #0284C7; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .route-fare-grid, .route-rate-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .fare-col { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .car-label { font-size: .72rem; font-weight: 800; letter-spacing: .04em; color: #475569; }
+  .fare-input-wrap { display: flex; align-items: center; gap: 4px; }
+  .curr-prefix { font-weight: 800; color: #64748B; font-size: .95rem; }
+  .curr-suffix { font-weight: 700; color: #64748B; font-size: .78rem; white-space: nowrap; }
+  .fare-note { font-size: .72rem; color: #94A3B8; }
+  .live-calc-tag { font-size: .76rem; color: #0284C7; background: #E0F2FE; border-radius: 6px; padding: 4px 8px; font-weight: 600; margin-top: 2px; }
+  .live-calc-tag b { font-weight: 800; color: #0369A1; }
+  @media (max-width: 800px) {
+    .route-fare-grid, .route-rate-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 550px) {
+    .route-fare-grid, .route-rate-grid { grid-template-columns: 1fr; }
+    .route-card__header { flex-direction: column; align-items: flex-start; }
+  }
 </style>
 </head>
 <body class="bf-page">
@@ -139,13 +166,118 @@
 
     <!-- ROUTES & FARES -->
     <section class="secwrap" data-sec="routes" hidden>
-      <h2 class="sec">Routes &amp; Fares <span id="routeCount" style="font-size:.8rem;color:#94A3B8;font-weight:700"></span></h2>
-      <p class="sec-sub">Each route runs both ways at the same price. Set the <b>Sedan</b> and <b>SUV</b> prices — the other car types are calculated automatically (see the Cars tab).</p>
-      <p class="where">On your website: these prices appear on the <b>booking page</b> when a customer chooses a cab. &nbsp;<a href="/cabs" target="_blank" rel="noopener">Open the booking page ↗</a></p>
-      <div class="pill-tabs" id="admRouteFilter"></div>
-      <div class="card scrollx"><table class="tbl" id="admRoutes"></table></div>
-      <p class="hint" style="margin-top:10px">A route is priced for <b>both directions</b> — editing a price updates the return direction too.</p>
-      <button class="btn2 add" id="admAddRoute">+ Add a route</button>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:12px">
+        <div>
+          <h2 class="sec">Routes &amp; Fares <span id="routeCount" style="font-size:.85rem;color:#0284C7;font-weight:700"></span></h2>
+          <p class="sec-sub" style="margin-bottom:6px">Every route runs in <b>both directions</b> at the same price. For every route, you have <b>2 pricing options</b>: set a <b>Fixed Custom Fare</b> or <b>Per-KM Pricing</b> with live total calculations.</p>
+        </div>
+        <button class="btn2 add" id="admOpenAddRoute" style="background:#0284C7;color:#fff;border:0;padding:10px 18px;font-size:.9rem;box-shadow:0 4px 12px rgba(2,132,199,.25)">+ Add New Route</button>
+      </div>
+
+      <!-- ADD NEW ROUTE MODAL / CARD -->
+      <div class="card add-route-box" id="admNewRouteForm" style="display:none;background:#F8FAFC;border:2px dashed #0284C7;margin:14px 0 20px;padding:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 style="margin:0;font-size:1.05rem;color:#0F172A">➕ Add Any New Route &amp; Set Fares</h3>
+          <button type="button" class="btn2" id="admCancelAddRoute" style="padding:4px 10px;font-size:.8rem">✕ Close</button>
+        </div>
+        <p class="hint" style="margin-bottom:14px">Select cities or type a new city name. Any route and fare you save here appears immediately on the website!</p>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr 110px 110px;gap:12px;margin-bottom:14px">
+          <div>
+            <label style="font-size:.72rem;font-weight:800;text-transform:uppercase;color:#64748B;display:block;margin-bottom:4px">Origin (City A)</label>
+            <select class="inp" id="admNewRouteA"></select>
+            <input type="text" class="inp" id="admNewCityA" placeholder="Type new city name..." style="margin-top:6px;font-size:.82rem;display:none">
+            <button type="button" id="admToggleNewCityA" style="margin-top:4px;font-size:.74rem;padding:2px 6px;border:0;color:#0284C7;background:transparent;cursor:pointer;font-weight:700">+ Type new city name</button>
+          </div>
+          <div>
+            <label style="font-size:.72rem;font-weight:800;text-transform:uppercase;color:#64748B;display:block;margin-bottom:4px">Destination (City B)</label>
+            <select class="inp" id="admNewRouteB"></select>
+            <input type="text" class="inp" id="admNewCityB" placeholder="Type new city name..." style="margin-top:6px;font-size:.82rem;display:none">
+            <button type="button" id="admToggleNewCityB" style="margin-top:4px;font-size:.74rem;padding:2px 6px;border:0;color:#0284C7;background:transparent;cursor:pointer;font-weight:700">+ Type new city name</button>
+          </div>
+          <div>
+            <label style="font-size:.72rem;font-weight:800;text-transform:uppercase;color:#64748B;display:block;margin-bottom:4px">Distance (km)</label>
+            <input type="number" class="inp" id="admNewRouteKm" value="150" placeholder="150">
+          </div>
+          <div>
+            <label style="font-size:.72rem;font-weight:800;text-transform:uppercase;color:#64748B;display:block;margin-bottom:4px">Est. Time</label>
+            <input type="text" class="inp" id="admNewRouteTime" value="3h 30m" placeholder="3h 30m">
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <label style="font-size:.72rem;font-weight:800;text-transform:uppercase;color:#64748B;display:block;margin-bottom:6px">Select Pricing Option</label>
+          <div class="pricing-mode-switch" style="padding:4px">
+            <button type="button" class="mode-btn is-active" id="admNewModeCustom">🏷️ Option 1: Custom Fixed Fare</button>
+            <button type="button" class="mode-btn" id="admNewModePerKm">⚡ Option 2: Per KM Pricing</button>
+          </div>
+        </div>
+
+        <!-- Option 1: Custom Fixed Fare Inputs -->
+        <div id="admNewCustomBox" style="margin-bottom:16px">
+          <label style="font-size:.72rem;font-weight:800;text-transform:uppercase;color:#64748B;display:block;margin-bottom:6px">Enter Fixed Total Fare For Each Car</label>
+          <div class="route-fare-grid">
+            <div class="fare-col">
+              <span class="car-label">HATCHBACK</span>
+              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewFareHatchback" value="2499"></div>
+              <span class="fare-note">WagonR, Swift, i20</span>
+            </div>
+            <div class="fare-col">
+              <span class="car-label">SEDAN</span>
+              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewFareSedan" value="2799"></div>
+              <span class="fare-note">Dzire, Aura, Etios</span>
+            </div>
+            <div class="fare-col">
+              <span class="car-label">SUV (ERTIGA)</span>
+              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewFareSuv" value="3499"></div>
+              <span class="fare-note">Ertiga, Carens</span>
+            </div>
+            <div class="fare-col">
+              <span class="car-label">INNOVA CRYSTA (VIP)</span>
+              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewFareCrysta" value="4499"></div>
+              <span class="fare-note">Innova Crysta, Hycross</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Option 2: Per KM Rates Inputs with Live Preview -->
+        <div id="admNewPerKmBox" style="display:none;margin-bottom:16px">
+          <label style="font-size:.72rem;font-weight:800;text-transform:uppercase;color:#64748B;display:block;margin-bottom:6px">Enter Price Per KM (Total calculated live from distance)</label>
+          <div class="route-rate-grid">
+            <div class="fare-col">
+              <span class="car-label">HATCHBACK</span>
+              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewRateHatchback" value="11"><span class="curr-suffix">/ km</span></div>
+              <div class="live-calc-tag" id="admNewCalcHatchback">Total: ₹1,650</div>
+            </div>
+            <div class="fare-col">
+              <span class="car-label">SEDAN</span>
+              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewRateSedan" value="13"><span class="curr-suffix">/ km</span></div>
+              <div class="live-calc-tag" id="admNewCalcSedan">Total: ₹1,950</div>
+            </div>
+            <div class="fare-col">
+              <span class="car-label">SUV (ERTIGA)</span>
+              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewRateSuv" value="16"><span class="curr-suffix">/ km</span></div>
+              <div class="live-calc-tag" id="admNewCalcSuv">Total: ₹2,400</div>
+            </div>
+            <div class="fare-col">
+              <span class="car-label">INNOVA CRYSTA (VIP)</span>
+              <div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp" id="admNewRateCrysta" value="20"><span class="curr-suffix">/ km</span></div>
+              <div class="live-calc-tag" id="admNewCalcCrysta">Total: ₹3,000</div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="bf-btn-primary" id="admConfirmAddRoute" style="max-width:240px">Save &amp; Add Route</button>
+      </div>
+
+      <!-- FILTER & SEARCH BAR -->
+      <div style="display:flex;gap:12px;margin:16px 0 12px;flex-wrap:wrap;align-items:center">
+        <input type="text" id="admRouteSearch" class="inp" placeholder="🔍 Search routes by city name..." style="max-width:300px;font-size:.85rem">
+        <div class="pill-tabs" id="admRouteFilter" style="margin-bottom:0"></div>
+      </div>
+
+      <!-- ROUTE CARDS CONTAINER -->
+      <div id="admRoutesList"></div>
     </section>
 
     <!-- CARS -->
@@ -247,6 +379,26 @@
       share: { routes: clone(ST.SHARE_ROUTES), maxSeats: ST.SHARE_MAX_SEATS },
       images: clone(ST.SITE_IMAGES || {})
     };
+    C.routes.forEach(function (r) {
+      if (!r.pricingMode) r.pricingMode = "custom";
+      if (!r.fares) {
+        r.fares = {
+          hatchback: Math.round(((Number(r.sedan) || 2799) * 0.88) / 50) * 50,
+          sedan: Number(r.sedan) || 2799,
+          suv: Number(r.suv) || 3499,
+          crysta: Math.round(((Number(r.suv) || 3499) * 1.25) / 50) * 50
+        };
+      }
+      if (!r.ratesPerKm) {
+        r.ratesPerKm = {
+          hatchback: 11,
+          sedan: 13,
+          suv: 16,
+          crysta: 20
+        };
+      }
+      if (r.km == null) r.km = 100;
+    });
     renderAll();
     loadBookings(curRange);
     wire();
@@ -319,39 +471,138 @@
     $("#admCities").innerHTML = rows;
   }
 
-  // ---- routes (shown per direction, with a city filter) ----
+  // ---- routes (clean pair cards with Custom Fixed Fare vs Per KM modes) ----
   var routesFromFilter = "";
+  var routeSearchQuery = "";
+
   function renderRoutes() {
     // filter pills
-    var pills = '<button class="pill' + (routesFromFilter === "" ? " is-on" : "") + '" data-rfrom="">All routes</button>';
+    var pills = '<button class="pill' + (routesFromFilter === "" ? " is-on" : "") + '" data-rfrom="">All cities</button>';
     Object.keys(C.cities).forEach(function (id) {
-      pills += '<button class="pill' + (routesFromFilter === id ? " is-on" : "") + '" data-rfrom="' + esc(id) + '">From ' + esc(C.cities[id].name) + '</button>';
+      pills += '<button class="pill' + (routesFromFilter === id ? " is-on" : "") + '" data-rfrom="' + esc(id) + '">' + esc(C.cities[id].name) + '</button>';
     });
     var flt = $("#admRouteFilter"); if (flt) flt.innerHTML = pills;
 
-    // build the directional list (each route bookable both ways)
-    var dirs = [];
+    // Filter list
+    var filtered = [];
     C.routes.forEach(function (r, i) {
-      dirs.push({ i: i, dir: 0, from: r.a, to: r.b });
-      dirs.push({ i: i, dir: 1, from: r.b, to: r.a });
+      var nameA = (C.cities[r.a] ? C.cities[r.a].name : r.a).toLowerCase();
+      var nameB = (C.cities[r.b] ? C.cities[r.b].name : r.b).toLowerCase();
+      if (routesFromFilter && r.a !== routesFromFilter && r.b !== routesFromFilter) return;
+      if (routeSearchQuery) {
+        var q = routeSearchQuery.toLowerCase();
+        if (!nameA.includes(q) && !nameB.includes(q) && !r.a.toLowerCase().includes(q) && !r.b.toLowerCase().includes(q)) return;
+      }
+      filtered.push({ i: i, r: r });
     });
-    if (routesFromFilter) dirs = dirs.filter(function (d) { return d.from === routesFromFilter; });
 
-    var rows = "<tr><th>From</th><th>To</th><th>Sedan ₹</th><th>SUV ₹</th><th>Distance (km)</th><th>Time</th><th></th></tr>";
-    dirs.forEach(function (d) {
-      var r = C.routes[d.i];
-      rows += '<tr>' +
-        '<td data-label="From"><select class="inp" data-rsel="' + d.i + '" data-rf="' + (d.dir ? "b" : "a") + '">' + cityOpts(d.from) + '</select></td>' +
-        '<td data-label="To"><select class="inp" data-rsel="' + d.i + '" data-rf="' + (d.dir ? "a" : "b") + '">' + cityOpts(d.to) + '</select></td>' +
-        '<td data-label="Sedan price (₹)"><input class="inp sm" type="number" data-rin="' + d.i + '" data-rf="sedan" value="' + r.sedan + '"></td>' +
-        '<td data-label="SUV price (₹)"><input class="inp sm" type="number" data-rin="' + d.i + '" data-rf="suv" value="' + r.suv + '"></td>' +
-        '<td data-label="Distance (km)"><input class="inp sm" type="number" data-rin="' + d.i + '" data-rf="km" value="' + (r.km || 0) + '"></td>' +
-        '<td data-label="Time"><input class="inp sm" data-rin="' + d.i + '" data-rf="time" value="' + esc(r.time || "") + '"></td>' +
-        '<td data-label=""><button class="btn2 danger" data-delroute="' + d.i + '">Remove</button></td>' +
-        '</tr>';
+    var rc = $("#routeCount");
+    if (rc) rc.textContent = "(" + filtered.length + " of " + C.routes.length + " routes)";
+
+    var listEl = $("#admRoutesList");
+    if (!listEl) return;
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = '<div class="card" style="text-align:center;padding:32px 20px;color:#64748B">' +
+        '<p style="font-size:1.05rem;font-weight:700;margin:0 0 10px;color:#0F172A">No routes match your search or filter.</p>' +
+        '<button type="button" class="btn2" id="admClearRouteFilter">Reset filters</button>' +
+        '</div>';
+      return;
+    }
+
+    var html = "";
+    filtered.forEach(function (item) {
+      var i = item.i;
+      var r = item.r;
+      var isPerKm = r.pricingMode === "per_km";
+      var km = Number(r.km) || 0;
+      var fares = r.fares || { hatchback: 2499, sedan: Number(r.sedan) || 2799, suv: Number(r.suv) || 3499, crysta: 4499 };
+      var rates = r.ratesPerKm || { hatchback: 11, sedan: 13, suv: 16, crysta: 20 };
+
+      html += '<div class="card route-card" data-idx="' + i + '">' +
+        '<div class="route-card__header">' +
+          '<div class="route-card__title">' +
+            '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+              '<span class="route-city-badge">From</span>' +
+              '<select class="inp route-sel" data-rf="a" data-idx="' + i + '">' + cityOpts(r.a) + '</select>' +
+              '<span class="route-bidir" title="Both ways at same price">⇄</span>' +
+              '<span class="route-city-badge">To</span>' +
+              '<select class="inp route-sel" data-rf="b" data-idx="' + i + '">' + cityOpts(r.b) + '</select>' +
+            '</div>' +
+            '<div class="route-card__meta">' +
+              '<label>Distance:</label>' +
+              '<div style="display:inline-flex;align-items:center;gap:4px">' +
+                '<input type="number" class="inp sm route-dist-inp" data-rf="km" data-idx="' + i + '" value="' + km + '" style="width:75px">' +
+                '<span style="font-size:.78rem;font-weight:700;color:#64748B">km</span>' +
+              '</div>' +
+              '<label style="margin-left:6px">Time:</label>' +
+              '<input type="text" class="inp sm route-time-inp" data-rf="time" data-idx="' + i + '" value="' + esc(r.time || '') + '" placeholder="3h 30m" style="width:85px">' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
+            '<div class="pricing-mode-switch">' +
+              '<button type="button" class="mode-btn' + (!isPerKm ? ' is-active' : '') + '" data-setmode="custom" data-idx="' + i + '">🏷️ Fixed Fare</button>' +
+              '<button type="button" class="mode-btn' + (isPerKm ? ' is-active' : '') + '" data-setmode="per_km" data-idx="' + i + '">⚡ Per KM</button>' +
+            '</div>' +
+            '<button type="button" class="btn2 danger" data-delroute="' + i + '" title="Remove this route" style="padding:6px 10px;font-size:.8rem">Delete</button>' +
+          '</div>' +
+        '</div>' +
+
+        // Custom Fixed Fare Body
+        '<div class="route-card__mode-body" data-modebody="custom" data-idx="' + i + '" style="' + (isPerKm ? 'display:none' : '') + '">' +
+          '<div class="route-fare-grid">' +
+            '<div class="fare-col">' +
+              '<span class="car-label">HATCHBACK</span>' +
+              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-fare-inp" data-car="hatchback" data-idx="' + i + '" value="' + (fares.hatchback || '') + '"></div>' +
+              '<span class="fare-note">WagonR, Swift, i20</span>' +
+            '</div>' +
+            '<div class="fare-col">' +
+              '<span class="car-label">SEDAN</span>' +
+              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-fare-inp" data-car="sedan" data-idx="' + i + '" value="' + (fares.sedan || r.sedan || '') + '"></div>' +
+              '<span class="fare-note">Dzire, Aura, Etios</span>' +
+            '</div>' +
+            '<div class="fare-col">' +
+              '<span class="car-label">SUV (ERTIGA)</span>' +
+              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-fare-inp" data-car="suv" data-idx="' + i + '" value="' + (fares.suv || r.suv || '') + '"></div>' +
+              '<span class="fare-note">Ertiga, Carens</span>' +
+            '</div>' +
+            '<div class="fare-col">' +
+              '<span class="car-label">INNOVA CRYSTA (VIP)</span>' +
+              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-fare-inp" data-car="crysta" data-idx="' + i + '" value="' + (fares.crysta || '') + '"></div>' +
+              '<span class="fare-note">Crysta, Hycross</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        // Per KM Rates Body
+        '<div class="route-card__mode-body" data-modebody="per_km" data-idx="' + i + '" style="' + (!isPerKm ? 'display:none' : '') + '">' +
+          '<div class="route-rate-grid">' +
+            '<div class="fare-col">' +
+              '<span class="car-label">HATCHBACK RATE</span>' +
+              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-rate-inp" data-car="hatchback" data-idx="' + i + '" value="' + (rates.hatchback || 11) + '"><span class="curr-suffix">/ km</span></div>' +
+              '<div class="live-calc-tag" id="liveCalc_' + i + '_hatchback">Total: <b>₹' + Math.round(km * (Number(rates.hatchback) || 11)).toLocaleString('en-IN') + '</b></div>' +
+            '</div>' +
+            '<div class="fare-col">' +
+              '<span class="car-label">SEDAN RATE</span>' +
+              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-rate-inp" data-car="sedan" data-idx="' + i + '" value="' + (rates.sedan || 13) + '"><span class="curr-suffix">/ km</span></div>' +
+              '<div class="live-calc-tag" id="liveCalc_' + i + '_sedan">Total: <b>₹' + Math.round(km * (Number(rates.sedan) || 13)).toLocaleString('en-IN') + '</b></div>' +
+            '</div>' +
+            '<div class="fare-col">' +
+              '<span class="car-label">SUV (ERTIGA) RATE</span>' +
+              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-rate-inp" data-car="suv" data-idx="' + i + '" value="' + (rates.suv || 16) + '"><span class="curr-suffix">/ km</span></div>' +
+              '<div class="live-calc-tag" id="liveCalc_' + i + '_suv">Total: <b>₹' + Math.round(km * (Number(rates.suv) || 16)).toLocaleString('en-IN') + '</b></div>' +
+            '</div>' +
+            '<div class="fare-col">' +
+              '<span class="car-label">INNOVA CRYSTA RATE</span>' +
+              '<div class="fare-input-wrap"><span class="curr-prefix">₹</span><input type="number" class="inp route-rate-inp" data-car="crysta" data-idx="' + i + '" value="' + (rates.crysta || 20) + '"><span class="curr-suffix">/ km</span></div>' +
+              '<div class="live-calc-tag" id="liveCalc_' + i + '_crysta">Total: <b>₹' + Math.round(km * (Number(rates.crysta) || 20)).toLocaleString('en-IN') + '</b></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
     });
-    $("#admRoutes").innerHTML = rows;
-    var rc = $("#routeCount"); if (rc) rc.textContent = "(" + dirs.length + " routes)";
+
+    listEl.innerHTML = html;
   }
 
   // ---- cars ----
@@ -451,6 +702,106 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  // ---- add route modal / form handlers ----
+  function updateNewRouteCalc() {
+    var km = Number($("#admNewRouteKm").value) || 0;
+    var rh = Number($("#admNewRateHatchback").value) || 11;
+    var rs = Number($("#admNewRateSedan").value) || 13;
+    var rsuv = Number($("#admNewRateSuv").value) || 16;
+    var rc = Number($("#admNewRateCrysta").value) || 20;
+
+    var hEl = $("#admNewCalcHatchback"); if (hEl) hEl.innerHTML = "Total: <b>₹" + Math.round(km * rh).toLocaleString("en-IN") + "</b>";
+    var sEl = $("#admNewCalcSedan"); if (sEl) sEl.innerHTML = "Total: <b>₹" + Math.round(km * rs).toLocaleString("en-IN") + "</b>";
+    var suvEl = $("#admNewCalcSuv"); if (suvEl) suvEl.innerHTML = "Total: <b>₹" + Math.round(km * rsuv).toLocaleString("en-IN") + "</b>";
+    var cEl = $("#admNewCalcCrysta"); if (cEl) cEl.innerHTML = "Total: <b>₹" + Math.round(km * rc).toLocaleString("en-IN") + "</b>";
+  }
+
+  function openAddRouteForm() {
+    var form = $("#admNewRouteForm");
+    if (!form) return;
+    form.style.display = "block";
+    var selA = $("#admNewRouteA"), selB = $("#admNewRouteB");
+    var ids = Object.keys(C.cities);
+    if (selA) selA.innerHTML = cityOpts(ids[0] || "");
+    if (selB) selB.innerHTML = cityOpts(ids[1] || ids[0] || "");
+    updateNewRouteCalc();
+    form.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function confirmAddRoute() {
+    var cityA = $("#admNewRouteA").value;
+    var customCityA = ($("#admNewCityA").value || "").trim();
+    if ($("#admNewCityA").style.display !== "none" && customCityA) {
+      var idA = slug(customCityA);
+      if (!C.cities[idA]) {
+        C.cities[idA] = { name: customCityA, short: customCityA };
+        renderCities();
+      }
+      cityA = idA;
+    }
+
+    var cityB = $("#admNewRouteB").value;
+    var customCityB = ($("#admNewCityB").value || "").trim();
+    if ($("#admNewCityB").style.display !== "none" && customCityB) {
+      var idB = slug(customCityB);
+      if (!C.cities[idB]) {
+        C.cities[idB] = { name: customCityB, short: customCityB };
+        renderCities();
+      }
+      cityB = idB;
+    }
+
+    if (!cityA || !cityB || cityA === cityB) {
+      alert("Please select or enter two different cities.");
+      return;
+    }
+
+    var km = Number($("#admNewRouteKm").value) || 100;
+    var time = ($("#admNewRouteTime").value || "3h").trim();
+    var isPerKm = $("#admNewModePerKm").classList.contains("is-active");
+
+    var fares = {
+      hatchback: Number($("#admNewFareHatchback").value) || 2499,
+      sedan: Number($("#admNewFareSedan").value) || 2799,
+      suv: Number($("#admNewFareSuv").value) || 3499,
+      crysta: Number($("#admNewFareCrysta").value) || 4499
+    };
+
+    var rates = {
+      hatchback: Number($("#admNewRateHatchback").value) || 11,
+      sedan: Number($("#admNewRateSedan").value) || 13,
+      suv: Number($("#admNewRateSuv").value) || 16,
+      crysta: Number($("#admNewRateCrysta").value) || 20
+    };
+
+    var newRoute = {
+      a: cityA,
+      b: cityB,
+      km: km,
+      time: time,
+      pricingMode: isPerKm ? "per_km" : "custom",
+      fares: fares,
+      ratesPerKm: rates,
+      sedan: isPerKm ? Math.round(km * rates.sedan) : fares.sedan,
+      suv: isPerKm ? Math.round(km * rates.suv) : fares.suv
+    };
+
+    C.routes.unshift(newRoute);
+    $("#admNewRouteForm").style.display = "none";
+    $("#admNewCityA").value = "";
+    $("#admNewCityB").value = "";
+    $("#admNewCityA").style.display = "none";
+    $("#admNewCityB").style.display = "none";
+    renderRoutes();
+
+    var msg = $("#admMsg");
+    if (msg) {
+      msg.hidden = false;
+      msg.style.color = "#0284C7";
+      msg.textContent = "New route added! Remember to click 'Save changes' below.";
+    }
+  }
+
   // ---- wiring ----
   function wire() {
     $("#admTabs").addEventListener("click", function (e) { var b = e.target.closest("button[data-tab]"); if (b) showTab(b.dataset.tab); });
@@ -460,7 +811,6 @@
     $("#admSave").addEventListener("click", save);
     $("#admSignOut").addEventListener("click", function () { fetch("/api/admin-session", { method: "DELETE" }).then(function () { location.href = "/admin-login"; }); });
 
-    // live image preview
     // live image preview (cars + site images)
     document.addEventListener("input", function (e) {
       var el = e.target; if (!el || !el.dataset) return;
@@ -468,35 +818,169 @@
       else if (/\.image$/.test(el.dataset.path || "")) { var row = el.closest(".cardrow"); var img = row && row.querySelector(".carimg"); if (img) { img.src = el.value || "sedan-thumb.webp"; img.style.opacity = 1; } }
     });
 
-    $("#admAddRoute").addEventListener("click", function () { readInputs(); var ids = Object.keys(C.cities); C.routes.push({ a: ids[0] || "pune", b: ids[1] || "mumbai", sedan: 2799, suv: 3499, km: 150, time: "3h" }); renderRoutes(); });
-    $("#admAddCity").addEventListener("click", function () { readInputs(); var id = uniqueId(slug("City" + (Object.keys(C.cities).length + 1)), C.cities); C.cities[id] = { name: "New city", short: "New" }; renderCities(); renderRoutes(); renderShare(); });
-    $("#admAddCar").addEventListener("click", function () { readInputs(); var n = "New car " + (Object.keys(C.cars).length + 1); var k = uniqueId(slug(n), C.cars); C.cars[k] = { name: n, models: "", fuel: "PETROL", seats: 4, bags: 2, image: "sedan-thumb.webp", popular: false, base: "sedan", factor: 1 }; C.carOrder.push(k); renderCars(); });
-    $("#admAddShare").addEventListener("click", function () { readInputs(); var ids = Object.keys(C.cities); C.share.routes.push({ key: "", a: ids[0] || "pune", b: ids[1] || "mumbai", rate: 800 }); renderShare(); });
+    // Add Route button and form
+    var openAddBtn = $("#admOpenAddRoute");
+    if (openAddBtn) openAddBtn.addEventListener("click", openAddRouteForm);
 
-    // Routes: editing a fare/distance/time updates the route (both directions stay in sync)
-    $("#admRoutes").addEventListener("input", function (e) {
-      var el = e.target;
-      if (!el.dataset || el.dataset.rin == null) return;
-      var i = Number(el.dataset.rin), f = el.dataset.rf;
-      C.routes[i][f] = el.type === "number" ? Number(el.value) : el.value;
-      var sib = document.querySelectorAll('[data-rin="' + i + '"][data-rf="' + f + '"]');
-      for (var x = 0; x < sib.length; x++) { if (sib[x] !== el) sib[x].value = el.value; }
+    var cancelAddBtn = $("#admCancelAddRoute");
+    if (cancelAddBtn) cancelAddBtn.addEventListener("click", function () { $("#admNewRouteForm").style.display = "none"; });
+
+    var toggleNewA = $("#admToggleNewCityA");
+    if (toggleNewA) toggleNewA.addEventListener("click", function () {
+      var inA = $("#admNewCityA");
+      inA.style.display = inA.style.display === "none" ? "block" : "none";
+      if (inA.style.display !== "none") inA.focus();
     });
-    $("#admRoutes").addEventListener("change", function (e) {
-      var el = e.target;
-      if (!el.dataset || el.dataset.rsel == null) return;
-      C.routes[Number(el.dataset.rsel)][el.dataset.rf] = el.value;
-      renderRoutes();
+
+    var toggleNewB = $("#admToggleNewCityB");
+    if (toggleNewB) toggleNewB.addEventListener("click", function () {
+      var inB = $("#admNewCityB");
+      inB.style.display = inB.style.display === "none" ? "block" : "none";
+      if (inB.style.display !== "none") inB.focus();
     });
+
+    // Pricing mode toggle in Add Route form
+    var newModeCustom = $("#admNewModeCustom"), newModePerKm = $("#admNewModePerKm");
+    if (newModeCustom && newModePerKm) {
+      newModeCustom.addEventListener("click", function () {
+        newModeCustom.classList.add("is-active");
+        newModePerKm.classList.remove("is-active");
+        $("#admNewCustomBox").style.display = "block";
+        $("#admNewPerKmBox").style.display = "none";
+      });
+      newModePerKm.addEventListener("click", function () {
+        newModePerKm.classList.add("is-active");
+        newModeCustom.classList.remove("is-active");
+        $("#admNewCustomBox").style.display = "none";
+        $("#admNewPerKmBox").style.display = "block";
+        updateNewRouteCalc();
+      });
+    }
+
+    // Live calc for add form
+    ["#admNewRouteKm", "#admNewRateHatchback", "#admNewRateSedan", "#admNewRateSuv", "#admNewRateCrysta"].forEach(function (sel) {
+      var el = $(sel);
+      if (el) el.addEventListener("input", updateNewRouteCalc);
+    });
+
+    var confirmAddBtn = $("#admConfirmAddRoute");
+    if (confirmAddBtn) confirmAddBtn.addEventListener("click", confirmAddRoute);
+
+    // City filter & search
+    var routeSearch = $("#admRouteSearch");
+    if (routeSearch) {
+      routeSearch.addEventListener("input", function (e) {
+        routeSearchQuery = e.target.value.trim();
+        renderRoutes();
+      });
+    }
+
     $("#admRouteFilter").addEventListener("click", function (e) {
       var b = e.target.closest(".pill[data-rfrom]"); if (!b) return;
       routesFromFilter = b.getAttribute("data-rfrom") || "";
       renderRoutes();
     });
 
+    // Delegated events for route cards
+    var listEl = $("#admRoutesList");
+    if (listEl) {
+      listEl.addEventListener("click", function (e) {
+        var modeBtn = e.target.closest(".mode-btn[data-setmode]");
+        if (modeBtn) {
+          var idx = Number(modeBtn.dataset.idx);
+          var mode = modeBtn.dataset.setmode;
+          C.routes[idx].pricingMode = mode;
+          var card = modeBtn.closest(".route-card");
+          if (card) {
+            card.querySelectorAll(".mode-btn").forEach(function (b) { b.classList.toggle("is-active", b === modeBtn); });
+            var customBody = card.querySelector('[data-modebody="custom"]');
+            var perKmBody = card.querySelector('[data-modebody="per_km"]');
+            if (customBody) customBody.style.display = mode === "custom" ? "block" : "none";
+            if (perKmBody) perKmBody.style.display = mode === "per_km" ? "block" : "none";
+          }
+          return;
+        }
+
+        var clearBtn = e.target.closest("#admClearRouteFilter");
+        if (clearBtn) {
+          routesFromFilter = "";
+          routeSearchQuery = "";
+          if (routeSearch) routeSearch.value = "";
+          renderRoutes();
+          return;
+        }
+      });
+
+      listEl.addEventListener("change", function (e) {
+        var sel = e.target.closest(".route-sel");
+        if (sel && sel.dataset.idx != null) {
+          var idx = Number(sel.dataset.idx);
+          var rf = sel.dataset.rf;
+          C.routes[idx][rf] = sel.value;
+        }
+      });
+
+      listEl.addEventListener("input", function (e) {
+        var distInp = e.target.closest(".route-dist-inp");
+        if (distInp && distInp.dataset.idx != null) {
+          var idx = Number(distInp.dataset.idx);
+          var km = Number(distInp.value) || 0;
+          C.routes[idx].km = km;
+          var r = C.routes[idx];
+          var rates = r.ratesPerKm || { hatchback: 11, sedan: 13, suv: 16, crysta: 20 };
+          ["hatchback", "sedan", "suv", "crysta"].forEach(function (c) {
+            var tag = document.getElementById("liveCalc_" + idx + "_" + c);
+            if (tag) tag.innerHTML = "Total: <b>₹" + Math.round(km * (Number(rates[c]) || 11)).toLocaleString("en-IN") + "</b>";
+          });
+          return;
+        }
+
+        var timeInp = e.target.closest(".route-time-inp");
+        if (timeInp && timeInp.dataset.idx != null) {
+          C.routes[Number(timeInp.dataset.idx)].time = timeInp.value;
+          return;
+        }
+
+        var fareInp = e.target.closest(".route-fare-inp");
+        if (fareInp && fareInp.dataset.idx != null) {
+          var idx = Number(fareInp.dataset.idx);
+          var car = fareInp.dataset.car;
+          var val = Number(fareInp.value) || 0;
+          if (!C.routes[idx].fares) C.routes[idx].fares = {};
+          C.routes[idx].fares[car] = val;
+          if (car === "sedan") C.routes[idx].sedan = val;
+          if (car === "suv") C.routes[idx].suv = val;
+          return;
+        }
+
+        var rateInp = e.target.closest(".route-rate-inp");
+        if (rateInp && rateInp.dataset.idx != null) {
+          var idx = Number(rateInp.dataset.idx);
+          var car = rateInp.dataset.car;
+          var val = Number(rateInp.value) || 0;
+          if (!C.routes[idx].ratesPerKm) C.routes[idx].ratesPerKm = {};
+          C.routes[idx].ratesPerKm[car] = val;
+          var km = Number(C.routes[idx].km) || 0;
+          var tag = document.getElementById("liveCalc_" + idx + "_" + car);
+          if (tag) tag.innerHTML = "Total: <b>₹" + Math.round(km * val).toLocaleString("en-IN") + "</b>";
+          return;
+        }
+      });
+    }
+
+    $("#admAddCity").addEventListener("click", function () { readInputs(); var id = uniqueId(slug("City" + (Object.keys(C.cities).length + 1)), C.cities); C.cities[id] = { name: "New city", short: "New" }; renderCities(); renderRoutes(); renderShare(); });
+    $("#admAddCar").addEventListener("click", function () { readInputs(); var n = "New car " + (Object.keys(C.cars).length + 1); var k = uniqueId(slug(n), C.cars); C.cars[k] = { name: n, models: "", fuel: "PETROL", seats: 4, bags: 2, image: "sedan-thumb.webp", popular: false, base: "sedan", factor: 1 }; C.carOrder.push(k); renderCars(); });
+    $("#admAddShare").addEventListener("click", function () { readInputs(); var ids = Object.keys(C.cities); C.share.routes.push({ key: "", a: ids[0] || "pune", b: ids[1] || "mumbai", rate: 800 }); renderShare(); });
+
     document.addEventListener("click", function (e) {
       var t = e.target;
-      if (t.dataset.delroute != null) { readInputs(); C.routes.splice(Number(t.dataset.delroute), 1); renderRoutes(); }
+      if (t.dataset.delroute != null) {
+        if (confirm("Are you sure you want to delete this route?")) {
+          readInputs();
+          C.routes.splice(Number(t.dataset.delroute), 1);
+          renderRoutes();
+        }
+      }
       else if (t.dataset.delcar != null) { readInputs(); var k = t.dataset.delcar; delete C.cars[k]; C.carOrder = C.carOrder.filter(function (x) { return x !== k; }); renderCars(); }
       else if (t.dataset.delshare != null) { readInputs(); C.share.routes.splice(Number(t.dataset.delshare), 1); renderShare(); }
       else if (t.dataset.delcity != null) { readInputs(); delete C.cities[t.dataset.delcity]; renderCities(); renderRoutes(); renderShare(); }
@@ -506,6 +990,24 @@
   function save() {
     readInputs();
     C.share.routes.forEach(function (r) { r.key = r.a + "-" + r.b; });
+
+    // Keep sedan and suv synchronized with fares / rates for backward compatibility
+    C.routes.forEach(function (r) {
+      if (!r.pricingMode) r.pricingMode = "custom";
+      var km = Number(r.km) || 0;
+      if (r.pricingMode === "per_km") {
+        var rs = (r.ratesPerKm && Number(r.ratesPerKm.sedan)) || 13;
+        var rsuv = (r.ratesPerKm && Number(r.ratesPerKm.suv)) || 16;
+        r.sedan = Math.round(km * rs);
+        r.suv = Math.round(km * rsuv);
+      } else {
+        if (r.fares) {
+          if (r.fares.sedan) r.sedan = Number(r.fares.sedan);
+          if (r.fares.suv) r.suv = Number(r.fares.suv);
+        }
+      }
+    });
+
     var btn = $("#admSave"), msg = $("#admMsg");
     btn.disabled = true; var old = btn.textContent; btn.textContent = "Saving…";
     fetch("/api/config", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ config: C }) })
