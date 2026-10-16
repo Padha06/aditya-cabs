@@ -73,7 +73,9 @@ function getAdminSession(req) {
 }
 
 function adminEmails() {
-  return String(process.env.ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+  const env = String(process.env.ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+  if (env.length) return env;
+  return ["shubampadha855@gmail.com"];
 }
 function isAdminEmail(email) {
   const list = adminEmails();
