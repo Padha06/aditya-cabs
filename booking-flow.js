@@ -737,19 +737,19 @@
     return { total, advance: 500, balance: Math.max(0, total - 500) };
   }
 
-  let razorpayPromise = null;
-  function loadRazorpay() {
-    if (typeof window.Razorpay === "function") return Promise.resolve();
-    if (razorpayPromise) return razorpayPromise;
-    razorpayPromise = new Promise((resolve, reject) => {
+  let cashfreePromise = null;
+  function loadCashfree() {
+    if (typeof window.Cashfree === "function") return Promise.resolve();
+    if (cashfreePromise) return cashfreePromise;
+    cashfreePromise = new Promise((resolve, reject) => {
       const s = document.createElement("script");
-      s.src = "https://checkout.razorpay.com/v1/checkout.js";
+      s.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
       s.async = true;
-      s.onload = () => (typeof window.Razorpay === "function" ? resolve() : reject(new Error("Razorpay unavailable")));
-      s.onerror = () => { razorpayPromise = null; reject(new Error("Razorpay load error")); };
+      s.onload = () => (typeof window.Cashfree === "function" ? resolve() : reject(new Error("Cashfree unavailable")));
+      s.onerror = () => { cashfreePromise = null; reject(new Error("Cashfree load error")); };
       document.head.appendChild(s);
     });
-    return razorpayPromise;
+    return cashfreePromise;
   }
 
   async function pay(mode) {
@@ -758,7 +758,7 @@
     const { total, advance } = bookAmounts(mode);
 
     if (mode === "cash") {
-      finalizeBooking("cash", null);
+      finalizeBooking("cash", null, false);
       return;
     }
 
@@ -767,16 +767,16 @@
     if (btn) { btn.disabled = true; btn.style.opacity = ".7"; }
 
     try {
-      // Load Razorpay's checkout on demand — keeps ~100 KB off the initial page load.
+      // Load Cashfree's checkout on demand — keeps ~100 KB off the initial page load.
       try {
-        await loadRazorpay();
+        await loadCashfree();
       } catch (e) {
         showError(err, "Couldn't load the payment gateway. Check your connection, or choose 'Pay to driver on drop'.");
         if (btn) { btn.disabled = false; btn.style.opacity = ""; }
         return;
       }
 
-      const orderRes = await fetch("/api/create-razorpay-order", {
+      const orderRes = await fetch("/api/create-cashfree-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -792,59 +792,63 @@
         if (btn) { btn.disabled = false; btn.style.opacity = ""; }
         return;
       }
-      if (typeof window.Razorpay !== "function") {
+      if (typeof window.Cashfree !== "function") {
         showError(err, "Payment gateway failed to initialise. Please retry or choose 'Pay to driver on drop'.");
         if (btn) { btn.disabled = false; btn.style.opacity = ""; }
         return;
       }
 
-      const rzp = new window.Razorpay({
-        key: order.keyId,
-        amount: order.amount,
-        currency: order.currency || "INR",
-        name: "Shivrudra Taxi",
-        description: `${ST.cityName(flow.from)} to ${ST.cityName(flow.to)} cab`,
-        image: "https://shivrudrataxi.com/taxi.svg",
-        order_id: order.orderId,
-        prefill: { name: flow.name, contact: "+91" + flow.phone, method: "upi" },
-        theme: { color: "#0088EA" },
-        config: {
-          display: {
-            blocks: {
-              upi: { name: "Pay via UPI / QR", instruments: [{ method: "upi" }] },
-              other: { name: "Cards, NetBanking & Wallets", instruments: [{ method: "card" }, { method: "netbanking" }, { method: "wallet" }] }
-            },
-            sequence: ["block.upi", "block.other"],
-            preferences: { show_default_blocks: true }
-          }
-        },
-        modal: { backdropclose: false, confirm_close: true, ondismiss: () => { if (btn) { btn.disabled = false; btn.style.opacity = ""; } } },
-        handler: async (response) => {
-          let verified = false;
-          try {
-            const vRes = await fetch("/api/verify-razorpay-payment", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(response)
-            });
-            const vData = await vRes.json();
-            verified = !!(vData && vData.verified);
-          } catch (e) {}
-          finalizeBooking(mode, response, verified);
+      const cashfree = window.Cashfree({
+        mode: order.environment || "production"
+      });
+
+      const checkoutOptions = {
+        paymentSessionId: order.paymentSessionId,
+        redirectTarget: "_modal"
+      };
+
+      cashfree.checkout(checkoutOptions).then(async (result) => {
+        if (result && result.error) {
+          if (btn) { btn.disabled = false; btn.style.opacity = ""; }
+          showError(err, "Payment was not completed: " + (result.error.message || "modal closed."));
+          return;
         }
-      });
-      rzp.on("payment.failed", (r) => {
+
+        // Verify status with server
+        let verified = false;
+        let vData = null;
+        try {
+          const vRes = await fetch("/api/verify-cashfree-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order_id: order.orderId })
+          });
+          vData = await vRes.json();
+          verified = !!(vData && vData.verified);
+        } catch (e) {
+          console.warn("Cashfree verify call error:", e);
+        }
+
+        const paymentResponse = {
+          cashfreeOrderId: order.orderId,
+          cashfreePaymentId: (vData && vData.paymentId) ? vData.paymentId : null,
+          cfOrderId: order.cfOrderId
+        };
+
+        finalizeBooking(mode, paymentResponse, verified);
+      }).catch((chkErr) => {
+        console.error("Cashfree checkout error:", chkErr);
         if (btn) { btn.disabled = false; btn.style.opacity = ""; }
-        showError(err, "Payment failed or cancelled: " + ((r.error && r.error.description) || "transaction declined."));
+        showError(err, "Payment error. Please try again or choose cash on drop.");
       });
-      rzp.open();
+
     } catch (e) {
       showError(err, "Payment error. Please try again or choose cash on drop.");
       if (btn) { btn.disabled = false; btn.style.opacity = ""; }
     }
   }
 
-  function finalizeBooking(mode, rzResponse, verified) {
+  function finalizeBooking(mode, payResponse, verified) {
     const fare = ST.computeFare(flow);
     const type = flow.type || "oneway";
     const { total, advance, balance } = bookAmounts(mode);
@@ -855,6 +859,9 @@
       const r = ST.SHARE_ROUTES.find((x) => x.key === flow.route) || ST.SHARE_ROUTES[0];
       bFrom = ST.cityName(r.a); bTo = ST.cityName(r.b); fromId = r.a; toId = r.b;
     } else { bFrom = ST.cityName(flow.from); bTo = ST.cityName(flow.to); fromId = flow.from; toId = flow.to; }
+
+    const pId = payResponse ? (payResponse.cashfreePaymentId || payResponse.razorpay_payment_id || null) : null;
+    const oId = payResponse ? (payResponse.cashfreeOrderId || payResponse.orderId || payResponse.razorpay_order_id || null) : null;
 
     const booking = {
       id: ST.newBookingId(),
@@ -876,9 +883,11 @@
       paymentMode: mode,
       paymentStatus: mode === "cash"
         ? "Cash on Cab (pay on drop)"
-        : (verified ? "Paid online (Razorpay verified)" : "Paid online"),
-      razorpayPaymentId: rzResponse ? rzResponse.razorpay_payment_id : null,
-      razorpayOrderId: rzResponse ? rzResponse.razorpay_order_id : null,
+        : (verified ? "Paid online (Cashfree verified)" : "Paid online"),
+      cashfreePaymentId: pId,
+      cashfreeOrderId: oId,
+      razorpayPaymentId: pId,
+      razorpayOrderId: oId,
       name: flow.name,
       phone: flow.phone,
       pickupAddress: flow.pickupAddress,

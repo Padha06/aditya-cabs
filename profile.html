@@ -265,7 +265,7 @@
               <svg class="ic" style="width:28px;height:28px" aria-hidden="true"><use href="#i-car"/></svg>
             </div>
             <h3>No Bookings Yet</h3>
-            <p>You haven't booked any cab rides yet. Book with 100% verified Razorpay or Cash on Cab!</p>
+            <p>You haven't booked any cab rides yet. Book with 100% verified online payment or Cash on Cab!</p>
             <a class="btn btn--accent" href="/#booking" style="margin-top:6px">
               <svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>
               <span>Book a Cab Now</span>
@@ -466,10 +466,11 @@
       if (upcomingSec && upcomingCard) {
         upcomingSec.hidden = false;
         var uCash = upcoming.paymentMode === "cash";
-        var uRzp = !!upcoming.razorpayPaymentId;
+        var uPayId = upcoming.cashfreePaymentId || upcoming.razorpayPaymentId;
+        var uRzp = !!uPayId;
         var uBadgeClass = uRzp ? "booking-item__badge--razorpay" : (uCash ? "booking-item__badge--cash" : "booking-item__badge--paid");
         var uBadgeText = uRzp 
-          ? ("✓ Razorpay Verified (" + upcoming.razorpayPaymentId.slice(-8) + ")") 
+          ? ("✓ Paid Online (" + String(uPayId).slice(-8) + ")") 
           : (uCash ? "Pay on Cab" : (upcoming.paymentMode === "full" ? "✓ Full Paid Online" : "✓ Advance ₹500 Paid"));
 
         upcomingCard.innerHTML = `
@@ -511,10 +512,11 @@
           var item = document.createElement("div");
           item.className = "booking-item";
           var isCash = b.paymentMode === "cash";
-          var isRzp = !!b.razorpayPaymentId;
+          var payId = b.cashfreePaymentId || b.razorpayPaymentId;
+          var isRzp = !!payId;
           var badgeClass = isRzp ? "booking-item__badge--razorpay" : (isCash ? "booking-item__badge--cash" : "booking-item__badge--paid");
           var badgeText = isRzp 
-            ? ("✓ Razorpay Verified (" + b.razorpayPaymentId.slice(-8) + ")") 
+            ? ("✓ Paid Online (" + String(payId).slice(-8) + ")") 
             : (isCash ? "Pay on Cab" : (b.paymentMode === "full" ? "✓ Full Paid Online" : "✓ Advance ₹500 Paid"));
 
           item.innerHTML = `
