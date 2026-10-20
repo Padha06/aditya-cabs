@@ -733,7 +733,8 @@
     if (cash) cash.hidden = false;
 
     const advAmt = $("#btnPayAdvAmt"), fullAmt = $("#btnPayFullAmt"), cashAmt = $("#btnPayCashAmt");
-    if (advAmt) advAmt.textContent = ST.inr(500);
+    const advVal = Math.min(500, base);
+    if (advAmt) advAmt.textContent = ST.inr(advVal);
     if (fullAmt) fullAmt.textContent = ST.inr(base);
     if (cashAmt) cashAmt.textContent = ST.inr(flexiTotal);
     $("#summaryFareNum").textContent = ST.inr(base);
@@ -741,9 +742,10 @@
 
   function bookAmounts(mode) {
     const total = ST.planFare(flow);
+    const advVal = Math.min(500, total);
     if (mode === "full") return { total, advance: total, balance: 0 };
     if (mode === "cash") return { total, advance: 0, balance: total };
-    return { total, advance: 500, balance: Math.max(0, total - 500) };
+    return { total, advance: advVal, balance: Math.max(0, total - advVal) };
   }
 
   let cashfreePromise = null;
