@@ -2336,21 +2336,21 @@ body.rmodal-open{overflow:hidden}
 .fmodal-car__badge{font-size:.72rem;padding:3px 8px;border-radius:6px;background:var(--surface-2);color:var(--text-2);font-weight:600;border:1px solid var(--line)}
 
 /* --- ROUND TRIP VEHICLE CARDS GRID --- */
-.rt-cars-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.rt-cars-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-items:stretch}
 @media (max-width:860px){.rt-cars-grid{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:540px){.rt-cars-grid{grid-template-columns:repeat(2,1fr)}}
 .rt-car-card{
-  display:flex;flex-direction:column;align-items:center;text-align:center;
-  padding:12px 8px;border:1.5px solid var(--line-2);border-radius:12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  padding:10px 4px;border:1.5px solid var(--line-2);border-radius:12px;
   background:var(--surface-2);cursor:pointer;transition:all .2s var(--ease);
 }
-.rt-car-card:hover{border-color:#0369A1;background:#FFF}
-.rt-car-card.is-selected{border-color:#0369A1;background:rgba(2,132,199,.08);box-shadow:0 0 0 2px #0284C7}
-.rt-car-card__rate{font-family:var(--font-d);font-size:1.15rem;font-weight:800;color:#0369A1;line-height:1.1}
-.rt-car-card__rate small{font-size:.7rem;font-weight:600;color:var(--text-3)}
-.rt-car-card__name{font-size:.85rem;font-weight:700;color:var(--text);margin-top:3px}
-.rt-car-card__models{font-size:.68rem;color:var(--text-3);margin-top:1px}
-.rt-car-card__meta{font-size:.65rem;font-weight:700;color:#0B8045;margin-top:4px}
+.rt-car-card:hover{border-color:#0369A1;background:#FFF;transform:translateY(-1px)}
+.rt-car-card.is-selected{border-color:#0284C7;background:rgba(2,132,199,.08);box-shadow:0 0 0 2px #0284C7}
+.rt-car-card__rate{font-family:var(--font-d);font-size:1.12rem;font-weight:800;color:#0369A1;line-height:1.1}
+.rt-car-card__rate small{font-size:.68rem;font-weight:600;color:var(--text-3)}
+.rt-car-card__name{font-size:.82rem;font-weight:700;color:var(--text);margin-top:3px}
+.rt-car-card__models{font-size:.64rem;color:var(--text-3);margin-top:1px}
+.rt-car-card__meta{font-size:.62rem;font-weight:700;color:#0B8045;background:rgba(11,128,69,.08);padding:1px 5px;border-radius:4px;margin-top:4px}
 .pkg-card__sub{font-size:.72rem;color:var(--text-3);display:block;margin-top:2px}
 
 /* ============================================================================

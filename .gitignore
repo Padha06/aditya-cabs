@@ -2,3 +2,6 @@
 .env.local
 .env.*.local
 scrape_2leaf.js
+
+.vercel
+.env*
