@@ -1146,7 +1146,7 @@ function initRoundTrip() {
   }
   if (retEl && !retEl.value) {
     const t = new Date();
-    t.setDate(t.getDate() + 3);
+    t.setDate(t.getDate() + 2);
     retEl.value = t.toISOString().slice(0, 10);
   }
 
@@ -1162,14 +1162,53 @@ function initRoundTrip() {
     recalc();
   });
 
+  function getDays() {
+    const sDate = (startEl && startEl.value) || "";
+    const rDate = (retEl && retEl.value) || "";
+    if (!sDate || !rDate || sDate === rDate) return 1;
+    try {
+      const s = new Date(sDate + "T00:00:00");
+      const r = new Date(rDate + "T00:00:00");
+      const diff = r.getTime() - s.getTime();
+      if (!isNaN(diff) && diff > 0) {
+        return Math.max(1, Math.round(diff / 86400000) + 1);
+      }
+    } catch (e) {}
+    return 1;
+  }
+
   function recalc() {
-    const estKm = 500;
-    const total = estKm * currentRate;
+    const days = getDays();
+    const minDailyKm = days * 300;
+
+    let routeKm = 0;
+    const rf = fromSel ? fromSel.value : (bookState.roundFrom || "pune");
+    const rt = toSel ? toSel.value : (bookState.roundTo || "sambhajinagar");
+    if (window.ST && typeof window.ST.findRoute === "function") {
+      const route = window.ST.findRoute(rf, rt);
+      if (route && route.km) routeKm = Number(route.km) * 2;
+    } else if (window.STBooking && typeof window.STBooking.findRoute === "function") {
+      const route = window.STBooking.findRoute(rf, rt);
+      if (route && route.km) routeKm = Number(route.km) * 2;
+    }
+
+    const chargedKm = Math.max(minDailyKm, routeKm || minDailyKm);
+    const total = chargedKm * currentRate;
 
     if (num) num.textContent = Number(total).toLocaleString("en-IN");
     if (badge) badge.textContent = `₹${currentRate}/km`;
-    if (meta) meta.textContent = `Estimated ${estKm} km return (2 days min 250 km/day) @ ₹${currentRate}/km`;
+    if (meta) {
+      const extraKm = routeKm > minDailyKm ? (routeKm - minDailyKm) : 0;
+      if (extraKm > 0) {
+        meta.textContent = `${days} day${days > 1 ? "s" : ""} (${chargedKm} km total: ${minDailyKm} km min + ${extraKm} km extra) @ ₹${currentRate}/km`;
+      } else {
+        meta.textContent = `${days} day${days > 1 ? "s" : ""} trip (Min ${chargedKm} km @ 300 km/day) @ ₹${currentRate}/km (Extra km @ ₹${currentRate}/km)`;
+      }
+    }
   }
+
+  if (startEl) startEl.addEventListener("change", recalc);
+  if (retEl) retEl.addEventListener("change", recalc);
 
   const carCards = Array.from(document.querySelectorAll(".rt-car-card"));
   carCards.forEach(card => {

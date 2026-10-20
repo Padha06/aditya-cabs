@@ -63,14 +63,16 @@
   const CAR_ORDER = ["hatchback", "sedan", "suv", "crysta"];
 
   // --- Round trip (per-km) ---
-  let ROUND_EST_KM = 500;
+  let ROUND_DAILY_MIN_KM = 300;
+  let ROUND_EST_KM = 300;
   const ROUND_CARS = {
-    sedan:  { key: "sedan",  name: "Sedan",         models: "Dzire / Aura / Etios", rate: 12, seats: 4, bags: 2, image: "sedan-thumb.webp" },
-    ertiga: { key: "ertiga", name: "SUV Ertiga",    models: "Maruti Ertiga",        rate: 14, seats: 6, bags: 3, image: "ertiga-thumb.webp" },
-    carens: { key: "carens", name: "Kia Carens",    models: "Carens / XL6",         rate: 17, seats: 6, bags: 3, image: "ertiga-thumb.webp" },
-    crysta: { key: "crysta", name: "Innova Crysta", models: "Toyota Innova Crysta", rate: 20, seats: 7, bags: 4, image: "suv-thumb.webp" }
+    sedan:   { key: "sedan",   name: "Sedan",          models: "Dzire / Aura / Etios",        rate: 12, seats: 4, bags: 2, image: "sedan-thumb.webp" },
+    ertiga:  { key: "ertiga",  name: "SUV Ertiga",     models: "Maruti Ertiga",               rate: 14, seats: 6, bags: 3, image: "ertiga-thumb.webp" },
+    carens:  { key: "carens",  name: "Kia Carens",     models: "Carens / XL6",                rate: 17, seats: 6, bags: 3, image: "carens.webp" },
+    crysta:  { key: "crysta",  name: "Innova Crysta",  models: "Toyota Innova Crysta",        rate: 20, seats: 7, bags: 4, image: "suv-thumb.webp" },
+    hycross: { key: "hycross", name: "Innova Hycross", models: "Toyota Innova Hycross Hybrid", rate: 22, seats: 7, bags: 4, image: "innova-hycross.jpg" }
   };
-  const ROUND_ORDER = ["sedan", "ertiga", "carens", "crysta"];
+  const ROUND_ORDER = ["sedan", "ertiga", "carens", "crysta", "hycross"];
 
   // --- Local rental (hourly packages) ---
   const LOCAL_PACKAGES = {
@@ -199,12 +201,49 @@
     return flow.plan === "flexi" ? base + 100 : base;
   }
 
+  function calcTripDays(startDateStr, returnDateStr) {
+    if (!startDateStr) return 1;
+    if (!returnDateStr || returnDateStr === startDateStr) return 1;
+    try {
+      const s = new Date(startDateStr + "T00:00:00");
+      const r = new Date(returnDateStr + "T00:00:00");
+      const diffMs = r.getTime() - s.getTime();
+      if (isNaN(diffMs) || diffMs <= 0) return 1;
+      const days = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
+      return Math.max(1, days);
+    } catch (e) {
+      return 1;
+    }
+  }
+
   // Resolve the fare + labels for any trip type.
   function computeFare(flow) {
     const type = flow.type || "oneway";
     if (type === "round") {
       const car = ROUND_CARS[flow.car] || ROUND_CARS.sedan;
-      return { total: car.rate * ROUND_EST_KM, kind: "round", title: `${cityName(flow.from)} to ${cityName(flow.to)} (round trip)`, meta: `Est. ${ROUND_EST_KM} km return · ₹${car.rate}/km`, carLabel: car.name, carSpec: `${car.seats} seats · ${car.bags} bags`, carImage: car.image };
+      const days = calcTripDays(flow.date, flow.rdate);
+      const minDailyKm = days * (ROUND_DAILY_MIN_KM || 300);
+      const r = findRoute(flow.from, flow.to);
+      const routeKm = r ? (Number(r.km) * 2) : 300;
+      const chargedKm = Math.max(minDailyKm, routeKm);
+      const total = chargedKm * car.rate;
+      const extraKm = routeKm > minDailyKm ? (routeKm - minDailyKm) : 0;
+      const meta = extraKm > 0
+        ? `${days} day${days > 1 ? "s" : ""} · ${chargedKm} km (${minDailyKm} km min + ${extraKm} km extra) @ ₹${car.rate}/km`
+        : `${days} day${days > 1 ? "s" : ""} · Min ${minDailyKm} km (${days} × 300 km/day) @ ₹${car.rate}/km`;
+
+      return {
+        total,
+        kind: "round",
+        title: `${cityName(flow.from)} to ${cityName(flow.to)} (round trip)`,
+        meta: meta,
+        carLabel: car.name,
+        carSpec: `${car.seats} seats · ${car.bags} bags`,
+        carImage: car.image,
+        days,
+        chargedKm,
+        ratePerKm: car.rate
+      };
     }
     if (type === "local") {
       const pkg = LOCAL_PACKAGES[flow.pkg] || LOCAL_PACKAGES["8h"];
@@ -464,7 +503,7 @@
 
   window.STBooking = {
     CONFIG, CITIES, CITY_GEO, ROUTES, ONEWAY_CARS, CAR_ORDER, LOCAL_SUGGESTIONS,
-    ROUND_CARS, ROUND_ORDER, ROUND_EST_KM, LOCAL_PACKAGES, LOCAL_CLS, SHARE_ROUTES, SHARE_MAX_SEATS,
+    ROUND_CARS, ROUND_ORDER, ROUND_EST_KM, ROUND_DAILY_MIN_KM, calcTripDays, LOCAL_PACKAGES, LOCAL_CLS, SHARE_ROUTES, SHARE_MAX_SEATS,
     inr, findRoute, cityName, resolveCityId, normalizeCityKey, DEFAULT_PER_KM_RATES,
     getCarFare, planFare, computeFare, waUrl, applyConfig, SITE_IMAGES, applySiteImages,
     formatDate, formatTime, dateTimeDisplay,

@@ -112,9 +112,18 @@
 
   function buildStepOneList(type) {
     if (type === "round") {
+      const days = ST.calcTripDays ? ST.calcTripDays(flow.date, flow.rdate) : 1;
+      const minDailyKm = days * (ST.ROUND_DAILY_MIN_KM || 300);
+      const r = ST.findRoute(flow.from, flow.to);
+      const routeKm = r ? (Number(r.km) * 2) : 300;
+      const chargedKm = Math.max(minDailyKm, routeKm);
+
       return ST.ROUND_ORDER.map((k) => {
         const c = ST.ROUND_CARS[k];
-        return genericCarCard({ key: k, dataVal: k, name: c.name, models: c.models, seats: c.seats, bags: c.bags, image: c.image, priceMain: ST.inr(c.rate) + "/km", priceSub: "Est. " + ST.inr(c.rate * ST.ROUND_EST_KM) + " · " + ST.ROUND_EST_KM + " km" });
+        if (!c) return "";
+        const fare = chargedKm * c.rate;
+        const sub = `${days} day${days > 1 ? "s" : ""} · Min ${chargedKm} km (${ST.inr(fare)})`;
+        return genericCarCard({ key: k, dataVal: k, name: c.name, models: c.models, seats: c.seats, bags: c.bags, image: c.image, priceMain: ST.inr(c.rate) + "/km", priceSub: sub });
       }).join("");
     }
     if (type === "local") {
@@ -934,7 +943,11 @@
     const carLine = `Car: ${b.car}`;
     const typeLabel = { oneway: "One-way", round: "Round trip", local: "Local rental", share: "Shared cab" }[b.type || "oneway"] || "One-way";
     const extras = [];
-    if (b.type === "round" && b.returnDate) extras.push(`Return: ${ST.formatDate(b.returnDate)}`);
+    if (b.type === "round") {
+      if (b.returnDate) extras.push(`Return: ${ST.formatDate(b.returnDate)}`);
+      const d = (ST.calcTripDays ? ST.calcTripDays(b.date, b.returnDate) : 1);
+      extras.push(`Duration: ${d} Day${d > 1 ? "s" : ""} (Min ${d * 300} km limit)`);
+    }
     if (b.type === "local" && b.package) extras.push(`Package: ${b.package}`);
     if (b.type === "share" && b.seats) extras.push(`Seats: ${b.seats}`);
     const head = b.paymentMode === "cash"
