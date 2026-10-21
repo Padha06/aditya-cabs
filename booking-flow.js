@@ -783,14 +783,13 @@
   async function pay(mode) {
     const err = $("#bfPayError");
     clearError(err);
-    const { total, advance } = bookAmounts(mode);
 
     if (mode === "cash") {
       finalizeBooking("cash", null, false);
       return;
     }
 
-    const amount = mode === "full" ? total : advance;
+    // The server works out the amount from the booking details.
     const btn = mode === "full" ? $("#btnPayFullRzp") : $("#btnPayAdvanceRzp");
     if (btn) { btn.disabled = true; btn.style.opacity = ".7"; }
 
@@ -808,7 +807,8 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount,
+          mode,
+          flow: { type: flow.type, from: flow.from, to: flow.to, car: flow.car, plan: flow.plan, date: flow.date, rdate: flow.rdate, pkg: flow.pkg, seats: flow.seats, route: flow.route, city: flow.city },
           notes: { name: flow.name, phone: flow.phone, from: ST.cityName(flow.from), to: ST.cityName(flow.to), car: flow.car }
         })
       });

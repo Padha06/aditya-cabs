@@ -1,3 +1,8 @@
 {
-  "cleanUrls": true
+  "cleanUrls": true,
+  "functions": {
+    "api/create-cashfree-order.js": {
+      "includeFiles": "booking-data.js"
+    }
+  }
 }

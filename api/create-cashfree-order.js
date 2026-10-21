@@ -1,5 +1,8 @@
 // Vercel Serverless Function: /api/create-cashfree-order
 // Creates an official Cashfree PG Order for UPI / Card / NetBanking modal checkout.
+// The amount is always recalculated here from the booking details; any amount
+// sent by the browser is ignored.
+const { amountDue } = require('./_lib/pricing');
 
 async function parseBody(req) {
   if (req.body) {
@@ -33,12 +36,15 @@ module.exports = async (req, res) => {
 
   try {
     const body = await parseBody(req);
-    const amount = Number(body.amount);
     const notes = body.notes || {};
     const customer = body.customer || {};
 
+    if (!body.flow || typeof body.flow !== 'object') {
+      return res.status(400).json({ error: 'Booking details are required to start payment.' });
+    }
+    const { amount } = await amountDue(body.flow, body.mode);
     if (!amount || isNaN(amount) || amount <= 0) {
-      return res.status(400).json({ error: 'Valid payment amount in INR is required.' });
+      return res.status(400).json({ error: 'Could not work out the fare for this booking.' });
     }
 
     const appId = process.env.CASHFREE_APP_ID;
