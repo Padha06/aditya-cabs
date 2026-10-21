@@ -63,7 +63,16 @@
     </div>`;
   }
 
-  function guaranteeHTML() {
+  function guaranteeHTML(type) {
+    if (type === "round") {
+      return `<div class="oneway-blue-guarantee">
+      <div class="guarantee-icon"><svg viewBox="0 0 24 24" class="ic"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" fill="currentColor"/></svg></div>
+      <div class="guarantee-text">
+        <div class="guarantee-title"><span>ROUND TRIP FARE</span></div>
+        <p>Tolls, parking and state entry tax are extra on round trips, paid on actuals.</p>
+      </div>
+    </div>`;
+    }
     return `<div class="oneway-blue-guarantee">
       <div class="guarantee-icon"><svg viewBox="0 0 24 24" class="ic"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" fill="currentColor"/></svg></div>
       <div class="guarantee-text">
@@ -76,8 +85,8 @@
   function helpStripHTML() {
     return `<div class="oneway-help-strip">
       <div class="help-left"><svg class="ic" aria-hidden="true" style="width:20px;height:20px;color:#0284C7"><use href="#i-phone"/></svg>
-        <div><b>Need something special?</b><span>We're available 24/7: +91 60057 91807</span></div></div>
-      <a href="tel:+916005791807" class="btn-help-link">Call dispatch <svg class="ic" aria-hidden="true" style="width:15px;height:15px"><use href="#i-arrow"/></svg></a>
+        <div><b>Need something special?</b><span>We're available 24/7: +91 86059 53737</span></div></div>
+      <a href="tel:+918605953737" class="btn-help-link">Call dispatch <svg class="ic" aria-hidden="true" style="width:15px;height:15px"><use href="#i-arrow"/></svg></a>
     </div>`;
   }
 
@@ -122,7 +131,7 @@
         const c = ST.ROUND_CARS[k];
         if (!c) return "";
         const fare = chargedKm * c.rate;
-        const sub = `${days} day${days > 1 ? "s" : ""} · Min ${chargedKm} km (${ST.inr(fare)})`;
+        const sub = `${days} day${days > 1 ? "s" : ""} · Min ${chargedKm} km (${ST.inr(fare)}) · Toll, parking & entry tax extra`;
         return genericCarCard({ key: k, dataVal: k, name: c.name, models: c.models, seats: c.seats, bags: c.bags, image: c.image, priceMain: ST.inr(c.rate) + "/km", priceSub: sub });
       }).join("");
     }
@@ -151,7 +160,7 @@
     const type = flow.type || "oneway";
     card.innerHTML = `<div class="bf-card__body">
       ${routePillHTML()}
-      ${guaranteeHTML()}
+      ${guaranteeHTML(type)}
       ${type === "share" ? seatPickerHTML() : ""}
       <div class="oneway-cabs-list">${buildStepOneList(type)}</div>
       ${helpStripHTML()}
@@ -675,6 +684,14 @@
     $("#summaryCabName").textContent = fare.carLabel;
     $("#summaryCabSpec").textContent = fare.carSpec;
 
+    // Round trips: tolls, parking and entry tax are always charged extra.
+    if (type === "round") {
+      $("#summaryFareLabel").textContent = "Round trip fare (tolls, parking & entry tax extra)";
+      $("#summaryFareInfo").title = "Tolls, parking & state entry tax extra, paid on actuals";
+      document.querySelectorAll("[data-hide-round]").forEach((el) => { el.hidden = true; });
+      document.querySelectorAll("[data-show-round]").forEach((el) => { el.hidden = false; });
+    }
+
     $("#bfBackToBookCrumb").setAttribute("href", ST.buildUrl("book", flow));
     $("#btnBackToBook").addEventListener("click", () => (window.location.href = ST.buildUrl("book", flow)));
 
@@ -972,7 +989,7 @@
       ...(extras.length ? extras : []),
       "──────────────────────────",
       payLine,
-      `*Total:* ₹${Number(b.totalFare).toLocaleString("en-IN")} (all inclusive)`,
+      `*Total:* ₹${Number(b.totalFare).toLocaleString("en-IN")} ${b.type === "round" ? "(tolls, parking & entry tax extra)" : "(all inclusive)"}`,
       "──────────────────────────",
       `*Name:* ${b.name}`,
       `*Mobile:* ${b.phone}`,

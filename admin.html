@@ -113,6 +113,7 @@
     <a href="/" aria-label="Shivrudra Taxi"><img src="logo.webp" alt="Shivrudra Taxi" /></a>
     <div style="display:flex;align-items:center;gap:10px">
       <span id="admWho" class="bf-nav__secure" style="max-width:200px;overflow:hidden;text-overflow:ellipsis">—</span>
+      <button type="button" class="bf-nav__signin" id="admResetPass">Reset password</button>
       <button type="button" class="bf-nav__signin" id="admSignOut">Sign out</button>
     </div>
   </div>
@@ -283,9 +284,9 @@
       <div class="card">
         <h3>Brand &amp; contact</h3>
         <div class="field"><label>Brand name</label><input class="inp" data-path="brand.brand"></div>
-        <div class="field"><label>Phone number (shown on the site)</label><input class="inp" data-path="brand.phoneDisplay" placeholder="+91 60057 91807"></div>
-        <div class="field"><label>Phone number for calls (no spaces, with +91)</label><input class="inp" data-path="brand.phoneTel" placeholder="+916005791807"></div>
-        <div class="field"><label>WhatsApp number (digits only, with 91)</label><input class="inp" data-path="brand.whatsapp" placeholder="916005791807"></div>
+        <div class="field"><label>Phone number (shown on the site)</label><input class="inp" data-path="brand.phoneDisplay" placeholder="+91 86059 53737"></div>
+        <div class="field"><label>Phone number for calls (no spaces, with +91)</label><input class="inp" data-path="brand.phoneTel" placeholder="+918605953737"></div>
+        <div class="field"><label>WhatsApp number (digits only, with 91)</label><input class="inp" data-path="brand.whatsapp" placeholder="918605953737"></div>
       </div>
       <div class="card">
         <h3>Site images</h3>
@@ -840,6 +841,18 @@
 
     $("#admSave").addEventListener("click", save);
     $("#admSignOut").addEventListener("click", function () { fetch("/api/admin-session", { method: "DELETE" }).then(function () { location.href = "/admin-login"; }); });
+    // Sends a Firebase password-reset link to the signed-in admin's inbox.
+    $("#admResetPass").addEventListener("click", function () {
+      var email = $("#admWho").textContent.trim();
+      if (!confirm("Send a password reset link to " + email + "?")) return;
+      var btn = $("#admResetPass");
+      btn.disabled = true;
+      fetch("/api/admin-session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "reset", email: email }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { alert(d.success ? (d.message || "Reset link sent to " + email + ".") : (d.error || "Could not send reset email.")); })
+        .catch(function () { alert("Could not send reset email. Check your connection and try again."); })
+        .then(function () { btn.disabled = false; });
+    });
 
     // live image preview (cars + site images)
     document.addEventListener("input", function (e) {

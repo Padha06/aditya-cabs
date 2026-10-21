@@ -7,9 +7,9 @@
 
 const CONFIG = {
   brand: "Shivrudra Taxi",
-  phoneDisplay: "+91 60057 91807",
-  phoneTel: "+916005791807",
-  whatsapp: "916005791807",          // country code + number, digits only
+  phoneDisplay: "+91 86059 53737",
+  phoneTel: "+918605953737",
+  whatsapp: "918605953737",          // country code + number, digits only
   defaultMessage: "Hi Shivrudra Taxi, I would like to book a one-way cab. Please share availability and the fixed fare."
 };
 

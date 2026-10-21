@@ -11,9 +11,9 @@
 
   const CONFIG = {
     brand: "Shivrudra Taxi",
-    phoneDisplay: "+91 60057 91807",
-    phoneTel: "+916005791807",
-    whatsapp: "916005791807", // country code + number, digits only
+    phoneDisplay: "+91 86059 53737",
+    phoneTel: "+918605953737",
+    whatsapp: "918605953737", // country code + number, digits only
     defaultMessage:
       "Hi Shivrudra Taxi, I would like to book a one-way cab. Please share availability and the fixed fare.",
     upiVpa: "6005791807@upi"
@@ -54,8 +54,8 @@
   ];
 
   const ONEWAY_CARS = {
-    hatchback: { key: "hatchback", name: "HATCHBACK (₹1 Test Fare)", models: "WagonR, Swift · Test Fare ₹1", specs: "1 bag | 4 seats", seats: 4, bags: 1, fuel: "CNG", image: "swift.jpg", popular: true, base: "sedan", factor: 0.88 },
-    sedan:     { key: "sedan",     name: "SEDAN",     models: "Maruti Dzire, Hyundai Aura, Toyota Etios", specs: "2 bags | 4 seats", seats: 4, bags: 2, fuel: "CNG / PETROL", image: "sedan-dzire.jpg", popular: false, base: "sedan", factor: 1 },
+    hatchback: { key: "hatchback", name: "HATCHBACK", models: "WagonR, i20, Celerio, Swift, etc.", specs: "1 bag | 4 seats", seats: 4, bags: 1, fuel: "CNG", image: "swift.jpg", popular: false, base: "sedan", factor: 0.88 },
+    sedan:     { key: "sedan",     name: "SEDAN",     models: "Maruti Dzire, Hyundai Aura, Toyota Etios", specs: "2 bags | 4 seats", seats: 4, bags: 2, fuel: "CNG / PETROL", image: "sedan-dzire.jpg", popular: true, base: "sedan", factor: 1 },
     suv:       { key: "suv",       name: "SUV",       models: "Maruti Ertiga, Kia Carens, Mahindra Marazzo", specs: "4 bags | 6 seats", seats: 6, bags: 4, fuel: "CNG / DIESEL", image: "innova-hycross.jpg", popular: false, base: "suv", factor: 1 },
     crysta:    { key: "crysta",    name: "INNOVA CRYSTA (VIP)", models: "Toyota Innova Crysta / Hycross - Captain Seats", specs: "4 large bags | 7 seats", seats: 7, bags: 4, fuel: "DIESEL", image: "suv-thumb.webp", popular: false, base: "suv", factor: 1.25 }
   };
@@ -159,7 +159,6 @@
   };
 
   function getCarFare(carKey, from, to) {
-    if (carKey === "hatchback") return 1; // Test fare ₹1
     const r = findRoute(from, to);
     const car = ONEWAY_CARS[carKey] || ONEWAY_CARS.sedan;
     const key = car.key || carKey || "sedan";
@@ -199,7 +198,6 @@
 
   function planFare(flow) {
     const base = computeFare(flow).total;
-    if (base <= 10) return base; // Test mode: keep ₹1 exactly
     return flow.plan === "flexi" ? base + 100 : base;
   }
 
