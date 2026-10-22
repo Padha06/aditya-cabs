@@ -40,6 +40,14 @@ module.exports = async (req, res) => {
       const body = await parseBody(req);
       const config = body.config;
       if (!config || typeof config !== 'object') return res.status(400).json({ success: false, error: 'Missing config.' });
+      if (config.brand && typeof config.brand === 'object') {
+        if (config.brand.whatsapp) {
+          let w = String(config.brand.whatsapp).replace(/\D/g, '');
+          if (w.startsWith('0') && w.length === 11) w = w.slice(1);
+          if (w.length === 10) w = '91' + w;
+          config.brand.whatsapp = w || '918605953737';
+        }
+      }
       config.updatedAt = new Date().toISOString();
       config.updatedBy = admin.email;
       await setDoc('config/site', config);

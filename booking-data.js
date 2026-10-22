@@ -16,7 +16,7 @@
     whatsapp: "918605953737", // country code + number, digits only
     defaultMessage:
       "Hi Shivrudra Taxi, I would like to book a one-way cab. Please share availability and the fixed fare.",
-    upiVpa: "6005791807@upi"
+    upiVpa: "8605953737@upi"
   };
 
   const CITIES = {
@@ -259,8 +259,16 @@
     return { total: getCarFare(flow.car, flow.from, flow.to), kind: "oneway", title: `${cityName(flow.from)} to ${cityName(flow.to)}`, meta: car.specs, carLabel: car.name, carSpec: car.specs, carImage: car.image };
   }
 
+  function cleanWhatsAppNumber(phone) {
+    let digits = String(phone || "8605953737").replace(/\D/g, "");
+    if (digits.startsWith("0") && digits.length === 11) digits = digits.slice(1);
+    if (digits.length === 10) digits = "91" + digits;
+    return digits || "918605953737";
+  }
+
   function waUrl(message) {
-    return "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(message);
+    const num = cleanWhatsAppNumber(CONFIG.whatsapp);
+    return "https://wa.me/" + num + "?text=" + encodeURIComponent(message);
   }
 
   /* -------- date formatting -------- */
@@ -449,7 +457,10 @@
   // Apply admin-edited config over the built-in defaults.
   function applyConfig(cfg) {
     if (!cfg || typeof cfg !== "object") return;
-    if (cfg.brand && typeof cfg.brand === "object") Object.assign(CONFIG, cfg.brand);
+    if (cfg.brand && typeof cfg.brand === "object") {
+      Object.assign(CONFIG, cfg.brand);
+      if (CONFIG.whatsapp) CONFIG.whatsapp = cleanWhatsAppNumber(CONFIG.whatsapp);
+    }
     if (cfg.images && typeof cfg.images === "object") { Object.assign(SITE_IMAGES, cfg.images); applySiteImages(SITE_IMAGES); }
     if (cfg.cities && typeof cfg.cities === "object") { Object.keys(CITIES).forEach((k) => delete CITIES[k]); Object.assign(CITIES, cfg.cities); }
     if (Array.isArray(cfg.routes)) {

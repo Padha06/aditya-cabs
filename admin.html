@@ -1107,6 +1107,13 @@
       }
     });
 
+    if (C.brand && C.brand.whatsapp) {
+      var w = String(C.brand.whatsapp).replace(/\D/g, "");
+      if (w.startsWith("0") && w.length === 11) w = w.slice(1);
+      if (w.length === 10) w = "91" + w;
+      C.brand.whatsapp = w || "918605953737";
+    }
+
     var btn = $("#admSave"), msg = $("#admMsg");
     btn.disabled = true; var old = btn.textContent; btn.textContent = "Saving…";
     fetch("/api/config", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ config: C }) })

@@ -128,13 +128,21 @@ function findRoute(a, b) {
 /* ---------------------------------------------------------------------------
    2. CONTACT LINKS
 --------------------------------------------------------------------------- */
+function cleanWhatsAppNumber(phone) {
+  let digits = String(phone || "8605953737").replace(/\D/g, "");
+  if (digits.startsWith("0") && digits.length === 11) digits = digits.slice(1);
+  if (digits.length === 10) digits = "91" + digits;
+  return digits || "918605953737";
+}
+
 function waUrl(message) {
-  return `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(message)}`;
+  const num = cleanWhatsAppNumber(CONFIG.whatsapp);
+  return `https://wa.me/${num}?text=${encodeURIComponent(message)}`;
 }
 
 function wireContactLinks() {
   $$("[data-phone-link]").forEach(el => {
-    el.setAttribute("href", "tel:" + CONFIG.phoneTel);
+    el.setAttribute("href", "tel:" + (CONFIG.phoneTel || "+918605953737"));
     // Sync any visible phone number to the configured display value, in place
     // (never append — that duplicated the number).
     const re = /(?:\+91[\s-]?)?\d{5}[\s-]?\d{5}/;
@@ -142,11 +150,16 @@ function wireContactLinks() {
     let node;
     while ((node = walker.nextNode())) {
       if (node.nodeValue && re.test(node.nodeValue)) {
-        node.nodeValue = node.nodeValue.replace(/(?:\+91[\s-]?)?\d{5}[\s-]?\d{5}/g, CONFIG.phoneDisplay);
+        node.nodeValue = node.nodeValue.replace(/(?:\+91[\s-]?)?\d{5}[\s-]?\d{5}/g, CONFIG.phoneDisplay || "+91 86059 53737");
       }
     }
   });
-  $$("[data-wa-link]").forEach(el => el.setAttribute("href", waUrl(CONFIG.defaultMessage)));
+  $$("[data-wa-link]").forEach(el => {
+    const curHref = el.getAttribute("href") || "";
+    const textMatch = curHref.match(/[\?&]text=([^&]+)/);
+    const msg = textMatch ? decodeURIComponent(textMatch[1]) : CONFIG.defaultMessage;
+    el.setAttribute("href", waUrl(msg));
+  });
 }
 
 /* ---------------------------------------------------------------------------
@@ -3545,7 +3558,7 @@ function syncCitiesToLocations(citiesDict) {
           if (cfg.brand.brand) CONFIG.brand = cfg.brand.brand;
           if (cfg.brand.phoneDisplay) CONFIG.phoneDisplay = cfg.brand.phoneDisplay;
           if (cfg.brand.phoneTel) CONFIG.phoneTel = cfg.brand.phoneTel;
-          if (cfg.brand.whatsapp) CONFIG.whatsapp = cfg.brand.whatsapp;
+          if (cfg.brand.whatsapp) CONFIG.whatsapp = cleanWhatsAppNumber(cfg.brand.whatsapp);
           wireContactLinks();
         }
 
