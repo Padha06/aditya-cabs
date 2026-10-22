@@ -1528,6 +1528,16 @@ function initBooking() {
   const urgentChk = $("#urgentBookingCheck");
   if (urgentChk) urgentChk.addEventListener("change", e => { bookState.urgent = e.target.checked; });
 
+  // Open native pickers when tapping anywhere inside date/time select wrapper
+  document.addEventListener("click", e => {
+    const wrap = e.target.closest(".select");
+    if (!wrap) return;
+    const inp = wrap.querySelector("input[type='date'], input[type='time']");
+    if (inp && e.target !== inp && typeof inp.showPicker === "function") {
+      try { inp.showPicker(); } catch (_) {}
+    }
+  });
+
   // CHECK FARE BUTTON -> Dedicated booking funnel (Step 1: /cabs)
   const btnCheckFare = $("#btnCheckFare");
   if (btnCheckFare) {
