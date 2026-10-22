@@ -327,8 +327,8 @@
   .bf-page .bf-crumb-sep { min-height: 44px; display: flex; align-items: center; }
   .bf-page .btn-verify-wa-inline { min-height: 44px; padding: 10px 14px; }
   .bf-page .addr-tag { min-height: 44px; padding: 10px 14px; font-size: .74rem; }
-  .bf-page .btn-select-cab { min-height: 46px; }
-  .bf-page .btn-choose-plan { min-height: 44px; }
+  .bf-page .btn-select-cab { min-height: 46px; white-space: nowrap !important; flex-shrink: 0 !important; overflow-wrap: normal !important; word-break: normal !important; }
+  .bf-page .btn-choose-plan { min-height: 44px; white-space: nowrap !important; flex-shrink: 0 !important; overflow-wrap: normal !important; word-break: normal !important; }
   .bf-page .btn-otp-confirm { min-height: 46px; }
   .bf-page .btn-apply-coupon { min-height: 44px; }
   .bf-page .btn-change-cab { min-height: 38px; }
@@ -359,6 +359,7 @@
   .bf-page .oneway-crumb { font-size: .74rem; }
   .bf-page .cab-thumb { width: 56px; height: 38px; }
   .bf-page .cab-price-num { font-size: 1.15rem; }
+  .bf-page .btn-select-cab { padding: 9px 14px !important; font-size: .82rem !important; white-space: nowrap !important; flex-shrink: 0 !important; }
   .bf-page .btn-verify-wa-inline { padding: 9px 10px; }
   .bf-page .btn-verify-wa-inline span { font-size: .68rem; }
   .bf-page .oneway-route-schedule { font-size: .72rem; }
@@ -407,10 +408,11 @@
   /* cab cards stack so the model text + price + button never overflow */
   .bf-page .oneway-cab-card { flex-direction: column; align-items: stretch; gap: 12px; padding: 14px; }
   .bf-page .cab-left { width: 100%; }
-  .bf-page .cab-right { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; }
-  .bf-page .cab-pricing { text-align: left; }
+  .bf-page .cab-right { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; gap: 12px; }
+  .bf-page .cab-pricing { text-align: left; flex: 1 1 auto; min-width: 0; }
   .bf-page .cab-price-num { font-size: 1.25rem; }
-  .bf-page .btn-select-cab { padding: 10px 20px !important; }
+  .bf-page .cab-price-sub { font-size: .68rem; line-height: 1.35; color: #64748B; display: block; word-break: normal; }
+  .bf-page .btn-select-cab { padding: 10px 18px !important; font-size: .88rem !important; white-space: nowrap !important; flex-shrink: 0 !important; overflow-wrap: normal !important; word-break: normal !important; }
 
   .bf-page .oneway-help-strip { flex-wrap: wrap; }
   .bf-page .selected-cab-strip { flex-wrap: wrap; }

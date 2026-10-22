@@ -2978,7 +2978,8 @@ body.rmodal-open{overflow:hidden}
 .cab-pricing{text-align:right}
 .cab-price-num{font-family:var(--font-d);font-size:1.35rem;font-weight:900;color:#0088EA;letter-spacing:-.02em;display:block}
 .cab-price-sub{font-size:.66rem;color:#94A3B8;font-weight:600}
-.btn-select-cab{padding:8px 24px !important;font-size:.88rem !important;border-radius:10px !important}
+.btn-select-cab{padding:8px 24px !important;font-size:.88rem !important;border-radius:10px !important;white-space:nowrap !important;flex-shrink:0 !important;overflow-wrap:normal !important;word-break:normal !important}
+.btn-select-cab .ic{flex-shrink:0}
 
 /* 24x7 Help Strip (Screenshot 2) */
 .oneway-help-strip{
@@ -3034,7 +3035,8 @@ body.rmodal-open{overflow:hidden}
 .plan-amount{font-family:var(--font-d);font-size:1.45rem;font-weight:900;color:#0F172A;letter-spacing:-.02em}
 [data-theme="dark"] .plan-amount{color:#FFF}
 .plan-taxnote{font-size:.70rem;color:#64748B;display:block}
-.btn-choose-plan{padding:9px 26px !important;font-size:.9rem !important;letter-spacing:.02em}
+.btn-choose-plan{padding:9px 26px !important;font-size:.9rem !important;letter-spacing:.02em;white-space:nowrap !important;flex-shrink:0 !important;overflow-wrap:normal !important;word-break:normal !important}
+.btn-choose-plan .ic{flex-shrink:0}
 
 /* Screen 3: /summary (Screenshot 4) */
 .summary-top-card{
