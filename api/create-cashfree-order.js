@@ -59,7 +59,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    const host = req.headers['x-forwarded-host'] || req.headers.host || 'shivrudrataxi.com';
+    const host = req.headers['x-forwarded-host'] || req.headers.host || 'shivrudracabs.com';
     const proto = req.headers['x-forwarded-proto'] || 'https';
     const returnUrl = `${proto}://${host}/summary.html?order_id={order_id}`;
 
@@ -80,7 +80,7 @@ module.exports = async (req, res) => {
         customer_id: customerId.slice(0, 50),
         customer_name: (notes.name || customer.name || 'Valued Passenger').slice(0, 50),
         customer_phone: cleanPhone,
-        customer_email: (customer.email || 'bookings@shivrudrataxi.com').slice(0, 100)
+        customer_email: (customer.email || 'bookings@shivrudracabs.com').slice(0, 100)
       },
       order_meta: {
         return_url: returnUrl

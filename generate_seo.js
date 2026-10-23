@@ -35,7 +35,7 @@ pairs.forEach(([from, to]) => {
 const htmlTemplate = fs.readFileSync('index.html', 'utf8');
 
 const sitemapUrls = [];
-const baseUrl = 'https://shivrudrataxi.com';
+const baseUrl = 'https://www.shivrudracabs.com';
 
 sitemapUrls.push(`${baseUrl}/`);
 

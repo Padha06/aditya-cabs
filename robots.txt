@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://shivrudrataxi.com/sitemap.xml
+Sitemap: https://www.shivrudracabs.com/sitemap.xml
