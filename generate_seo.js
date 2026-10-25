@@ -450,6 +450,8 @@ routes.forEach(route => {
           schemaData[0].name = `Shivrudra Cabs - ${route.from} to ${route.to} Cab Service`;
           schemaData[0].description = `Fixed-fare one-way cab from ${route.from} to ${route.to} (~${km} km, ${time}) with Shivrudra Cabs. AC Sedan ₹${sed.toLocaleString('en-IN')}, AC SUV ₹${suv.toLocaleString('en-IN')}. All expressway tolls included. 24x7 WhatsApp dispatch.`;
           schemaData[0].url = url;
+          schemaData[0].image = 'https://www.shivrudracabs.com/featured-cab.jpg';
+          schemaData[0].logo = 'https://www.shivrudracabs.com/favicon-192x192.png';
           schemaData[0].hasOfferCatalog = {
             "@type": "OfferCatalog",
             "name": `${route.from} to ${route.to} One-Way Cab Options`,
