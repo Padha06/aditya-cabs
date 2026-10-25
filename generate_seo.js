@@ -361,8 +361,8 @@ routes.forEach(route => {
   const url = `${baseUrl}/${slug}`;
   sitemapUrls.push(url);
 
-  const title = `One-Way Cab ${route.from} to ${route.to} | Shivrudra Taxi`;
-  const description = `Book a one-way cab from ${route.from} to ${route.to} with Shivrudra Taxi. Fixed fares, 24x7 service, sedan and SUV options. Door-to-door taxi pickup.`;
+  const title = `One-Way Cab ${route.from} to ${route.to} | Shivrudra Cabs`;
+  const description = `Book a one-way cab from ${route.from} to ${route.to} with Shivrudra Cabs. All-inclusive fixed fares, 24x7 service, AC sedan & SUV options. Door-to-door pickup.`;
   const h1 = `Cab from ${route.from} to ${route.to}`;
 
   let pageHtml = templateWithFooter;
@@ -391,10 +391,17 @@ routes.forEach(route => {
   // Update Schema JSON-LD
   const schemaMatch = pageHtml.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   if (schemaMatch) {
-    const schemaObj = JSON.parse(schemaMatch[1]);
-    schemaObj.description = description;
-    schemaObj.url = url;
-    pageHtml = pageHtml.replace(schemaMatch[1], JSON.stringify(schemaObj, null, 2) + '\n');
+    try {
+      const schemaData = JSON.parse(schemaMatch[1]);
+      if (Array.isArray(schemaData)) {
+        if (schemaData[0]) {
+          schemaData[0].name = `Shivrudra Cabs - ${route.from} to ${route.to} Cab Service`;
+          schemaData[0].description = description;
+          schemaData[0].url = url;
+        }
+        pageHtml = pageHtml.replace(schemaMatch[1], '\n' + JSON.stringify(schemaData, null, 2) + '\n');
+      }
+    } catch (e) {}
   }
 
   // Pre-fill the form selects if possible (this requires client-side JS modification, but we can set defaults dynamically via a small script)
@@ -578,7 +585,7 @@ const hubItems = routes.map((r, i) => {
   return `      {"@type": "ListItem", "position": ${i + 1}, "name": "${r.from} to ${r.to} cab", "url": "${u}"}`;
 }).join(",\n");
 hubPage = hubPage.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,
-  `<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ItemList", "name": "Shivrudra Taxi one-way cab routes", "numberOfItems": ${routes.length}, "itemListElement": [\n${hubItems}\n    ]}</script>`);
+  `<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ItemList", "name": "Shivrudra Cabs one-way intercity routes", "numberOfItems": ${routes.length}, "itemListElement": [\n${hubItems}\n    ]}</script>`);
 fs.writeFileSync('routes.html', hubPage);
 
 // Generate Sitemap
@@ -589,8 +596,29 @@ ${sitemapUrls.map(url => `  <url>\n    <loc>${url}</loc>\n    <changefreq>weekly
 
 fs.writeFileSync('sitemap.xml', sitemapXml);
 
-// Generate Robots.txt
+// Generate Robots.txt with full search engine and AI crawler permissions (GEO standard)
 const robotsTxt = `User-agent: *
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
 Allow: /
 
 Sitemap: ${baseUrl}/sitemap.xml`;

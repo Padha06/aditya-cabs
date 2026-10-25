@@ -25,6 +25,12 @@
       "skillPath": "mobile-webapp-ux/SKILL.md",
       "computedHash": "b145a1c3441258836d870fd89099a91ed03948d8ba62d6378ae412722ff3345e"
     },
+    "seo-geo": {
+      "source": "resciencelab/opc-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo-geo/SKILL.md",
+      "computedHash": "1d38520f453282af8712874c360e3e34a379827f737fb536bd45055e2d60d964"
+    },
     "superdesign": {
       "source": "cskwork/superdesign-skill",
       "sourceType": "github",
