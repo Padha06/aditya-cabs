@@ -1151,16 +1151,26 @@ function initRoundTrip() {
   let currentRate = 12;
   let currentCarName = "Sedan (Dzire / Aura)";
 
-  const startEl = $("#roundStart"), retEl = $("#roundReturn");
-  if (startEl && !startEl.value) {
-    const t = new Date();
-    t.setDate(t.getDate() + 1);
-    startEl.value = t.toISOString().slice(0, 10);
+  const startEl = $("#roundStart"), retEl = $("#roundReturn"), timeEl = $("#roundTime");
+  const todayStr = new Date().toISOString().slice(0, 10);
+  if (startEl) {
+    startEl.min = todayStr;
+    if (!startEl.value) {
+      const t = new Date();
+      t.setDate(t.getDate() + 1);
+      startEl.value = t.toISOString().slice(0, 10);
+    }
   }
-  if (retEl && !retEl.value) {
-    const t = new Date();
-    t.setDate(t.getDate() + 2);
-    retEl.value = t.toISOString().slice(0, 10);
+  if (retEl) {
+    if (startEl && startEl.value) retEl.min = startEl.value;
+    if (!retEl.value) {
+      const t = new Date();
+      t.setDate(t.getDate() + 2);
+      retEl.value = t.toISOString().slice(0, 10);
+    }
+  }
+  if (timeEl && !timeEl.value) {
+    timeEl.value = "08:00";
   }
 
   setupAutocomplete("#roundFromInput", "#roundFromDropdown", (id, name) => {
@@ -1220,7 +1230,17 @@ function initRoundTrip() {
     }
   }
 
-  if (startEl) startEl.addEventListener("change", recalc);
+  if (startEl) {
+    startEl.addEventListener("change", () => {
+      if (retEl) {
+        retEl.min = startEl.value;
+        if (retEl.value && retEl.value < startEl.value) {
+          retEl.value = startEl.value;
+        }
+      }
+      recalc();
+    });
+  }
   if (retEl) retEl.addEventListener("change", recalc);
 
   const carCards = Array.from(document.querySelectorAll(".rt-car-card"));
@@ -1254,13 +1274,14 @@ function initRoundTrip() {
       let rt = toSel ? toSel.value : (bookState.roundTo || "sambhajinagar");
       if (rt === "custom") rt = to;
       const rc = document.querySelector('input[name="roundCls"]:checked');
+      const timeVal = (timeEl && timeEl.value) || ($("#roundTime") && $("#roundTime").value) || bookState.time || "08:00";
       goToFunnel("round", {
         from: rf,
         to: rt,
         car: rc ? rc.value : "sedan",
         rdate: ($("#roundReturn") && $("#roundReturn").value) || "",
         date: ($("#roundStart") && $("#roundStart").value) || bookState.date,
-        time: bookState.time || "08:00"
+        time: timeVal
       });
       void currentCarName; void currentRate;
     });
@@ -1287,14 +1308,21 @@ function initCarSharing() {
   const fareEl = $("#sharingTotalFare");
   const badgeEl = $("#sharingFareBadge");
   const dateEl = $("#sharingDate");
+  const timeEl = $("#sharingTime");
   const customWrap = $("#sharingCustomWrap");
 
   if (!routeHidden && !routeInput) return;
 
-  if (dateEl && !dateEl.value) {
-    const t = new Date();
-    t.setDate(t.getDate() + 1);
-    dateEl.value = t.toISOString().slice(0, 10);
+  if (dateEl) {
+    dateEl.min = new Date().toISOString().slice(0, 10);
+    if (!dateEl.value) {
+      const t = new Date();
+      t.setDate(t.getDate() + 1);
+      dateEl.value = t.toISOString().slice(0, 10);
+    }
+  }
+  if (timeEl && !timeEl.value) {
+    timeEl.value = "07:00";
   }
 
   function recalc() {
@@ -1342,12 +1370,13 @@ function initCarSharing() {
       }
       const seats = seatsSel ? seatsSel.value : "1";
       const dateVal = ($("#sharingDate") && $("#sharingDate").value) || bookState.date;
+      const timeVal = (timeEl && timeEl.value) || ($("#sharingTime") && $("#sharingTime").value) || "07:00";
 
       goToFunnel("share", {
         route: isCustom ? "" : routeId,
         seats: seats,
         date: dateVal,
-        time: "07:00"
+        time: timeVal
       });
       void routeText;
     });

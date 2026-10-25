@@ -453,13 +453,18 @@
               </div>
             </fieldset>
 
-            <div class="field">
-              <label for="localDate">DATE & TIME</label>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="datetime-row">
+              <div class="field">
+                <label for="localDate">DATE</label>
                 <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>
                   <input id="localDate" type="date" />
                 </div>
+              </div>
+              <div class="field">
+                <label for="localTime">TIME</label>
                 <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>
                   <input id="localTime" type="time" value="09:00" />
                 </div>
               </div>
@@ -507,18 +512,28 @@
               <input type="hidden" id="roundTo" value="sambhajinagar" />
             </div>
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="datetime-row">
               <div class="field">
-                <label for="roundStart">DEPARTURE</label>
+                <label for="roundStart">DEPARTURE DATE</label>
                 <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>
                   <input id="roundStart" type="date" />
                 </div>
               </div>
               <div class="field">
-                <label for="roundReturn">RETURN DATE</label>
+                <label for="roundTime">PICKUP TIME</label>
                 <div class="select">
-                  <input id="roundReturn" type="date" />
+                  <svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>
+                  <input id="roundTime" type="time" value="08:00" />
                 </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="roundReturn">RETURN DATE</label>
+              <div class="select">
+                <svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>
+                <input id="roundReturn" type="date" />
               </div>
             </div>
 
@@ -609,22 +624,32 @@
               </div>
             </div>
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-              <div class="field">
-                <label for="sharingSeats">SEATS (MAX 3)</label>
-                <div class="select">
-                  <select id="sharingSeats">
-                    <option value="1" selected>1 Passenger (1 Seat)</option>
-                    <option value="2">2 Passengers (2 Seats)</option>
-                    <option value="3">3 Passengers (3 Seats)</option>
-                  </select>
-                  <svg class="ic ic--chev" aria-hidden="true"><use href="#i-chev"/></svg>
-                </div>
+            <div class="field">
+              <label for="sharingSeats">PASSENGERS / SEATS (MAX 3)</label>
+              <div class="select">
+                <svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>
+                <select id="sharingSeats">
+                  <option value="1" selected>1 Passenger (1 Seat)</option>
+                  <option value="2">2 Passengers (2 Seats)</option>
+                  <option value="3">3 Passengers (3 Seats)</option>
+                </select>
+                <svg class="ic ic--chev" aria-hidden="true"><use href="#i-chev"/></svg>
               </div>
+            </div>
+
+            <div class="datetime-row">
               <div class="field">
                 <label for="sharingDate">TRAVEL DATE</label>
                 <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>
                   <input id="sharingDate" type="date" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="sharingTime">PICKUP TIME</label>
+                <div class="select">
+                  <svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>
+                  <input id="sharingTime" type="time" value="07:00" />
                 </div>
               </div>
             </div>
