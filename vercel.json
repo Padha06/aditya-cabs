@@ -4,5 +4,33 @@
     "api/create-cashfree-order.js": {
       "includeFiles": "booking-data.js"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/sitemap",
+      "destination": "/sitemap.xml",
+      "permanent": false
+    },
+    {
+      "source": "/site.xml",
+      "destination": "/sitemap.xml",
+      "permanent": false
+    },
+    {
+      "source": "/sitemap_index.xml",
+      "destination": "/sitemap.xml",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        }
+      ]
+    }
+  ]
 }
