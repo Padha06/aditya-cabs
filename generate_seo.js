@@ -344,6 +344,52 @@ ${steps}
           <a class="rdetail__rev" href="/${revSlug}" data-i18n-route="${bId}|${aId}">${B} to ${A} cab</a>
         </div>
       </div>
+
+      <!-- ROUTE SPECIFIC FAQ FOR SEO & GEO -->
+      <div class="rdetail__faq" data-reveal style="margin-top:32px;padding-top:24px;border-top:1px solid var(--line-2)">
+        <h3 style="font-size:1.18rem;margin-bottom:14px">Frequently Asked Questions: ${A} to ${B} Cab</h3>
+        <div class="faq-list">
+          <details class="qa" open style="margin-bottom:10px">
+            <summary>
+              <span>What is the one-way cab fare from ${A} to ${B}?</span>
+              <svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>
+            </summary>
+            <div class="qa__body">
+              The fixed one-way cab fare from ${A} to ${B} starts at <b>${inr(sed)}</b> for an AC Sedan (Dzire, Aura, Etios) and <b>${inr(suv)}</b> for an AC SUV (Ertiga, Kia Carens, Innova Crysta). All expressway and highway toll taxes, driver allowance, and doorstep pickup are 100% included with zero return fare.
+            </div>
+          </details>
+
+          <details class="qa" style="margin-bottom:10px">
+            <summary>
+              <span>How much distance and time does a cab take from ${A} to ${B}?</span>
+              <svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>
+            </summary>
+            <div class="qa__body">
+              The road distance from ${A} to ${B} is approximately <b>${km} km</b> ${via[0]}. Under normal traffic conditions, it takes about <b>${time}</b> door-to-door.
+            </div>
+          </details>
+
+          <details class="qa" style="margin-bottom:10px">
+            <summary>
+              <span>Are toll charges and parking included in the ${A} to ${B} fare?</span>
+              <svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>
+            </summary>
+            <div class="qa__body">
+              Yes, all toll plaza fees, parking charges, and driver allowances are included in the ${inr(sed)} / ${inr(suv)} fixed fare. There are strictly zero hidden costs.
+            </div>
+          </details>
+
+          <details class="qa" style="margin-bottom:10px">
+            <summary>
+              <span>How can I book an urgent cab from ${A} to ${B}?</span>
+              <svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>
+            </summary>
+            <div class="qa__body">
+              You can book instantly on WhatsApp or call our 24x7 dispatch at <a href="tel:+918605953737" style="color:var(--accent-text);font-weight:700">+91 86059 53737</a>. We dispatch cabs within 15 to 30 minutes across ${A}.
+            </div>
+          </details>
+        </div>
+      </div>
     </div>
     <script type="application/ld+json">${JSON.stringify(bc)}</script>
   </section>
@@ -392,12 +438,71 @@ routes.forEach(route => {
   const schemaMatch = pageHtml.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   if (schemaMatch) {
     try {
+      const aId = NAME_TO_ID[route.from.toLowerCase()], bId = NAME_TO_ID[route.to.toLowerCase()];
+      const kt = ktOf(route.from.toLowerCase(), route.to.toLowerCase()) || [150, "3h 30m", 2799, 3199];
+      const via = (VIA && VIA[aId + '|' + bId]) || ['via national highway', 'महामार्गाने'];
+      const [km, time, sed, suv] = kt;
+
       const schemaData = JSON.parse(schemaMatch[1]);
       if (Array.isArray(schemaData)) {
         if (schemaData[0]) {
           schemaData[0].name = `Shivrudra Cabs - ${route.from} to ${route.to} Cab Service`;
-          schemaData[0].description = description;
+          schemaData[0].description = `Fixed-fare one-way cab from ${route.from} to ${route.to} (~${km} km, ${time}) with Shivrudra Cabs. AC Sedan ₹${sed.toLocaleString('en-IN')}, AC SUV ₹${suv.toLocaleString('en-IN')}. All expressway tolls included. 24x7 WhatsApp dispatch.`;
           schemaData[0].url = url;
+          schemaData[0].hasOfferCatalog = {
+            "@type": "OfferCatalog",
+            "name": `${route.from} to ${route.to} One-Way Cab Options`,
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": { "@type": "Service", "name": `${route.from} to ${route.to} AC Sedan (Dzire, Aura)` },
+                "price": String(sed),
+                "priceCurrency": "INR"
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": { "@type": "Service", "name": `${route.from} to ${route.to} AC SUV (Ertiga, Crysta)` },
+                "price": String(suv),
+                "priceCurrency": "INR"
+              }
+            ]
+          };
+        }
+        if (schemaData[1] && schemaData[1]['@type'] === 'FAQPage') {
+          schemaData[1].mainEntity = [
+            {
+              "@type": "Question",
+              "name": `What is the one-way cab fare from ${route.from} to ${route.to}?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `The fixed one-way cab fare from ${route.from} to ${route.to} starts at ₹${sed.toLocaleString('en-IN')} for an AC Sedan and ₹${suv.toLocaleString('en-IN')} for an AC SUV, including all highway tolls, driver allowance, and doorstep pickup.`
+              }
+            },
+            {
+              "@type": "Question",
+              "name": `How long does it take by cab from ${route.from} to ${route.to}?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `The trip covers approximately ${km} km ${via[0]} and usually takes about ${time} door-to-door.`
+              }
+            },
+            {
+              "@type": "Question",
+              "name": `Are tolls included in the ${route.from} to ${route.to} cab fare?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `Yes, all expressway and highway tolls are 100% included in the fixed fare. There are zero return fares and zero hidden charges.`
+              }
+            },
+            {
+              "@type": "Question",
+              "name": `How to book an urgent cab from ${route.from} to ${route.to}?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `You can book on WhatsApp or call 24x7 dispatch at +91 86059 53737. Urgent cabs are dispatched within 15–30 minutes.`
+              }
+            }
+          ];
         }
         pageHtml = pageHtml.replace(schemaMatch[1], '\n' + JSON.stringify(schemaData, null, 2) + '\n');
       }
@@ -471,7 +576,7 @@ routes.forEach(route => {
     if (closeIdx === -1) throw new Error('section close missing for ' + id + ' on ' + slug);
     return html.slice(0, openIdx) + html.slice(closeIdx + '</section>'.length);
   };
-  ['live', 'routes', 'pool', 'fleet', 'why', 'how', 'reviews', 'network', 'truststrip'].forEach(id => { pageHtml = stripById(pageHtml, id); });
+  ['live', 'routes', 'pool', 'fleet', 'why', 'how', 'reviews', 'network', 'truststrip', 'faq'].forEach(id => { pageHtml = stripById(pageHtml, id); });
   const RMODAL_OPEN = '<!-- ============ ROUTE DETAIL MODAL ============ -->';
   const FLOATERS_OPEN = '<!-- ============ FLOATING CTAs ============ -->';
   {
