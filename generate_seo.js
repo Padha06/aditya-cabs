@@ -140,7 +140,7 @@ const CITY_INFO = {
   pune: {
     about: ['Pune mixes the old-city wadas and Koregaon Park cafes with IT hubs in Hinjewadi and Kharadi, and it is the usual starting point for ghat getaways',
       'पुण्यात जुने शहर, कोरेगांवपार्कची कॅफे, हिंजवडी-खराडी IT हब आणि घाटांसाठी सामान्य प्रवासाची सुरुवात असते'],
-    pickup: ['Kothrud, Baner, Hinjewadi, Viman Nagar, the railway station and Pune airport',
+    pickup: ['Hinjawadi (Phase 1, 2, 3), Wakad, Baner, Kothrud, Viman Nagar, Kharadi, Hadapsar, Magarpatta, Pune Station & Pune Airport (PNQ)',
       'कोथरूड, बाणेर, हिंजवडी, विमाननगर, रेल्वे स्थानक आणि पुणे विमानतळ'],
     tip: ['depart before 8 am to clear the city rush.',
       'शहराची गल्ली टाळण्यासाठी सकाळी ८ वाजेपूर्वी निघा.']
@@ -148,7 +148,7 @@ const CITY_INFO = {
   mumbai: {
     about: ['Mumbai runs on Marine Drive, both airport terminals, the Bandra-Andheri business belt and the coastal road, with pickups possible at any hour',
       'मुंबईत मरीन ड्राईव्ह, दोन्ही विमानतळे, बांद्रा-अंधेरी व्यावसायिक पट्टी आणि कोस्टल रोड आहे; कोणत्याही वेळी पिकअप शक्य आहे'],
-    pickup: ['Bandra, Andheri, Powai, Dadar, CSMT and both airport terminals',
+    pickup: ['Mumbai Airport (T1 & T2), Dadar, Borivali, Andheri, Bandra, BKC, Thane, Vashi, Panvel and CSMT',
       'बांद्रा, अंधेरी, पवई, दादर, सीएसएमटी आणि दोन्ही विमानतळे'],
     tip: ['start after the morning peak; weekend evenings are busiest.',
       'सकाळच्या गर्दीनंतर निघा; आठवड्याच्या अखेरच्या संध्याकाळी सर्वाधिक प्रवास असतो.']
@@ -156,7 +156,7 @@ const CITY_INFO = {
   sambhajinagar: {
     about: ['Chhatrapati Sambhajinagar is the gateway to Ellora and Ajanta, Bibi ka Maqbara and the Samruddhi corridor into Marathwada',
       'छत्रपती संभाजीनगर हे एळोरा-अजंठा, बीबी का मकबरा आणि मराठवाड्यातील समृद्धी विभागाचे प्रवेशद्वार आहे'],
-    pickup: ['CIDCO, Chikalthana airport, the railway station and the old city',
+    pickup: ['CIDCO, Chikalthana Airport, Kranti Chowk, Railway Station, Waluj MIDC and Beed Bypass',
       'सीआयडीसीओ, चिकलथाणा विमानतळ, रेल्वे स्थानक आणि जुने शहर'],
     tip: ['set out mid-morning, once the city traffic settles.',
       'शहराचा वाहतूक संपल्यावर दुपारी निघा.']
@@ -164,7 +164,7 @@ const CITY_INFO = {
   nashik: {
     about: ['Nashik lines up Trimbakeshwar, Panchavati, the Godavari ghats and vineyards within an easy drive of the city',
       'नाशिकजवळ त्र्यंबकेश्वर, पंचवटी, गोदावरी घाट आणि द्राक्षबाग शहरापासून सहज पोहोचतात'],
-    pickup: ['Gangapur Road, the Central Bus Stand, Trimbak Road and the airport',
+    pickup: ['Gangapur Road, Mumbai Naka, CBS (Central Bus Stand), Trimbak Road, Indira Nagar and Nashik Road Station',
       'गंगापूर रोड, केंद्रीय बस स्थानक, त्र्यंबक रोड आणि विमानतळ'],
     tip: ['leave early on festival days, when the temple roads fill up.',
       'सणाच्या दिवशी लवकर निघा, कारण मंदिराचे रस्ते लवकर भरतात.']
@@ -172,7 +172,7 @@ const CITY_INFO = {
   ahilyanagar: {
     about: ['Ahilyanagar joins the Samruddhi interchange with Ahilya Fort, Siddhivinayak temple and quick access to Shirdi',
       'अहिल्यानगर हे समृद्धी आंतरराष्ट्रीय जोडणी, अहिल्या किल्ला, सिद्धिविनायक मंदिर आणि शिर्डीपर्यंत झपाट्याने पोहोचण्याचे केंद्र आहे'],
-    pickup: ['the city centre, the railway station and the Samruddhi interchange',
+    pickup: ['Savedi, DSP Chowk, Station Road, MIDC, Market Yard and Samruddhi Interchange',
       'शहराचा मध्यभाग, रेल्वे स्थानक आणि समृद्धी आंतरराष्ट्रीय जोडणी'],
     tip: ['any time of day; the junction is quick to cross.',
       'दिवसभर कोणत्याही वेळी; जोडणी ओलांडणे सोपे आहे.']
@@ -180,7 +180,7 @@ const CITY_INFO = {
   shirdi: {
     about: ['Shirdi is built around the Sai Baba temple, with Saibaba Nagar, the bus stand and the Samruddhi exit close by',
       'शिर्डी साईबाबा मंदिराभोवती विकसित झालेले आहे; साईबाबा नगर, बस स्थानक व समृद्धी उतारा जवळचे आहे'],
-    pickup: ['the temple gates, Saibaba Nagar, the bus stand and the Samruddhi exit',
+    pickup: ['Sai Baba Samadhi Temple gates, Saibaba Nagar, Pimpalwadi Road, Shirdi Railway Station and Samruddhi Highway Exit',
       'मंदिराचे दारे, साईबाबा नगर, बस स्थानक आणि समृद्धी उतारा'],
     tip: ['get in before the darshan rush so the day stays easy.',
       'दर्शनाच्या गर्दीपूर्वी पोहोचा, दिवस सोपा जाईल.']
@@ -407,8 +407,9 @@ routes.forEach(route => {
   const url = `${baseUrl}/${slug}`;
   sitemapUrls.push(url);
 
-  const title = `One-Way Cab ${route.from} to ${route.to} | Shivrudra Cabs`;
-  const description = `Book a one-way cab from ${route.from} to ${route.to} with Shivrudra Cabs. All-inclusive fixed fares, 24x7 service, AC sedan & SUV options. Door-to-door pickup.`;
+  const ktRoute = ktOf(route.from.toLowerCase(), route.to.toLowerCase()) || [150, '3h 30m', 2799, 3199];
+  const title = `${route.from} to ${route.to} Cab | Fixed ${inr(ktRoute[2])} (No Return Fare) | Shivrudra Cabs`;
+  const description = `Book ${route.from} to ${route.to} cab from ${inr(ktRoute[2])} with Shivrudra Cabs. All-inclusive fixed fare, zero return fare, toll included. Doorstep pickup across ${route.from}. 24x7 WhatsApp dispatch: +91 86059 53737.`;
   const h1 = `Cab from ${route.from} to ${route.to}`;
 
   let pageHtml = templateWithFooter;
