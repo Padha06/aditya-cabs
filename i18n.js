@@ -24,6 +24,7 @@ const MR = {
   "FAQ": "प्रश्न",
   "How It Works": "कसे चालते",
   "Call 24x7": "२४x७ कॉल करा",
+  "Call for Enquiry": "चौकशीसाठी कॉल करा",
   "Call now": "आता कॉल करा",
   "Book on WhatsApp": "व्हॉट्सअ‍ॅपवर बुक करा",
   "One-Way Taxi, Maharashtra": "वन-वे टॅक्सी, महाराष्ट्र",
