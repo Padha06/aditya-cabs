@@ -1725,11 +1725,12 @@ function translateRouteH1() {
   };
   const a = findId(m[1]), b = findId(m[2]);
   if (!a || !b) return;
-  if (typeof currentLang !== "undefined" && currentLang === "mr") {
-    h1.textContent = `${i18nCity(a)} ${i18nT("to")} ${i18nCity(b)} ${i18nT("cab")}`;
-  } else {
-    h1.textContent = h1.dataset.orig;
-  }
+  const next = (typeof currentLang !== "undefined" && currentLang === "mr")
+    ? `${i18nCity(a)} ${i18nT("to")} ${i18nCity(b)} ${i18nT("cab")}`
+    : h1.dataset.orig;
+  // Only touch the DOM when the text changes: rewriting the English H1 with
+  // itself re-paints it late and pushes back the page's LCP.
+  if (h1.textContent !== next) h1.textContent = next;
 }
 
 // Route detail copy ships in data-en / data-mr so both languages are static
