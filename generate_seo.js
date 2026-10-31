@@ -615,10 +615,10 @@ const ORIGIN_INTROS = {
 };
 const hubUrl = `${baseUrl}/routes`;
 sitemapUrls.push(hubUrl);
-sitemapUrls.push(`${baseUrl}/profile`);
 sitemapUrls.push(`${baseUrl}/share`);
 sitemapUrls.push(`${baseUrl}/privacy`);
 sitemapUrls.push(`${baseUrl}/terms`);
+sitemapUrls.push(`${baseUrl}/refund`);
 
 const origins = [];
 pairs.forEach(([f]) => { if (!origins.includes(f)) origins.push(f); });
@@ -671,13 +671,15 @@ let hubPage = templateWithFooter;
   if (heroIdx === -1 || faqIdx === -1 || heroIdx > faqIdx || opens !== closes || opens < 7) throw new Error('hub slice anchors unsafe');
   hubPage = hubPage.slice(0, heroIdx) + hubHero + hubDir + hubPage.slice(faqIdx);
 }
-// The hub has no booking widget, so footer route links go straight to the
-// dedicated route pages instead of the JS prefill links used on home.
+// The hub has no booking widget, so footer route links drop the JS prefill
+// hook and go straight to the dedicated route pages their href names.
 {
   const SLUG = { pune: "pune", mumbai: "mumbai", sambhajinagar: "chhatrapati-sambhajinagar", nashik: "nashik", ahilyanagar: "ahilyanagar", shirdi: "shirdi", mahabaleshwar: "mahabaleshwar", kolhapur: "kolhapur", lonavala: "lonavala" };
-  hubPage = hubPage.replace(/href="#routes" data-route-link="([a-z]+)\|([a-z]+)"/g, (m, x, y) => {
+  hubPage = hubPage.replace(/href="([^"]*)" data-route-link="([a-z]+)\|([a-z]+)"/g, (m, href, x, y) => {
     if (!SLUG[x] || !SLUG[y]) throw new Error("bad hub route link " + m);
-    return 'href="/' + SLUG[x] + "-to-" + SLUG[y] + '-cab"';
+    const want = "/" + SLUG[x] + "-to-" + SLUG[y] + "-cab";
+    if (href !== want) throw new Error("footer route href " + href + " should be " + want);
+    return 'href="' + want + '"';
   });
 }
 hubPage = hubPage.replace(/<title>.*?<\/title>/, `<title>${hubTitle}</title>`);
