@@ -243,6 +243,38 @@ const RD_ALT = {
   lonavala: 'Karla caves near Lonavala'
 };
 
+// Route FAQ: one list feeds both the visible accordion and the FAQPage
+// JSON-LD, so the schema answers always match what is on the page. `a` is
+// HTML for the page; the schema gets the same text with tags stripped.
+const AIRPORT = { mumbai: 'Mumbai Airport (T1 & T2)', pune: 'Pune Airport (PNQ)', sambhajinagar: 'Chikalthana Airport' };
+function routeFaqs(route) {
+  const A = route.from, B = route.to;
+  const aId = NAME_TO_ID[A.toLowerCase()], bId = NAME_TO_ID[B.toLowerCase()];
+  const [km, time, sed, suv] = ktOf(A.toLowerCase(), B.toLowerCase());
+  const via = VIA[aId + '|' + bId];
+  const faqs = [
+    { q: `What is the one-way cab fare from ${A} to ${B}?`,
+      a: `The fixed one-way cab fare from ${A} to ${B} starts at <b>${inr(sed)}</b> for an AC Sedan (Dzire, Aura, Etios) and <b>${inr(suv)}</b> for an AC SUV (Ertiga, Kia Carens, Innova Crysta). All expressway and highway toll taxes, driver allowance, and doorstep pickup are 100% included with zero return fare.` },
+    { q: `How much distance and time does a cab take from ${A} to ${B}?`,
+      a: `The road distance from ${A} to ${B} is approximately <b>${km} km</b> ${via[0]}. Under normal traffic conditions, it takes about <b>${time}</b> door-to-door.` },
+    { q: `Are toll charges and parking included in the ${A} to ${B} fare?`,
+      a: `Yes, all toll plaza fees, parking charges, and driver allowances are included in the ${inr(sed)} / ${inr(suv)} fixed fare. There are strictly zero hidden costs.` },
+    { q: `Where does the ${A} to ${B} taxi pick up and drop?`,
+      a: `Pickup is from your doorstep anywhere in ${A}, including ${CITY_INFO[aId].pickup[0]}. In ${B} we drop you at your address, including ${CITY_INFO[bId].pickup[0]}.` },
+    { q: `Which car should I book from ${A} to ${B}?`,
+      a: `Book the AC Sedan (${inr(sed)}) for up to 4 passengers with 2-3 bags. Book the AC SUV (${inr(suv)}) for 6-7 passengers or extra luggage. For larger groups we also arrange Tempo Traveller and Urbania on WhatsApp.` },
+    { q: `Is the ${A} to ${B} cab available at night or early morning?`,
+      a: `Yes. Dispatch runs 24x7, so you can book a ${A} to ${B} cab for any time, including late-night and early-morning departures, at the same fixed fare.` }
+  ];
+  const ap = AIRPORT[bId];
+  if (ap) faqs.push({ q: `Can I book a ${A} to ${AIRPORT[bId].replace(/ \(.*\)$/, '')} cab?`,
+    a: `Yes. We drop at ${ap} on the ${A} to ${B} route. Share your flight time on WhatsApp and we plan the pickup so you reach well before check-in.` });
+  faqs.push({ q: `How can I book an urgent cab from ${A} to ${B}?`,
+    a: `You can book instantly on WhatsApp or call our 24x7 dispatch at <a href="tel:+918605953737" style="color:var(--accent-text);font-weight:700">+91 86059 53737</a>. We dispatch cabs within 15 to 30 minutes across ${A}.` });
+  return faqs;
+}
+const stripTags = s => s.replace(/<[^>]+>/g, '');
+
 // The generated detail section: breadcrumb, unique prose, facts, facilities,
 // booking steps and a BreadcrumbList JSON-LD. Both languages ship in the HTML
 // (data-en / data-mr); app.js translateRouteDetail() only swaps which is shown.
@@ -261,7 +293,7 @@ function routeDetailHtml(route) {
   const revSlug = slugOf(B) + '-to-' + slugOf(A) + '-cab';
   const url = baseUrl + '/' + slug;
 
-  const h2en = `About the ${A} to ${B} route`;
+  const h2en = `${A} to ${B} taxi: fare, distance & route`;
   const h2mr = `${an} ते ${bn} मार्गाबद्दल`;
 
   const en = [
@@ -349,45 +381,15 @@ ${steps}
       <div class="rdetail__faq" data-reveal style="margin-top:32px;padding-top:24px;border-top:1px solid var(--line-2)">
         <h3 style="font-size:1.18rem;margin-bottom:14px">Frequently Asked Questions: ${A} to ${B} Cab</h3>
         <div class="faq-list">
-          <details class="qa" open style="margin-bottom:10px">
+${routeFaqs(route).map((f, i) => `          <details class="qa"${i === 0 ? ' open' : ''} style="margin-bottom:10px">
             <summary>
-              <span>What is the one-way cab fare from ${A} to ${B}?</span>
+              <span>${f.q}</span>
               <svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>
             </summary>
             <div class="qa__body">
-              The fixed one-way cab fare from ${A} to ${B} starts at <b>${inr(sed)}</b> for an AC Sedan (Dzire, Aura, Etios) and <b>${inr(suv)}</b> for an AC SUV (Ertiga, Kia Carens, Innova Crysta). All expressway and highway toll taxes, driver allowance, and doorstep pickup are 100% included with zero return fare.
+              ${f.a}
             </div>
-          </details>
-
-          <details class="qa" style="margin-bottom:10px">
-            <summary>
-              <span>How much distance and time does a cab take from ${A} to ${B}?</span>
-              <svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>
-            </summary>
-            <div class="qa__body">
-              The road distance from ${A} to ${B} is approximately <b>${km} km</b> ${via[0]}. Under normal traffic conditions, it takes about <b>${time}</b> door-to-door.
-            </div>
-          </details>
-
-          <details class="qa" style="margin-bottom:10px">
-            <summary>
-              <span>Are toll charges and parking included in the ${A} to ${B} fare?</span>
-              <svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>
-            </summary>
-            <div class="qa__body">
-              Yes, all toll plaza fees, parking charges, and driver allowances are included in the ${inr(sed)} / ${inr(suv)} fixed fare. There are strictly zero hidden costs.
-            </div>
-          </details>
-
-          <details class="qa" style="margin-bottom:10px">
-            <summary>
-              <span>How can I book an urgent cab from ${A} to ${B}?</span>
-              <svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>
-            </summary>
-            <div class="qa__body">
-              You can book instantly on WhatsApp or call our 24x7 dispatch at <a href="tel:+918605953737" style="color:var(--accent-text);font-weight:700">+91 86059 53737</a>. We dispatch cabs within 15 to 30 minutes across ${A}.
-            </div>
-          </details>
+          </details>`).join('\n\n')}
         </div>
       </div>
     </div>
@@ -434,6 +436,14 @@ routes.forEach(route => {
   
   // Replace H1
   pageHtml = pageHtml.replace(/<h1 class="hero__h1" data-hero="1">.*?<\/h1>/, `<h1 class="hero__h1" data-hero="1">${h1}</h1>`);
+
+  // Route-specific hero subtitle (the homepage one names no route).
+  {
+    const [, , sed] = ktOf(route.from.toLowerCase(), route.to.toLowerCase());
+    const subRe = /<p class="hero__sub" data-hero="2">.*?<\/p>/;
+    if (!subRe.test(pageHtml)) throw new Error('hero sub missing on ' + slug);
+    pageHtml = pageHtml.replace(subRe, `<p class="hero__sub" data-hero="2"><span class="sub--full">${route.from} to ${route.to} one-way taxi at a fixed ${inr(sed)}. Toll included, no return fare, doorstep pickup 24x7.</span><span class="sub--short">${route.from} to ${route.to} one-way taxi from ${inr(sed)}. Toll included, no return fare.</span></p>`);
+  }
   
   // Update Schema JSON-LD
   const schemaMatch = pageHtml.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
@@ -472,40 +482,11 @@ routes.forEach(route => {
           };
         }
         if (schemaData[1] && schemaData[1]['@type'] === 'FAQPage') {
-          schemaData[1].mainEntity = [
-            {
-              "@type": "Question",
-              "name": `What is the one-way cab fare from ${route.from} to ${route.to}?`,
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": `The fixed one-way cab fare from ${route.from} to ${route.to} starts at ₹${sed.toLocaleString('en-IN')} for an AC Sedan and ₹${suv.toLocaleString('en-IN')} for an AC SUV, including all highway tolls, driver allowance, and doorstep pickup.`
-              }
-            },
-            {
-              "@type": "Question",
-              "name": `How long does it take by cab from ${route.from} to ${route.to}?`,
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": `The trip covers approximately ${km} km ${via[0]} and usually takes about ${time} door-to-door.`
-              }
-            },
-            {
-              "@type": "Question",
-              "name": `Are tolls included in the ${route.from} to ${route.to} cab fare?`,
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": `Yes, all expressway and highway tolls are 100% included in the fixed fare. There are zero return fares and zero hidden charges.`
-              }
-            },
-            {
-              "@type": "Question",
-              "name": `How to book an urgent cab from ${route.from} to ${route.to}?`,
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": `You can book on WhatsApp or call 24x7 dispatch at +91 86059 53737. Urgent cabs are dispatched within 15–30 minutes.`
-              }
-            }
-          ];
+          schemaData[1].mainEntity = routeFaqs(route).map(f => ({
+            "@type": "Question",
+            "name": f.q,
+            "acceptedAnswer": { "@type": "Answer", "text": stripTags(f.a) }
+          }));
         }
         pageHtml = pageHtml.replace(schemaMatch[1], '\n' + JSON.stringify(schemaData, null, 2) + '\n');
       }
